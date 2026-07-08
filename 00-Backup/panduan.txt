@@ -19,7 +19,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 y
 .\venv\Scripts\Activate
 
-
+a
 
 
 
