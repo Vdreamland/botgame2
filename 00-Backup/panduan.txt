@@ -1,6 +1,6 @@
 git init
 git add .
-git commit -m "Update index"
+git commit -m "Initial commit" atau git commit -m "Update index"
 git push
 
 
