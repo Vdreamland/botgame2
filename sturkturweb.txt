@@ -1,3 +1,14 @@
+/botgame2
+├── .env                           # Berkas konfigurasi variabel lingkungan seperti token bot, URL, dan API key
+├── requirements.txt               # Daftar pustaka/dependencies Python yang dibutuhkan proyek
+├── download_references.py         # Skrip utilitas untuk mengunduh dokumen referensi permainan secara lokal
+├── rungame.py                     # Skrip utama peluncur bot konkuren dengan sistem Gerbang Sinkronisasi Tim
+├── web/                           # Folder khusus untuk visualisasi browser (baru rencana)
+│   ├── index.html                 # Struktur utama halaman dashboard (Layout Grid/Flexbox) (baru rencana)
+│   ├── style.css                  # Tampilan UI bertema game (Dark mode, neon, health bar, dsb) (baru rencana)
+│   ├── web_server.py
+│   └── app.js                     # Logika Javascript: Koneksi WebSocket, parsing JSON, & update UI (baru rencana)
+
 
 Reference :
 actions.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/actions.md
