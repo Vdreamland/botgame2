@@ -1,0 +1,171 @@
+/botgame
+├── .env                           # Berkas konfigurasi variabel lingkungan seperti token bot, URL, dan API key
+├── requirements.txt               # Daftar pustaka/dependencies Python yang dibutuhkan proyek
+├── download_references.py         # Skrip utilitas untuk mengunduh dokumen referensi permainan secara lokal
+├── rungame.py                     # Skrip utama peluncur bot konkuren dengan sistem Gerbang Sinkronisasi Tim
+├── shared_team_memory.json        # Berkas memori tim bersama tempat koordinat, target, dan status bot ditulis secara live
+├── web/                           # Folder khusus untuk visualisasi browser (baru rencana)
+│   ├── index.html                 # Struktur utama halaman dashboard (Layout Grid/Flexbox) (baru rencana)
+│   ├── style.css                  # Tampilan UI bertema game (Dark mode, neon, health bar, dsb) (baru rencana)
+│   ├── web_server.py
+│   └── app.js                     # Logika Javascript: Koneksi WebSocket, parsing JSON, & update UI (baru rencana)
+├── docs/                          # (Tidak ditambahkan keterangan sesuai instruksi Anda)
+│   ├── game-knowledge/
+│   │   └── strategy.md
+│   ├── references/
+│   │   ├── actions.md
+│   │   ├── agent-memory.md
+│   │   ├── agent-token.md
+│   │   ├── api-summary.md
+│   │   ├── contracts.md
+│   │   ├── economy.md
+│   │   ├── errors.md
+│   │   ├── free-games.md
+│   │   ├── game-loop.md
+│   │   ├── game-systems.md
+│   │   ├── gotchas.md
+│   │   ├── identity.md
+│   │   ├── limits.md
+│   │   ├── owner-guidance.md
+│   │   ├── paid-games.md
+│   │   ├── preseason1-quests.md
+│   │   ├── reforge.md
+│   │   ├── runtime-modes.md
+│   │   ├── sc-wallet-policy.md
+│   │   ├── setup.md
+│   │   └── shop.md
+│   ├── cross-forge-trade.md
+│   ├── forge-token-deployer.md
+│   ├── game-guide.md
+│   ├── heartbeat.md
+│   ├── skill.md
+│   ├── x402-quickstart.md
+│   └── x402-skill.md
+│
+└── src/                           # Folder utama seluruh kode sumber aplikasi bot
+    ├── __init__.py                # Berkas inisialisasi paket src
+    ├── game_data.py               # Database/kamus tunggal berisi data statis (senjata, item, terrain, cuaca) serta peta global
+    ├── config.py                  # Pengatur konfigurasi berbasis variabel lingkungan dari .env
+    ├── api.py                     # Modul komunikasi HTTP API (otentikasi, klaim reward, dll)
+    ├── game_log.py                # Modul pemformatan keluaran visual log turn di terminal secara rapi
+    ├── state_manager.py           # Pengelola status state terintegrasi dari seluruh pesan WebSocket
+    ├── agent_memory.py            # Modul pengelola memori lokal langkah bot (visited_history) dan sinkronisasi memori tim
+    ├── combat_handler.py          # Modul pengendali pemrosesan log tempur dan pemutakhiran asinkronus (anti-mati palsu)
+    ├── websocket_handler.py       # Handler jaringan WebSocket untuk siklus permainan, matchmaking, dan reset memori
+    │
+    ├── ai/                        # Folder utama modul kecerdasan buatan agen
+    │   ├── __init__.py            # Berkas inisialisasi paket AI
+    │   │
+    │   ├── detector/              # Subsistem pengurai status lingkungan dari masukan mentah server
+    │   │   ├── __init__.py        # Berkas inisialisasi paket detector
+    │   │   ├── deadzone_detector.py # Pengurai status wilayah deadzone aktif dan pending collapse
+    │   │   ├── enemy_detector.py  # Pengurai status, jarak, dan statistik musuh atau monster secara live
+    │   │   ├── loot_detector.py   # Pengurai barang-barang yang tergeletak di lantai sekitar wilayah agen
+    │   │   ├── radar_detector.py  # Pengurai peta radar regional sekitar wilayah agen
+    │   │   ├── self_detector.py   # Pengurai statistik diri agen seperti HP, EP, inventaris, dan peralatan
+    │   │   └── zone_detector.py   # Pengurai wilayah agen, cuaca, jenis terrain, serta gas/radiasi berbahaya
+    │   │
+    │   └── strategy/              # Subsistem pengambil keputusan strategis agen
+    │       ├── __init__.py        # Berkas inisialisasi paket strategi
+    │       ├── decision_maker.py  # Mesin utama pemicu Gerbang Filter berbasis Konteks (Emergency vs Combat vs Exploration)
+    │       ├── navigation_strategy.py # Logika penentu arah gerakan berbasis rute global dan penarik magnet tim (Leader-Follower)
+    │       ├── ruin_exploration_strategy.py # Logika khusus pencarian/eksplorasi barang di daerah ruins
+    │       ├── whisper_sabotage.py
+    │       │
+    │       └── priority/          # Subsistem pembobotan nilai aksi berdasarkan kebutuhan mendesak
+    │           ├── __init__.py    # Berkas inisialisasi paket priority
+    │           ├── loot_helper.py
+    │           ├── equipped_priority.py # Perhitungan nilai urgensi pemasangan senjata melee/ranged adaptif sesuai jarak musuh
+    │           ├── ground_loot_priority.py # Perhitungan nilai urgensi pengambilan barang dan bagi-pakai armor cadangan tim
+    │           ├── interact_priority.py # Perhitungan prioritas interaksi dengan fasilitas wilayah (Medical, dll)
+    │           ├── survival_priority.py # Perhitungan kriteria kelesuan tempur (TTK PvP) dan kabur aman saat HP kritis
+    │           ├── recovery_priority.py # Perhitungan prioritas penggunaan ramuan HP/EP atau REST proaktif saat aman
+    │           └── target_kill_priority.py # Perhitungan prioritas penyerangan target dengan bonus pengeroyokan (Focus-Fire)
+    │
+    └── utils/                     # Folder berisi modul utilitas/helper operasional fungsional
+        ├── __init__.py            # Berkas inisialisasi paket utils
+        ├── action_helper.py       # Generator pembentuk payload JSON pesan aksi (bergerak, serang, discard-drop, dll)
+        └── zone_helper.py         # Mesin navigasi penghitung rute terpendek di peta arena
+
+
+Github Link :
+
+web/
+index.html https://github.com/Vdreamland/botgame/blob/master/web/index.html
+style.css https://github.com/Vdreamland/botgame/blob/master/web/style.css
+app.js https://github.com/Vdreamland/botgame/blob/master/web/app.js
+web_server.py https://github.com/Vdreamland/botgame/blob/master/web/web_server.py
+
+ai/strategy/
+__init__.py https://github.com/Vdreamland/botgame/blob/master/src/ai/strategy/__init__.py
+decision_maker.py https://github.com/Vdreamland/botgame/blob/master/src/ai/strategy/decision_maker.py
+navigation_strategy.py https://github.com/Vdreamland/botgame/blob/master/src/ai/strategy/navigation_strategy.py
+ruin_exploration_strategy.py https://github.com/Vdreamland/botgame/blob/master/src/ai/strategy/ruin_exploration_strategy.py
+whisper_sabotage.py https://github.com/Vdreamland/botgame/blob/master/src/ai/strategy/whisper_sabotage.py
+
+
+
+ai/strategy/priority/
+__init__.py https://github.com/Vdreamland/botgame/blob/master/src/ai/strategy/priority/__init__.py
+equipped_priority.py https://github.com/Vdreamland/botgame/blob/master/src/ai/strategy/priority/equipped_priority.py
+ground_loot_priority.py https://github.com/Vdreamland/botgame/blob/master/src/ai/strategy/priority/ground_loot_priority.py
+interact_priority.py https://github.com/Vdreamland/botgame/blob/master/src/ai/strategy/priority/interact_priority.py
+recovery_priority.py https://github.com/Vdreamland/botgame/blob/master/src/ai/strategy/priority/recovery_priority.py
+target_kill_priority.py https://github.com/Vdreamland/botgame/blob/master/src/ai/strategy/priority/target_kill_priority.py
+survival_priority.py https://github.com/Vdreamland/botgame/blob/master/src/ai/strategy/priority/survival_priority.py
+loot_helper.py https://github.com/Vdreamland/botgame/blob/master/src/ai/strategy/priority/loot_helper.py
+
+ai/
+__init__.py https://github.com/Vdreamland/botgame/blob/master/src/ai/__init__.py
+
+ai/detector/
+__init__.py 
+self_detector.py https://github.com/Vdreamland/botgame/blob/master/src/ai/detector/self_detector.py
+loot_detector.py https://github.com/Vdreamland/botgame/blob/master/src/ai/detector/loot_detector.py
+radar_detector.py https://github.com/Vdreamland/botgame/blob/master/src/ai/detector/radar_detector.py
+zone_detector.py https://github.com/Vdreamland/botgame/blob/master/src/ai/detector/zone_detector.py
+enemy_detector.py https://github.com/Vdreamland/botgame/blob/master/src/ai/detector/enemy_detector.py
+deadzone_detector.py https://github.com/Vdreamland/botgame/blob/master/src/ai/detector/deadzone_detector.py
+
+
+utils/
+__init__.py https://github.com/Vdreamland/botgame/blob/master/src/utils/__init__.py
+zone_helper.py https://github.com/Vdreamland/botgame/blob/master/src/utils/zone_helper.py
+action_helper.py https://github.com/Vdreamland/botgame/blob/master/src/utils/action_helper.py
+
+src/
+__init__.py https://github.com/Vdreamland/botgame/blob/master/src/__init__.py
+game_data.py https://github.com/Vdreamland/botgame/blob/master/src/game_data.py
+config.py https://github.com/Vdreamland/botgame/blob/master/src/config.py
+api.py https://github.com/Vdreamland/botgame/blob/master/src/api.py
+websocket_handler.py https://github.com/Vdreamland/botgame/blob/master/src/websocket_handler.py
+game_log.py https://github.com/Vdreamland/botgame/blob/master/src/game_log.py
+state_manager.py https://github.com/Vdreamland/botgame/blob/master/src/state_manager.py
+agent_memory.py https://github.com/Vdreamland/botgame/blob/master/src/agent_memory.py
+combat_handler.py https://github.com/Vdreamland/botgame/blob/master/src/combat_handler.py
+
+Reference :
+actions.md https://github.com/Vdreamland/botgame/blob/master/docs/references/actions.md
+agent-memory.md https://github.com/Vdreamland/botgame/blob/master/docs/references/agent-memory.md
+api-summary.md https://github.com/Vdreamland/botgame/blob/master/docs/references/api-summary.md
+errors.md https://github.com/Vdreamland/botgame/blob/master/docs/references/errors.md
+free-games.md https://github.com/Vdreamland/botgame/blob/master/docs/references/free-games.md
+game-systems.md https://github.com/Vdreamland/botgame/blob/master/docs/references/game-systems.md
+game-loop.md https://github.com/Vdreamland/botgame/blob/master/docs/references/game-loop.md
+preseason1-quests.md https://github.com/Vdreamland/botgame/blob/master/docs/references/preseason1-quests.md
+runtime-modes.md https://github.com/Vdreamland/botgame/blob/master/docs/references/runtime-modes.md
+setup.md https://github.com/Vdreamland/botgame/blob/master/docs/references/setup.md
+game-guide.md https://github.com/Vdreamland/botgame/blob/master/docs/game-guide.md
+heartbeat.md https://github.com/Vdreamland/botgame/blob/master/docs/heartbeat.md
+skill.md https://github.com/Vdreamland/botgame/blob/master/docs/skill.md
+gotchas.md https://github.com/Vdreamland/botgame/blob/master/docs/references/gotchas.md
+strategy.md https://github.com/Vdreamland/botgame/blob/master/docs/game-knowledge/strategy.md
+combat-items.md https://github.com/Vdreamland/botgame/blob/master/docs/references/combat-items.md
+
+requirements.txt https://github.com/Vdreamland/botgame/blob/master/requirements.txt
+.env https://github.com/Vdreamland/botgame/blob/master/.env
+rungame.py https://github.com/Vdreamland/botgame/blob/master/rungame.py
+
+
+
+*catatan penting, bot di batasi tidak boleh hit lebih dari 1 layer menggunakan range
