@@ -43,12 +43,20 @@ class EnemyInfoDetector:
                     enemies_by_layer[dist][r_name] = []
                 
                 stats = self.resolve_agent_stats(agent)
-                name = agent.get("name", "Unknown")
-                is_guardian = "guardian" in name.lower()
-                m_label = "Guardian" if is_guardian else "Agent"
-                
-                display = f"- {name} [{m_label}] (HP {agent.get('hp', 0)}/{agent.get('maxHp', 0)}, ATK: {stats['atk']}, DEF: {stats['def']}, Weapon: {stats['weapon_name']}, Armour: {stats['armor_name']})"
-                enemies_by_layer[dist][r_name].append(display)
+            name = agent.get("name", "Unknown")
+            is_guardian = "guardian" in name.lower()
+            m_label = "Guardian" if is_guardian else "Agent"
+            
+            hp = agent.get("hp", 0)
+            max_hp = agent.get("maxHp") or agent.get("max_hp", 100)
+            ep = agent.get("ep", 0)
+            max_ep = agent.get("maxEp") or agent.get("max_ep", 10)
+            
+            if is_guardian:
+                display = f"- {name} [{m_label}] (HP {hp}/{max_hp}, ATK: {stats['atk']}, DEF: {stats['def']}, Weapon: {stats['weapon_name']}, Armour: {stats['armor_name']})"
+            else:
+                display = f"- {name} [{m_label}] (HP {hp}/{max_hp} / EP {ep}/{max_ep}, ATK: {stats['atk']}, DEF: {stats['def']}, Weapon: {stats['weapon_name']}, Armour: {stats['armor_name']})"
+            enemies_by_layer[dist][r_name].append(display)
 
         for monster in self.get_alive_monsters():
             r_id = monster.get("regionId") or monster.get("region")
