@@ -1,3 +1,5 @@
+from .zone_detector import ZoneDetector
+
 class AgentInfoDetector:
     def __init__(self, view_data):
         self.view_data = view_data or {}
@@ -53,3 +55,7 @@ class AgentInfoDetector:
 
     def get_max_inventory(self):
         return self.self_data.get("maxInventory", 10)
+
+    def get_zones(self):
+        detector = ZoneDetector(self.view_data)
+        return detector.detect_zones()

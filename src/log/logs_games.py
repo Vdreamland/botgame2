@@ -2,7 +2,7 @@ import json
 import websockets
 import logging
 import sys
-from ai.detector.agent_info import AgentInfoDetector
+from ai.detector import AgentInfoDetector
 
 logger = logging.getLogger("botgame.game")
 logger.setLevel(logging.INFO)
@@ -87,3 +87,10 @@ class GameLogSender:
         await self.send_log({"type": "detail", "message": eq_line})
         await self.send_log({"type": "detail", "message": inv_line})
         await self.send_log({"type": "detail", "message": loc_line})
+
+        zones = detector.get_zones()
+        if zones:
+            await self.send_log({"type": "detail", "message": "Zone Detector :"})
+            for dist in sorted(zones.keys()):
+                regions_str = ", ".join(zones[dist])
+                await self.send_log({"type": "detail", "message": f"Layer {dist}: {regions_str}"})
