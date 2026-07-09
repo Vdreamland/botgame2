@@ -23,32 +23,38 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         pass
 
 def run_http_server():
-    with socketserver.TCPServer(("", PORT), Handler) as httpd:
+    socketserver.TCPServer.allow_reuse_address = True
+    with socketserver.ThreadingTCPServer(("", PORT), Handler) as httpd:
         httpd.serve_forever()
 
 connected_clients = set()
+connected_browsers = set()
+connected_bots = set()
 bot_history = {}
 
 async def handler(websocket):
     connected_clients.add(websocket)
-    
+    connected_browsers.add(websocket)
+ 
     for bot_name, history in bot_history.items():
         for cached_msg in history:
             try:
                 await websocket.send(cached_msg)
             except Exception:
                 pass
-                
+ 
     try:
         async def broadcast(message):
             websockets_to_remove = []
-            for client in connected_clients:
+            for client in list(connected_browsers):
                 if client != websocket:
                     try:
-                        await client.send(message)
+                        await asyncio.wait_for(client.send(message), timeout=1.0)
                     except Exception:
                         websockets_to_remove.append(client)
             for client in websockets_to_remove:
+                if client in connected_browsers:
+                    connected_browsers.remove(client)
                 if client in connected_clients:
                     connected_clients.remove(client)
 
@@ -58,6 +64,9 @@ async def handler(websocket):
                     payload = json.loads(message)
                     bot_name = payload.get("bot_name")
                     if bot_name:
+                        if websocket in connected_browsers:
+                            connected_browsers.remove(websocket)
+                        connected_bots.add(websocket)
                         if bot_name not in bot_history:
                             bot_history[bot_name] = []
                         bot_history[bot_name].append(message)
@@ -65,16 +74,20 @@ async def handler(websocket):
                             bot_history[bot_name].pop(0)
                 except Exception:
                     pass
-                    
+ 
                 await broadcast(message)
 
         await process_messages()
-                
+ 
     except Exception:
         pass
     finally:
         if websocket in connected_clients:
             connected_clients.remove(websocket)
+        if websocket in connected_browsers:
+            connected_browsers.remove(websocket)
+        if websocket in connected_bots:
+            connected_bots.remove(websocket)
 
 async def start_web_server():
     t = threading.Thread(target=run_http_server, daemon=True)
