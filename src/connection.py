@@ -33,6 +33,7 @@ async def connect_and_play(bot_name, api_key, entry_type):
             decision = welcome.get("decision")
 
             credits = welcome.get("account", {}).get("credits", 0)
+            log_info(bot_name, f"WELCOME Handshake -> Decision: {decision}, Credits: {credits}")
 
             if decision == "ALREADY_IN_GAME":
                 await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
@@ -70,8 +71,8 @@ async def connect_and_play(bot_name, api_key, entry_type):
                         now = asyncio.get_event_loop().time()
                         if now - last_received_time > 45.0:
                             log_warning(bot_name, "Watchdog detected connection inactivity for 45 seconds. Force-closing socket...")
-                            if client._ws:
-                                await client._ws.close()
+                            if client.ws:
+                                await client.ws.close()
                             break
                 except asyncio.CancelledError:
                     pass
@@ -152,6 +153,7 @@ async def connect_and_play(bot_name, api_key, entry_type):
                             else:
                                 log_msg = str(log_entry)
                             if log_msg:
+                                log_info(bot_name, f"Event: {log_msg}")
                                 await log_sender.send_log({"type": "detail", "message": log_msg})
 
                     if not is_alive:
