@@ -19,14 +19,6 @@
     │   │   ├── __init__.py        # Berkas inisialisasi paket detector
     │   │   ├── agent_info.py      # Pengurai statistik diri agen seperti HP, EP, inventaris, dan peralatan
 
-    │   ├── strategy/              
-    │   │    ├── __init__.py        
-    │   │    ├── decision_maker.py  
-
-    │   └── priority/              # Subsistem pengambil keputusan strategis agen
-    │       ├── __init__.py        
-    │       ├── loot_helper.py
-
 ├── web/                           
 │   ├── index.html                 
 │   ├── style.css                 
@@ -34,11 +26,11 @@
 │   └── app.js                     
 
 ai/
-__init__.py
+__init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/__init__.py
 
 ai/detector/
-agent_info.py
-
+__init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/__init__.py
+agent_info.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/agent_info.py
 
 
 botgame2/
