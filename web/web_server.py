@@ -36,55 +36,61 @@ async def handler(websocket):
     connected_clients.add(websocket)
     connected_browsers.add(websocket)
  
-    await asyncio.sleep(0.1)
+    is_bot = False
+
+    async def broadcast(message):
+        websockets_to_remove = []
+        for client in list(connected_browsers):
+            if client != websocket:
+                try:
+                    await asyncio.wait_for(client.send(message), timeout=1.0)
+                except Exception:
+                    websockets_to_remove.append(client)
+        for client in websockets_to_remove:
+            if client in connected_browsers:
+                connected_browsers.remove(client)
+            if client in connected_clients:
+                connected_clients.remove(client)
+
+    async def process_messages():
+        nonlocal is_bot
+        async for message in websocket:
+            try:
+                payload = json.loads(message)
+                bot_name = payload.get("bot_name")
+                if bot_name:
+                    is_bot = True
+                    if websocket in connected_browsers:
+                        connected_browsers.remove(websocket)
+                    connected_bots.add(websocket)
+                    if bot_name not in bot_history:
+                        bot_history[bot_name] = []
+                    bot_history[bot_name].append(message)
+                    if len(bot_history[bot_name]) > 500:
+                        bot_history[bot_name].pop(0)
+            except Exception:
+                pass
  
-    if websocket in connected_browsers:
+            await broadcast(message)
+
+    processor_task = asyncio.create_task(process_messages())
+
+    await asyncio.sleep(0.1)
+
+    if not is_bot:
         for bot_name, history in bot_history.items():
             for cached_msg in history:
                 try:
                     await websocket.send(cached_msg)
                 except Exception:
                     pass
- 
+
     try:
-        async def broadcast(message):
-            websockets_to_remove = []
-            for client in list(connected_browsers):
-                if client != websocket:
-                    try:
-                        await asyncio.wait_for(client.send(message), timeout=1.0)
-                    except Exception:
-                        websockets_to_remove.append(client)
-            for client in websockets_to_remove:
-                if client in connected_browsers:
-                    connected_browsers.remove(client)
-                if client in connected_clients:
-                    connected_clients.remove(client)
-
-        async def process_messages():
-            async for message in websocket:
-                try:
-                    payload = json.loads(message)
-                    bot_name = payload.get("bot_name")
-                    if bot_name:
-                        if websocket in connected_browsers:
-                            connected_browsers.remove(websocket)
-                        connected_bots.add(websocket)
-                        if bot_name not in bot_history:
-                            bot_history[bot_name] = []
-                        bot_history[bot_name].append(message)
-                        if len(bot_history[bot_name]) > 500:
-                            bot_history[bot_name].pop(0)
-                except Exception:
-                    pass
- 
-                await broadcast(message)
-
-        await process_messages()
- 
+        await processor_task
     except Exception:
         pass
     finally:
+        processor_task.cancel()
         if websocket in connected_clients:
             connected_clients.remove(websocket)
         if websocket in connected_browsers:
