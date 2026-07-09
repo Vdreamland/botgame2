@@ -3,8 +3,9 @@ import json
 import os
 import websockets
 import logging
-import mimetypes
-import http
+import http.server
+import socketserver
+import threading
 
 logging.getLogger("websockets").setLevel(logging.CRITICAL)
 logging.getLogger("websockets.server").setLevel(logging.CRITICAL)
@@ -17,13 +18,14 @@ connected_clients = set()
 bot_history = {}
 
 async def process_request(path, request_headers):
+    import mimetypes
     clean_path = path.split("?")[0]
     if clean_path == "/":
         clean_path = "/index.html"
         
     file_path = os.path.join(DIRECTORY, clean_path.lstrip("/"))
     if not os.path.abspath(file_path).startswith(DIRECTORY):
-        return http.HTTPStatus.FORBIDDEN, [], b"Forbidden"
+        return 403, [], b"Forbidden"
         
     if os.path.exists(file_path) and os.path.isfile(file_path):
         mime_type, _ = mimetypes.guess_type(file_path)
@@ -34,12 +36,12 @@ async def process_request(path, request_headers):
             ("Content-Type", mime_type),
             ("Content-Length", str(len(body)))
         ]
-        return http.HTTPStatus.OK, headers, body
+        return 200, headers, body
         
     if clean_path == "/ws":
         return None
         
-    return http.HTTPStatus.NOT_FOUND, [], b"Not Found"
+    return 404, [], b"Not Found"
 
 async def handler(websocket):
     connected_clients.add(websocket)
