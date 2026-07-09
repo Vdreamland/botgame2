@@ -1,3 +1,5 @@
+from .deadzone_detector import DeadZoneDetector
+
 class ZoneDetector:
     def __init__(self, view_data):
         self.view_data = view_data or {}
