@@ -90,11 +90,14 @@ class GameLogSender:
 
         zones = detector.get_zones()
         if zones:
+            await self.send_log({"type": "detail", "message": ""})
             await self.send_log({"type": "detail", "message": "Zone Detector :"})
             for dist in sorted(zones.keys()):
                 regions_str = ", ".join(zones[dist])
                 await self.send_log({"type": "detail", "message": f"Layer {dist}: {regions_str}"})
 
         enemy_logs = detector.get_enemy_logs()
-        for line in enemy_logs:
-            await self.send_log({"type": "detail", "message": line})
+        if enemy_logs:
+            await self.send_log({"type": "detail", "message": ""})
+            for line in enemy_logs:
+                await self.send_log({"type": "detail", "message": line})

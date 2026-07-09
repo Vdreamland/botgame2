@@ -47,7 +47,19 @@ class AgentInfoDetector:
         return self.self_data.get("kills", 0)
 
     def get_equipped(self):
-        return self.self_data.get("equipment", {})
+        eq_weapon = self.self_data.get("equippedWeapon") or self.self_data.get("weapon")
+        eq_armor = self.self_data.get("equippedArmor") or self.self_data.get("armor")
+        
+        equipped = {}
+        if eq_weapon:
+            equipped["weapon"] = eq_weapon
+        if eq_armor:
+            equipped["armor"] = eq_armor
+            
+        if not equipped and "equipment" in self.self_data:
+            equipped = self.self_data.get("equipment", {})
+            
+        return equipped
 
     def get_inventory(self):
         return self.self_data.get("inventory", [])
@@ -75,10 +87,13 @@ class AgentInfoDetector:
             return []
         
         log_lines = ["Enemy Info :"]
+        first_block = True
         for dist in sorted(enemies_map.keys()):
-            layer_label = f"layer {dist}" if dist == 0 else f"Layer {dist}"
-            log_lines.append(f"{layer_label} :")
             for r_name, enemy_list in enemies_map[dist].items():
+                if not first_block:
+                    log_lines.append("")
+                else:
+                    first_block = False
                 log_lines.append(f"{r_name} :")
                 for enemy_str in enemy_list:
                     log_lines.append(enemy_str)

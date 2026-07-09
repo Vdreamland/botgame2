@@ -33,7 +33,7 @@ class EnemyInfoDetector:
         enemies_by_layer = {}
 
         for agent in self.get_alive_agents():
-            r_id = agent.get("regionId")
+            r_id = agent.get("regionId") or agent.get("region")
             dist = region_distances.get(r_id)
             if dist is not None:
                 if dist not in enemies_by_layer:
@@ -47,7 +47,7 @@ class EnemyInfoDetector:
                 enemies_by_layer[dist][r_name].append(display)
 
         for monster in self.get_alive_monsters():
-            r_id = monster.get("regionId")
+            r_id = monster.get("regionId") or monster.get("region")
             dist = region_distances.get(r_id)
             if dist is not None:
                 if dist not in enemies_by_layer:
@@ -72,14 +72,14 @@ class EnemyInfoDetector:
         return sorted_layers
 
     def resolve_agent_stats(self, agent_data):
-        weapon = agent_data.get("weapon")
+        weapon = agent_data.get("equippedWeapon") or agent_data.get("weapon") or agent_data.get("equipment", {}).get("weapon")
         weapon_name = ""
         if isinstance(weapon, dict):
             weapon_name = weapon.get("name", "")
         elif isinstance(weapon, str):
             weapon_name = weapon
 
-        armor = agent_data.get("armor")
+        armor = agent_data.get("equippedArmor") or agent_data.get("armor") or agent_data.get("equipment", {}).get("armor") or agent_data.get("equipment", {}).get("armour")
         armor_name = ""
         if isinstance(armor, dict):
             armor_name = armor.get("name", "")
