@@ -27,7 +27,7 @@ class ZoneDetector:
         terrain = self.get_terrain().lower()
         weather = self.get_weather().lower()
 
-        from src.helper import TERRAIN_MODS, WEATHER_MODS
+        from src.helper import TERRAIN_MODS, WEATHER_MODS, UTILITY
 
         terrain_data = TERRAIN_MODS.get(terrain, {})
         terrain_mod = terrain_data.get("vision", 0)
@@ -38,11 +38,19 @@ class ZoneDetector:
         has_binoculars = False
         inventory = self.view_data.get("self", {}).get("inventory", [])
         for item in inventory:
-            if isinstance(item, dict) and item.get("name") == "Binoculars":
-                has_binoculars = True
-                break
+            if isinstance(item, dict):
+                name = item.get("name", "").lower()
+                type_id = item.get("typeId", "").lower()
+                if "binoculars" in UTILITY:
+                    u_type = UTILITY["binoculars"].get("type", "").lower()
+                    if name == u_type or type_id == u_type:
+                        has_binoculars = True
+                        break
 
-        binoculars_mod = 1 if has_binoculars else 0
+        binoculars_mod = 0
+        if has_binoculars and "binoculars" in UTILITY:
+            binoculars_mod = UTILITY["binoculars"].get("vision_bonus", 1)
+
         total_vision = terrain_mod + weather_mod + binoculars_mod
         return f"+{total_vision}" if total_vision > 0 else str(total_vision)
 

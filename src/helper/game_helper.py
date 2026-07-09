@@ -102,6 +102,14 @@ RECOVERY = {
     }
 }
 
+UTILITY = {
+    "binoculars": {
+        "type": "binoculars",
+        "vision_bonus": 1,
+        "passive": True
+    }
+}
+
 TERRAIN_MODS = {
     "plains": {
         "vision": 1,

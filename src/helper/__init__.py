@@ -4,6 +4,7 @@ from .game_helper import (
     WEAPONS,
     ARMOR,
     RECOVERY,
+    UTILITY,
     TERRAIN_MODS,
     WEATHER_MODS,
     FACILITIES,
