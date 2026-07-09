@@ -8,7 +8,7 @@ load_dotenv()
 WS_JOIN_URL = os.getenv("WS_JOIN_URL", "wss://cdn.clawroyale.ai/ws/join")
 ACCOUNTS_FILE = os.getenv("ACCOUNTS_FILE", "accounts.json")
 DEFAULT_ENTRY_TYPE = os.getenv("ENTRY_TYPE", "free")
-WEB_LOG_URL = os.getenv("WEB_LOG_URL", "ws://localhost:8080")
+WEB_LOG_URL = os.getenv("WEB_LOG_URL", "ws://127.0.0.1:8080")
 
 api_base = "https://cdn.clawroyale.ai/api"
 if "moltyroyale.com" in WS_JOIN_URL:

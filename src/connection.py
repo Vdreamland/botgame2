@@ -14,13 +14,18 @@ async def connect_and_play(bot_name, api_key, entry_type):
         "X-Version": VERSION
     }
     
-    log_info(bot_name, "Connecting to game server...")
+    log_info(bot_name, "Reconnecting to join a new match room...")
     log_sender = GameLogSender(bot_name, WEB_LOG_URL)
     await log_sender.connect()
     
     credits = 0
     game_id = None
-    await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id})
+    is_alive = True
+    await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
+    
+    has_logged_queue = False
+    has_logged_wait = False
+    has_logged_gameplay = False
     
     try:
         async with GameWebSocket(WS_JOIN_URL, headers) as client:
@@ -30,11 +35,9 @@ async def connect_and_play(bot_name, api_key, entry_type):
             credits = welcome.get("account", {}).get("credits", 0)
             
             if decision == "ALREADY_IN_GAME":
-                log_info(bot_name, "Active session detected. Rejoining match room...")
-                await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id})
+                await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
             elif decision in ("ASK_ENTRY_TYPE", "FREE_ONLY"):
-                log_info(bot_name, "Authentication successful. Entering lobby...")
-                await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id})
+                await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
             
             if decision == "BLOCKED":
                 missing = welcome.get("readiness", {}).get("freeRoom", {}).get("missing", [])
@@ -65,18 +68,20 @@ async def connect_and_play(bot_name, api_key, entry_type):
                     game_id = active_game_id
                 
                 if msg_type == "queued":
-                    log_info(bot_name, "Queue active. Searching for available match cycle...")
-                    await log_sender.send_log({"type": "status_update", "status": "matchmaking", "credits": credits, "game_id": game_id})
+                    if not has_logged_queue:
+                        log_info(bot_name, "Queue active. Searching for match...")
+                        has_logged_queue = True
+                    await log_sender.send_log({"type": "status_update", "status": "matchmaking", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
                     
                 elif msg_type == "assigned":
                     game_id = msg.get("gameId")
                     agent_id = msg.get("agentId")
-                    log_info(bot_name, f"Match found! Room ID: {game_id}. Entering room...")
+                    log_info(bot_name, f"Match found! Room ID: {game_id}")
                     in_gameplay = True
-                    await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id})
+                    is_alive = True
+                    await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
                     
                 elif msg_type == "not_selected":
-                    log_warning(bot_name, "Not selected in this cycle. Retrying matchmaker...")
                     return
                     
                 elif msg_type == "error":
@@ -85,6 +90,11 @@ async def connect_and_play(bot_name, api_key, entry_type):
                     return
                     
                 elif msg_type in ("agent_view", "turn_advanced"):
+                    has_logged_wait = False
+                    if not has_logged_gameplay:
+                        log_info(bot_name, "Ready in game. Active loop entered.")
+                        has_logged_gameplay = True
+                        
                     status = msg.get("status")
                     turn = msg.get("turn")
                     await log_sender.send_log({"type": "turn", "turn": turn, "status": status, "game_id": game_id})
@@ -94,23 +104,31 @@ async def connect_and_play(bot_name, api_key, entry_type):
                     is_alive = self_data.get("isAlive", True)
                     
                     if not is_alive:
-                        await log_sender.send_log({"type": "status_update", "status": "dead", "credits": credits, "game_id": game_id})
+                        log_info(bot_name, "Agent died.")
+                        await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": False})
                     elif status == "finished":
-                        await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id})
+                        is_alive = True
+                        await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
                         break
                     else:
-                        await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id})
+                        await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
                         
                 elif msg_type == "waiting":
+                    has_logged_gameplay = False
+                    if not has_logged_wait:
+                        log_info(bot_name, "Waiting for other agents...")
+                        has_logged_wait = True
                     turn = msg.get("turn")
                     await log_sender.send_log({"type": "waiting", "turn": turn})
                     
                 elif msg_type == "game_ended":
-                    await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id})
+                    is_alive = True
+                    await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
                     break
                     
     except Exception as e:
         log_error(bot_name, f"Error in connection loop: {e}")
     finally:
-        await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id})
+        is_alive = True
+        await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
         await log_sender.close()

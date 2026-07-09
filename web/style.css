@@ -134,16 +134,25 @@ body {
   font-weight: 700;
 }
 #bots-playing {
+  color: var(--accent);
+}
+#bots-alive {
   color: var(--success);
 }
 #bots-matching {
   color: var(--accent);
 }
+#bots-dead {
+  color: var(--danger);
+}
 #bots-lobby {
   color: var(--info);
 }
-#bots-dead {
-  color: var(--danger);
+#bots-free {
+  color: var(--success);
+}
+#bots-paid {
+  color: var(--accent);
 }
 #search-bot {
   width: 100%;
@@ -308,8 +317,8 @@ body {
   font-family: monospace;
 }
 .turn-status {
-  background-color: var(--accent-glow);
-  color: var(--accent);
+  background-color: #451a03;
+  color: #f97316;
   padding: 4px 10px;
   border-radius: 4px;
   font-size: 10px;

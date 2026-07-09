@@ -18,6 +18,8 @@ function connect() {
         credits: 0,
         status: "lobby",
         gameId: null,
+        entryType: "free",
+        isAlive: true,
       };
       updateTabs();
       updateGlobalStats();
@@ -32,6 +34,10 @@ function connect() {
       agent.status = msg.status;
       agent.credits = msg.credits;
       agent.gameId = msg.game_id || agent.gameId;
+      agent.entryType = msg.entry_type || agent.entryType;
+      if (msg.is_alive !== undefined) {
+        agent.isAlive = msg.is_alive;
+      }
       updateTabs();
       updateGlobalStats();
     } else if (msg.type === "turn") {
@@ -82,25 +88,47 @@ function updateGlobalStats() {
   const totalBotsElem = document.getElementById("total-bots");
   const totalSmoltzElem = document.getElementById("total-smoltz");
   const botsPlayingElem = document.getElementById("bots-playing");
+  const botsAliveElem = document.getElementById("bots-alive");
   const botsMatchingElem = document.getElementById("bots-matching");
   const botsLobbyElem = document.getElementById("bots-lobby");
   const botsDeadElem = document.getElementById("bots-dead");
+  const botsFreeElem = document.getElementById("bots-free");
+  const botsPaidElem = document.getElementById("bots-paid");
 
   const botNames = Object.keys(agentsData);
   let totalSmoltz = 0;
   let playingCount = 0;
+  let aliveCount = 0;
   let matchingCount = 0;
   let lobbyCount = 0;
   let deadCount = 0;
+  let freeCount = 0;
+  let paidCount = 0;
 
   botNames.forEach((name) => {
     const agent = agentsData[name];
     totalSmoltz += agent.credits || 0;
 
-    if (agent.status === "playing") playingCount++;
-    else if (agent.status === "matchmaking") matchingCount++;
-    else if (agent.status === "lobby") lobbyCount++;
-    else if (agent.status === "dead") deadCount++;
+    if (agent.status === "playing") {
+      playingCount++;
+      if (agent.isAlive) {
+        aliveCount++;
+      } else {
+        deadCount++;
+      }
+
+      if (agent.entryType === "paid") {
+        paidCount++;
+      } else {
+        freeCount++;
+      }
+    } else if (agent.status === "matchmaking") {
+      matchingCount++;
+    } else if (agent.status === "lobby") {
+      lobbyCount++;
+    } else if (agent.status === "dead") {
+      deadCount++;
+    }
   });
 
   if (totalBotsElem) totalBotsElem.textContent = botNames.length;
@@ -108,9 +136,12 @@ function updateGlobalStats() {
     totalSmoltzElem.textContent = totalSmoltz.toLocaleString();
 
   if (botsPlayingElem) botsPlayingElem.textContent = playingCount;
+  if (botsAliveElem) botsAliveElem.textContent = aliveCount;
   if (botsMatchingElem) botsMatchingElem.textContent = matchingCount;
   if (botsLobbyElem) botsLobbyElem.textContent = lobbyCount;
   if (botsDeadElem) botsDeadElem.textContent = deadCount;
+  if (botsFreeElem) botsFreeElem.textContent = freeCount;
+  if (botsPaidElem) botsPaidElem.textContent = paidCount;
 }
 
 function updateTabs() {
@@ -136,7 +167,18 @@ function updateTabs() {
       metaDiv.className = "tab-bot-meta";
 
       const sMoltzVal = (agent.credits || 0).toLocaleString();
-      let metaHTML = `sMoltz: ${sMoltzVal} | <span class="status-${agent.status}">${agent.status.toUpperCase()}</span>`;
+      const entryLabel = agent.entryType
+        ? ` (${agent.entryType.toUpperCase()})`
+        : "";
+
+      let statusText = agent.status.toUpperCase();
+      let statusClass = agent.status;
+      if (agent.status === "playing" && !agent.isAlive) {
+        statusText = "DEAD";
+        statusClass = "dead";
+      }
+
+      let metaHTML = `sMoltz: ${sMoltzVal} | <span class="status-${statusClass}">${statusText}${entryLabel}</span>`;
 
       if (agent.gameId && agent.status === "playing") {
         metaHTML += ` | <a class="spectate-link" href="https://www.clawroyale.ai/games/spect/${agent.gameId}" target="_blank">SPECTATE ↗</a>`;
@@ -226,32 +268,6 @@ function renderLogs() {
     viewport.scrollTop = viewport.scrollHeight;
   }
 }
-
-document.getElementById("copy-logs-btn").onclick = () => {
-  if (!activeAgent || !agentsData[activeAgent]) return;
-  const agent = agentsData[activeAgent];
-  if (agent.turns.length === 0) return;
-
-  const sortedTurns = [...agent.turns].sort((a, b) => a.turn - b.turn);
-  let copyText = `${activeAgent} GAME LOGS\n`;
-  copyText += `=======================\n`;
-
-  const turnLines = sortedTurns.map((t) => `Turn ${t.turn}`);
-  copyText += turnLines.join("\n\n") + "\n";
-
-  navigator.clipboard.writeText(copyText).then(() => {
-    const btn = document.getElementById("copy-logs-btn");
-    const oldText = btn.textContent;
-    btn.textContent = "COPIED!";
-    btn.style.borderColor = "var(--success)";
-    btn.style.color = "var(--success)";
-    setTimeout(() => {
-      btn.textContent = oldText;
-      btn.style.borderColor = "";
-      btn.style.color = "";
-    }, 2000);
-  });
-};
 
 document.getElementById("search-bot").oninput = (e) => {
   botSearchQuery = e.target.value;
