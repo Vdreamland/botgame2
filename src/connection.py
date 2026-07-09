@@ -2,6 +2,14 @@ import asyncio
 from src.config import VERSION, WS_JOIN_URL
 from src.websocket import GameWebSocket
 from src.log.log_connections import log_info, log_warning, log_error
+from src.log.logs_games import (
+    log_game_turn,
+    log_game_detail,
+    log_game_waiting,
+    log_game_ended,
+    log_game_finished,
+    log_game_reenter
+)
 
 async def connect_and_play(bot_name, api_key, entry_type):
     if not api_key:
@@ -70,30 +78,30 @@ async def connect_and_play(bot_name, api_key, entry_type):
                     
                 elif msg_type in ("agent_view", "turn_advanced"):
                     if not in_gameplay:
-                        log_info(bot_name, "Gameplay frames detected. Re-entering active loop.")
+                        log_game_reenter(bot_name)
                         in_gameplay = True
                         
                     status = msg.get("status")
                     turn = msg.get("turn")
-                    log_info(bot_name, f"[Turn {turn}] Status: {status}")
+                    log_game_turn(bot_name, turn, status)
                     
                     view = msg.get("view", {})
                     self_data = view.get("self", {})
                     recent_logs = view.get("recentLogs", [])
                     if recent_logs:
                         for log_entry in recent_logs:
-                            log_info(bot_name, f" -> Game Log: {log_entry}")
+                            log_game_detail(bot_name, log_entry)
                     
                     if status == "finished" or not self_data.get("isAlive", True):
-                        log_info(bot_name, f"Game finished or Agent is no longer alive. Status: {status}")
+                        log_game_finished(bot_name, status)
                         break
                         
                 elif msg_type == "waiting":
                     turn = msg.get("turn")
-                    log_info(bot_name, f"[Turn {turn}] Game status: waiting. Waiting for other agents...")
+                    log_game_waiting(bot_name, turn)
                     
                 elif msg_type == "game_ended":
-                    log_info(bot_name, "Game has ended.")
+                    log_game_ended(bot_name)
                     break
                     
                 else:
