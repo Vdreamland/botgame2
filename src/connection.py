@@ -124,6 +124,7 @@ async def connect_and_play(bot_name, api_key, entry_type):
                         await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": False})
                         break
                     elif status == "finished":
+                        await log_sender.send_log({"type": "finished", "status": status})
                         await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
                         break
                     else:
@@ -138,6 +139,7 @@ async def connect_and_play(bot_name, api_key, entry_type):
                     await log_sender.send_log({"type": "waiting", "turn": turn})
                     
                 elif msg_type == "game_ended":
+                    await log_sender.send_log({"type": "ended"})
                     await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
                     break
                     
