@@ -5,6 +5,10 @@
 ├── rungame.py
 └── src/
     ├── __init__.py
+    ├── helper/                       
+    │   ├── __init__.py 
+    │   ├── game_helper.py         
+    │   ├── actions_helper.py         
     ├── config.py
     ├── connection.py        
     ├── websocket.py
@@ -53,7 +57,7 @@ connection.py https://github.com/Vdreamland/botgame2/blob/master/src/connection.
 websocket.py https://github.com/Vdreamland/botgame2/blob/master/src/websocket.py
 
 src/helper/
-__init__.py
+__init__.py https://github.com/Vdreamland/botgame2/blob/master/src/helper/game_helper.py
 game_helper.py https://github.com/Vdreamland/botgame2/blob/master/src/helper/game_helper.py
 actions_helper.py https://github.com/Vdreamland/botgame2/blob/master/src/helper/actions_helper.py
 

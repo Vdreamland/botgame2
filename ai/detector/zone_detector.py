@@ -1,5 +1,3 @@
-from .deadzone_detector import DeadZoneDetector
-
 class ZoneDetector:
     def __init__(self, view_data):
         self.view_data = view_data or {}
@@ -27,25 +25,13 @@ class ZoneDetector:
         terrain = self.get_terrain().lower()
         weather = self.get_weather().lower()
 
-        terrain_mod = 0
-        if terrain == "plains":
-            terrain_mod = 1
-        elif terrain == "hills":
-            terrain_mod = 2
-        elif terrain == "forest":
-            terrain_mod = -1
-        elif terrain == "cave":
-            terrain_mod = -2
+        from src.helper import TERRAIN_MODS, WEATHER_MODS
 
-        weather_mod = 0
-        if weather == "clear":
-            weather_mod = 0
-        elif weather == "rain":
-            weather_mod = -1
-        elif weather == "fog":
-            weather_mod = -2
-        elif weather == "storm":
-            weather_mod = -2
+        terrain_data = TERRAIN_MODS.get(terrain, {})
+        terrain_mod = terrain_data.get("vision", 0)
+
+        weather_data = WEATHER_MODS.get(weather, {})
+        weather_mod = weather_data.get("vision", 0)
 
         has_binoculars = False
         inventory = self.view_data.get("self", {}).get("inventory", [])
