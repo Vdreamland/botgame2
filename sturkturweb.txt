@@ -27,6 +27,8 @@
     │   │   ├── zone_detector.py
     │   │   ├── deadzone_detector.py
     │   │   ├── ground_item_detector.py
+    │   │   ├── facility_detector.py
+
 
 
 
@@ -47,7 +49,7 @@ enemy_info.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/ene
 zone_detector.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/zone_detector.py
 deadzone_detector.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/deadzone_detector.py
 ground_item_detector.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/ground_item_detector.py
-
+facility_detector.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/facility_detector.py
 
 botgame2/
 .env https://github.com/Vdreamland/botgame2/blob/master/.env
