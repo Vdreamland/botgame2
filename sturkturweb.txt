@@ -18,31 +18,27 @@
     │   ├── detector/              # Subsistem pengurai status lingkungan dari masukan mentah server
     │   │   ├── __init__.py        # Berkas inisialisasi paket detector
     │   │   ├── agent_info.py      # Pengurai statistik diri agen seperti HP, EP, inventaris, dan peralatan
-    │   │   ├── deadzone_detector.py # Pengurai status wilayah deadzone aktif dan pending collapse
-    │   │   ├── enemy_detector.py  # Pengurai status, jarak, dan statistik musuh atau monster secara live
-    │   │   ├── loot_detector.py   # Pengurai barang-barang yang tergeletak di lantai sekitar wilayah agen
-    │   │   ├── radar_detector.py  # Pengurai peta radar regional sekitar wilayah agen
-    │   │   └── zone_detector.py   # Pengurai wilayah agen, cuaca, jenis terrain, serta gas/radiasi berbahaya
+
     │   ├── strategy/              
     │   │    ├── __init__.py        
     │   │    ├── decision_maker.py  
-    │   │    ├── navigation_strategy.py 
-    │   │    ├── ruin_exploration_strategy.py 
-    │   │    ├── whisper_sabotage.py
+
     │   └── priority/              # Subsistem pengambil keputusan strategis agen
     │       ├── __init__.py        
     │       ├── loot_helper.py
-    │       ├── equipped_priority.py
-    │       ├── ground_loot_priority.py
-    │       ├── interact_priority.py
-    │       ├── survival_priority.py
-    │       ├── recovery_priority.py
-    │       ├── target_kill_priority.py
+
 ├── web/                           
 │   ├── index.html                 
 │   ├── style.css                 
 │   ├── web_server.py
 │   └── app.js                     
+
+ai/
+__init__.py
+
+ai/detector/
+agent_info.py
+
 
 
 botgame2/
