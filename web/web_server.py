@@ -15,6 +15,12 @@ bot_history = {}
 async def index_handler(request):
     return web.FileResponse(os.path.join(DIRECTORY, "index.html"))
 
+async def style_handler(request):
+    return web.FileResponse(os.path.join(DIRECTORY, "style.css"))
+
+async def js_handler(request):
+    return web.FileResponse(os.path.join(DIRECTORY, "app.js"))
+
 async def ws_handler(request):
     ws = web.WebSocketResponse()
     await ws.prepare(request)
@@ -68,11 +74,14 @@ async def ws_handler(request):
 async def start_web_server():
     app = web.Application()
     app.router.add_get("/", index_handler)
+    app.router.add_get("/style.css", style_handler)
+    app.router.add_get("/app.js", js_handler)
     app.router.add_get("/ws", ws_handler)
-    app.router.add_static("/", path=DIRECTORY, name="static")
     
     runner = web.AppRunner(app)
     await runner.setup()
     
-    site = web.TCPSite(runner, "0.0.0.0", PORT)
+    site = web.TCPSite(runner, host=None, port=PORT)
     await site.start()
+    
+    await asyncio.sleep(0.5)
