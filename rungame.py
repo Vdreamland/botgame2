@@ -16,7 +16,7 @@ async def bot_worker(bot_name, api_key, entry_type):
         await asyncio.sleep(5)
 
 async def main():
-    start_web_server()
+    await start_web_server()
     await asyncio.sleep(1)
 
     accounts = load_active_accounts()
