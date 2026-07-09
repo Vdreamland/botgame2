@@ -71,65 +71,65 @@ class EnemyInfoDetector:
                 sorted_layers[dist][r_name] = sorted(regions_map[r_name])
         return sorted_layers
 
-            def resolve_agent_stats(self, agent_data):
-                weapon = agent_data.get("weapon")
-                weapon_name = ""
-                if isinstance(weapon, dict):
-                    weapon_name = weapon.get("name", "")
-                elif isinstance(weapon, str):
-                    weapon_name = weapon
+    def resolve_agent_stats(self, agent_data):
+        weapon = agent_data.get("weapon")
+        weapon_name = ""
+        if isinstance(weapon, dict):
+            weapon_name = weapon.get("name", "")
+        elif isinstance(weapon, str):
+            weapon_name = weapon
 
-                armor = agent_data.get("armor")
-                armor_name = ""
-                if isinstance(armor, dict):
-                    armor_name = armor.get("name", "")
-                elif isinstance(armor, str):
-                    armor_name = armor
+        armor = agent_data.get("armor")
+        armor_name = ""
+        if isinstance(armor, dict):
+            armor_name = armor.get("name", "")
+        elif isinstance(armor, str):
+            armor_name = armor
 
-                base_atk = AGENT_BASE.get("atk", 25)
-                base_def = AGENT_BASE.get("def", 5)
+        base_atk = AGENT_BASE.get("atk", 25)
+        base_def = AGENT_BASE.get("def", 5)
 
-                weapon_bonus = 0
-                if weapon_name:
-                    weapon_lower = weapon_name.lower()
-                    for w_key, w_data in WEAPONS.items():
-                        if w_key in weapon_lower:
-                            weapon_bonus = w_data.get("atk_bonus", 0)
-                            break
+        weapon_bonus = 0
+        if weapon_name:
+            weapon_lower = weapon_name.lower()
+            for w_key, w_data in WEAPONS.items():
+                if w_key in weapon_lower:
+                    weapon_bonus = w_data.get("atk_bonus", 0)
+                    break
 
-                armor_bonus = 0
-                if armor_name:
-                    armor_lower = armor_name.lower()
-                    for a_key, a_data in ARMOR.items():
-                        if a_key in armor_lower:
-                            armor_bonus = a_data.get("def_bonus", 0)
-                            break
+        armor_bonus = 0
+        if armor_name:
+            armor_lower = armor_name.lower()
+            for a_key, a_data in ARMOR.items():
+                if a_key in armor_lower:
+                    armor_bonus = a_data.get("def_bonus", 0)
+                    break
 
+        return {
+            "atk": base_atk + weapon_bonus,
+            "def": base_def + armor_bonus,
+            "weapon_name": weapon_name or "Fist",
+            "armor_name": armor_name or "None"
+        }
+
+    def resolve_monster_stats(self, monster_type):
+        m_type = str(monster_type).lower()
+        if "guardian" in m_type:
+            return {
+                "atk": GUARDIAN.get("atk", 12),
+                "def": GUARDIAN.get("def", 120),
+                "type": "guardian"
+            }
+        
+        for m_key, m_data in MONSTERS.items():
+            if m_key in m_type:
                 return {
-                    "atk": base_atk + weapon_bonus,
-                    "def": base_def + armor_bonus,
-                    "weapon_name": weapon_name or "Fist",
-                    "armor_name": armor_name or "None"
+                    "atk": m_data.get("atk", 10),
+                    "def": m_data.get("def", 0),
+                    "type": m_key
                 }
-
-            def resolve_monster_stats(self, monster_type):
-                m_type = str(monster_type).lower()
-                if "guardian" in m_type:
-                    return {
-                        "atk": GUARDIAN.get("atk", 12),
-                        "def": GUARDIAN.get("def", 120),
-                        "type": "guardian"
-                    }
-                
-                for m_key, m_data in MONSTERS.items():
-                    if m_key in m_type:
-                        return {
-                            "atk": m_data.get("atk", 10),
-                            "def": m_data.get("def", 0),
-                            "type": m_key
-                        }
-                return {
-                    "atk": 10,
-                    "def": 0,
-                    "type": "unknown"
-                }
+        return {
+            "atk": 10,
+            "def": 0,
+            "type": "unknown"
+        }
