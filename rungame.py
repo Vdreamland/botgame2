@@ -1,43 +1,46 @@
 import asyncio
-import sys
-import os
-from src.config import load_active_accounts, DEFAULT_ENTRY_TYPE
+from src.config import load_active_accounts
 from src.connection import connect_and_play
-from src.log.log_connections import log_error, log_info
+from src.log.log_connections import log_info, log_error
 from web.web_server import start_web_server
 
-async def bot_worker(bot_name, api_key, entry_type):
+async def bot_worker(account):
+    bot_name = account["name"]
+    api_key = account["api_key"]
+    entry_type = account["entry_type"]
+    
     while True:
         try:
             await connect_and_play(bot_name, api_key, entry_type)
         except Exception as e:
-            log_error(bot_name, f"Bot crashed: {e}")
-        log_info(bot_name, "Reconnecting in 5 seconds...")
+            log_error(bot_name, f"Worker exception occurred: {e}")
+            
+        log_info(bot_name, "Session finished. Checking for next match in 5 seconds...")
         await asyncio.sleep(5)
 
 async def main():
-    await start_web_server()
-    await asyncio.sleep(1)
+    try:
+        await start_web_server()
+        print("Local web server started at http://localhost:8000")
+    except Exception as e:
+        print(f"Failed to start local web server: {e}")
 
-    accounts = load_active_accounts()
-    if not accounts:
-        log_error("SYSTEM", "No active accounts found in .env")
+    try:
+        accounts = load_active_accounts()
+    except Exception as e:
+        print(f"Failed to load accounts configuration: {e}")
         return
-
-    tasks = []
-    for account in accounts:
-        bot_name = account.get("name")
-        api_key = account.get("api_key")
-        entry_type = account.get("entry_type") or DEFAULT_ENTRY_TYPE
-        if bot_name and api_key:
-            tasks.append(asyncio.create_task(bot_worker(bot_name, api_key, entry_type)))
-
-    if tasks:
-        await asyncio.gather(*tasks)
+        
+    if not accounts:
+        print("No active accounts found to run.")
+        return
+        
+    print(f"Starting {len(accounts)} bot(s)...")
+    tasks = [asyncio.create_task(bot_worker(acc)) for acc in accounts]
+    await asyncio.gather(*tasks)
 
 if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        log_info("SYSTEM", "Shutdown requested...")
-        sys.exit(0)
+        print("Multi-bot manager manually terminated.")

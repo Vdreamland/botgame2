@@ -41,7 +41,7 @@ class GameLogSender:
         if payload.get("type") == "turn":
             logger.info(f"[{self.bot_name}] [Turn {payload.get('turn')}] Status: {payload.get('status')}")
         elif payload.get("type") == "detail":
-            logger.info(f"[{self.bot_name}]  -> Game Log: {payload.get('message')}")
+            logger.info(f"[{self.bot_name}] -> Game Log: {payload.get('message')}")
         elif payload.get("type") == "waiting":
             logger.info(f"[{self.bot_name}] [Turn {payload.get('turn')}] Game status: waiting. Waiting for other agents...")
         elif payload.get("type") == "ended":
@@ -58,12 +58,15 @@ class GameLogSender:
         atk_def_line = f"ATK: {detector.get_atk()} / DEF: {detector.get_def()}"
         
         equipped = detector.get_equipped()
-        eq_names = []
-        for eq_type, eq_item in equipped.items():
-            if isinstance(eq_item, dict) and eq_item.get("name"):
-                eq_names.append(eq_item.get("name"))
-        eq_str = ", ".join(eq_names) if eq_names else "None"
-        eq_line = f"Equipped : {eq_str}"
+        weapon_name = "None"
+        armor_name = "None"
+        weapon_item = equipped.get("weapon")
+        if isinstance(weapon_item, dict) and weapon_item.get("name"):
+            weapon_name = weapon_item.get("name")
+        armor_item = equipped.get("armor") or equipped.get("armour")
+        if isinstance(armor_item, dict) and armor_item.get("name"):
+            armor_name = armor_item.get("name")
+        eq_line = f"Equipped : Weapon : {weapon_name} / Armour : {armor_name}"
         
         inventory = detector.get_inventory()
         grouped_inv = {}
@@ -71,13 +74,13 @@ class GameLogSender:
             name = item.get("name", "Unknown")
             qty = item.get("quantity", 1)
             grouped_inv[name] = grouped_inv.get(name, 0) + qty
-            
+        
         inv_items = ", ".join([f"{name} [{qty}]" for name, qty in grouped_inv.items()])
         if not inv_items:
             inv_items = "Empty"
         inv_line = f"Inventory ({len(inventory)}/{detector.get_max_inventory()} Slots) : {inv_items}"
         
-        loc_line = f"Location : {detector.get_location()} / Terrain : {detector.get_terrain()} / Weather : {detector.get_weather()} / Vision {detector.get_vision()} / Links {detector.get_links_count()}"
+        loc_line = f"Location : {detector.get_location()} / Terrain : {detector.get_terrain().capitalize()} / Weather : {detector.get_weather().capitalize()} / Vision {detector.get_vision()} / Links {detector.get_links_count()}"
         
         await self.send_log({"type": "detail", "message": hp_line})
         await self.send_log({"type": "detail", "message": atk_def_line})

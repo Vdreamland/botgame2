@@ -17,7 +17,7 @@ class AgentInfoDetector:
         return self.current_region.get("vision", 0)
 
     def get_links_count(self):
-        links = self.current_region.get("links")
+        links = self.current_region.get("links") or self.current_region.get("connections")
         if isinstance(links, list):
             return len(links)
         elif isinstance(links, int):
