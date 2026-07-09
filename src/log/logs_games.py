@@ -138,7 +138,8 @@ class GameLogSender:
         for log_entry in recent_logs:
             log_str = ""
             if isinstance(log_entry, dict):
-                if log_entry.get("turn") == current_turn:
+                entry_turn = log_entry.get("turn")
+                if entry_turn in (current_turn, current_turn - 1):
                     log_str = log_entry.get("message", "")
             else:
                 log_str = str(log_entry)
@@ -146,8 +147,8 @@ class GameLogSender:
             if not log_str:
                 continue
 
-            is_attack = any(k in log_str.lower() for k in ["attack", "kill", "damage"])
-            is_item = any(k in log_str.lower() for k in ["pick", "drop", "equip", "found", "use", "inventory", "took"])
+            is_attack = any(k in log_str.lower() for k in ["attack", "kill", "damage", "defeat", "slay", "slain"])
+            is_item = any(k in log_str.lower() for k in ["pick", "drop", "equip", "found", "use", "inventory", "took", "obtain", "grab"])
 
             if is_attack:
                 cleaned = re.sub(rf"\b{re.escape(self.bot_name)}\b", "you", log_str, flags=re.IGNORECASE)
