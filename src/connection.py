@@ -148,14 +148,12 @@ async def connect_and_play(bot_name, api_key, entry_type):
                     recent_logs = view.get("recentLogs", [])
                     if recent_logs:
                         for log_entry in recent_logs:
+                            log_msg = ""
                             if isinstance(log_entry, dict):
-                                entry_turn = log_entry.get("turn")
-                                if entry_turn is not None and entry_turn != turn:
-                                    continue
                                 log_msg = log_entry.get("message", "")
                             else:
                                 log_msg = str(log_entry)
-                            if log_msg:
+                            if log_msg and bot_name.lower() in log_msg.lower():
                                 log_info(bot_name, f"Event: {log_msg}")
 
                     if not is_alive:
