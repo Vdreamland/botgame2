@@ -43,7 +43,11 @@ class EnemyInfoDetector:
                     enemies_by_layer[dist][r_name] = []
                 
                 stats = self.resolve_agent_stats(agent)
-                display = f"- {agent.get('name', 'Unknown')} [Agent] (HP {agent.get('hp', 0)}/{agent.get('maxHp', 0)}, ATK: {stats['atk']}, DEF: {stats['def']}, Weapon: {stats['weapon_name']}, Armour: {stats['armor_name']})"
+                name = agent.get("name", "Unknown")
+                is_guardian = "guardian" in name.lower()
+                m_label = "Guardian" if is_guardian else "Agent"
+                
+                display = f"- {name} [{m_label}] (HP {agent.get('hp', 0)}/{agent.get('maxHp', 0)}, ATK: {stats['atk']}, DEF: {stats['def']}, Weapon: {stats['weapon_name']}, Armour: {stats['armor_name']})"
                 enemies_by_layer[dist][r_name].append(display)
 
         for monster in self.get_alive_monsters():
@@ -72,6 +76,15 @@ class EnemyInfoDetector:
         return sorted_layers
 
     def resolve_agent_stats(self, agent_data):
+        name = agent_data.get("name", "")
+        if "guardian" in name.lower():
+            return {
+                "atk": GUARDIAN.get("atk", 12),
+                "def": GUARDIAN.get("def", 120),
+                "weapon_name": "None",
+                "armor_name": "None"
+            }
+
         weapon = agent_data.get("equippedWeapon") or agent_data.get("weapon") or agent_data.get("equipment", {}).get("weapon")
         weapon_name = ""
         if isinstance(weapon, dict):

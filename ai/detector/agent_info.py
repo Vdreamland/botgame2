@@ -2,6 +2,7 @@ from .zone_detector import ZoneDetector
 from .deadzone_detector import DeadZoneDetector
 from .enemy_info import EnemyInfoDetector
 from .ground_item_detector import GroundItemDetector
+from .facility_detector import FacilityDetector
 
 class AgentInfoDetector:
     def __init__(self, view_data):
@@ -11,6 +12,7 @@ class AgentInfoDetector:
         self.deadzone_detector = DeadZoneDetector(self.view_data)
         self.enemy_detector = EnemyInfoDetector(self.view_data)
         self.ground_item_detector = GroundItemDetector(self.view_data)
+        self.facility_detector = FacilityDetector(self.view_data)
 
     def get_location(self):
         return self.zone_detector.get_location()
@@ -112,4 +114,17 @@ class AgentInfoDetector:
         for dist in sorted(items_map.keys()):
             for r_name, items_str in sorted(items_map[dist].items()):
                 log_lines.append(f"{r_name} : {items_str}")
+        return log_lines
+
+    def get_facility_logs(self):
+        distances = self.zone_detector.get_region_distances()
+        fac_map = self.facility_detector.get_formatted_facilities_by_layer(distances)
+        
+        if not fac_map:
+            return []
+        
+        log_lines = ["Facility Detector :"]
+        for dist in sorted(fac_map.keys()):
+            for r_name, fac_str in sorted(fac_map[dist].items()):
+                log_lines.append(f"{r_name} : {fac_str}")
         return log_lines
