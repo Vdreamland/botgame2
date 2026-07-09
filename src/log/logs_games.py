@@ -74,46 +74,50 @@ class GameLogSender:
         armor_item = equipped.get("armor") or equipped.get("armour")
         if isinstance(armor_item, dict) and armor_item.get("name"):
             armor_name = armor_item.get("name")
-        equipped_line = f"Equipped : Weapon : {weapon_name} / Armour : {armor_name}"
+        eq_line = f"Equipped : Weapon : {weapon_name} / Armour : {armor_name}"
          
-        inv_items = detector.get_inventory_items()
-        inv_slots = detector.get_inventory_slots_str()
-        inv_line = f"Inventory {inv_slots} : {inv_items}"
+        inventory = detector.get_inventory()
+        grouped_inv = {}
+        for item in inventory:
+            name = item.get("name", "Unknown")
+            qty = item.get("quantity", 1)
+            grouped_inv[name] = grouped_inv.get(name, 0) + qty
+         
+        inv_items = ", ".join([f"{name} [{qty}]" for name, qty in grouped_inv.items()])
+        if not inv_items:
+            inv_items = "Empty"
+        inv_line = f"Inventory ({len(inventory)}/{detector.get_max_inventory()} Slots) : {inv_items}"
          
         loc_line = f"Location : {detector.get_location()} [{detector.get_current_zone_status()}] / Terrain : {detector.get_terrain().capitalize()} / Weather : {detector.get_weather().capitalize()} / Vision {detector.get_vision()} / Links {detector.get_links_count()}"
          
-        await self.send_log({"type": "detail", "message": "--------------------------------------------------------"})
         await self.send_log({"type": "detail", "message": hp_line})
         await self.send_log({"type": "detail", "message": atk_def_line})
-        await self.send_log({"type": "detail", "message": equipped_line})
+        await self.send_log({"type": "detail", "message": eq_line})
         await self.send_log({"type": "detail", "message": inv_line})
         await self.send_log({"type": "detail", "message": loc_line})
-        await self.send_log({"type": "detail", "message": ""})
-         
+
         zones = detector.get_zones()
         if zones:
+            await self.send_log({"type": "detail", "message": ""})
             await self.send_log({"type": "detail", "message": "Zone Detector :"})
             for dist in sorted(zones.keys()):
                 regions_str = ", ".join(zones[dist])
                 await self.send_log({"type": "detail", "message": f"Layer {dist}: {regions_str}"})
-            await self.send_log({"type": "detail", "message": ""})
-             
+                
         fac_logs = detector.get_facility_logs()
         if fac_logs:
-            await self.send_log({"type": "detail", "message": "Facility Detector :"})
+            await self.send_log({"type": "detail", "message": ""})
             for line in fac_logs:
                 await self.send_log({"type": "detail", "message": line})
-            await self.send_log({"type": "detail", "message": ""})
-             
+                
         ground_logs = detector.get_ground_item_logs()
         if ground_logs:
-            await self.send_log({"type": "detail", "message": "Ground Detector :"})
+            await self.send_log({"type": "detail", "message": ""})
             for line in ground_logs:
                 await self.send_log({"type": "detail", "message": line})
-            await self.send_log({"type": "detail", "message": ""})
-             
+                
         enemy_logs = detector.get_enemy_logs()
         if enemy_logs:
-            await self.send_log({"type": "detail", "message": "Enemy Info :"})
+            await self.send_log({"type": "detail", "message": ""})
             for line in enemy_logs:
                 await self.send_log({"type": "detail", "message": line})
