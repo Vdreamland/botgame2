@@ -118,6 +118,7 @@ async def connect_and_play(bot_name, api_key, entry_type):
                     if not is_alive:
                         log_info(bot_name, "Agent died.")
                         await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": False})
+                        break
                     elif status == "finished":
                         await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
                         break
