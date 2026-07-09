@@ -7,6 +7,18 @@ let botSearchQuery = "";
 function connect() {
   socket = new WebSocket(socketUrl);
 
+  socket.onopen = () => {
+    const placeholder = document.getElementById("placeholder");
+    if (
+      placeholder &&
+      (!activeAgent ||
+        !agentsData[activeAgent] ||
+        agentsData[activeAgent].turns.length === 0)
+    ) {
+      placeholder.textContent = "Waiting for agent websocket updates...";
+    }
+  };
+
   socket.onmessage = (event) => {
     const msg = JSON.parse(event.data);
     const botName = msg.bot_name;
@@ -104,7 +116,12 @@ function connect() {
   };
 
   socket.onclose = () => {
-    setTimeout(connect, 3000);
+    const placeholder = document.getElementById("placeholder");
+    if (placeholder) {
+      placeholder.style.display = "block";
+      placeholder.textContent = "Connecting to local log server (Retrying)...";
+    }
+    setTimeout(connect, 1000);
   };
 }
 
