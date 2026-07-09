@@ -47,13 +47,13 @@
 
 
 ai/priority/
-__init__.py
-equipment_prior.py
-interact_priority.py
-ground_loot_prior.py
-target_kill_prior.py
-survival_prior.py
-recovery_prior.py
+__init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/__init__.py
+equipment_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/equipment_prior.py
+interact_priority.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/interact_priority.py 
+ground_loot_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/ground_loot_prior.py
+target_kill_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/target_kill_prior.py
+survival_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/survival_prior.py
+recovery_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/recovery_prior.py
 
 ai/
 __init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/__init__.py
