@@ -51,7 +51,9 @@ __init__.py  https://github.com/Vdreamland/botgame2/blob/master/src/__init__.py
 config.py https://github.com/Vdreamland/botgame2/blob/master/src/config.py
 connection.py https://github.com/Vdreamland/botgame2/blob/master/src/connection.py
 websocket.py https://github.com/Vdreamland/botgame2/blob/master/src/websocket.py
-game_data.py https://github.com/Vdreamland/botgame2/blob/master/src/game_data.py
+game_helper.py https://github.com/Vdreamland/botgame2/blob/master/src/game_data.py
+actions_helper.py https://github.com/Vdreamland/botgame2/blob/master/src/game_data.py
+
 
 src/log/
 __init__.py https://github.com/Vdreamland/botgame2/blob/master/src/log/__init__.py
