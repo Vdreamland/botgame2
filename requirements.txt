@@ -1,3 +1,2 @@
 websockets
 python-dotenv
-aiohttp
