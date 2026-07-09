@@ -107,3 +107,29 @@ class ZoneDetector:
             if r_name and r_id:
                 region_map[r_name] = r_id
         return region_map
+
+    def get_region_distances(self):
+        start_id = self.current_region.get("id")
+        if not start_id:
+            return {}
+
+        regions_by_id = {start_id: self.current_region}
+        for r in self.visible_regions:
+            r_id = r.get("id")
+            if r_id:
+                regions_by_id[r_id] = r
+
+        queue = [(start_id, 0)]
+        visited = {start_id}
+        distances = {start_id: 0}
+
+        while queue:
+            curr_id, dist = queue.pop(0)
+            curr_reg = regions_by_id.get(curr_id, {})
+            conns = curr_reg.get("connections") or curr_reg.get("links") or []
+            for neighbor_id in conns:
+                if neighbor_id in regions_by_id and neighbor_id not in visited:
+                    visited.add(neighbor_id)
+                    distances[neighbor_id] = dist + 1
+                    queue.append((neighbor_id, dist + 1))
+        return distances

@@ -1,5 +1,6 @@
 from .zone_detector import ZoneDetector
 from .deadzone_detector import DeadZoneDetector
+from .enemy_info import EnemyInfoDetector
 
 class AgentInfoDetector:
     def __init__(self, view_data):
@@ -7,6 +8,7 @@ class AgentInfoDetector:
         self.self_data = self.view_data.get("self", {})
         self.zone_detector = ZoneDetector(self.view_data)
         self.deadzone_detector = DeadZoneDetector(self.view_data)
+        self.enemy_detector = EnemyInfoDetector(self.view_data)
 
     def get_location(self):
         return self.zone_detector.get_location()
@@ -64,3 +66,20 @@ class AgentInfoDetector:
 
     def get_region_name_to_id_map(self):
         return self.zone_detector.get_region_name_to_id_map()
+
+    def get_enemy_logs(self):
+        distances = self.zone_detector.get_region_distances()
+        enemies_map = self.enemy_detector.get_enemies_by_layer(distances)
+        
+        if not enemies_map:
+            return []
+        
+        log_lines = ["Enemy Info :"]
+        for dist in sorted(enemies_map.keys()):
+            layer_label = f"layer {dist}" if dist == 0 else f"Layer {dist}"
+            log_lines.append(f"{layer_label} :")
+            for r_name, enemy_list in enemies_map[dist].items():
+                log_lines.append(f"{r_name} :")
+                for enemy_str in enemy_list:
+                    log_lines.append(enemy_str)
+        return log_lines
