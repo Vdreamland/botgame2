@@ -1,36 +1,41 @@
 import asyncio
-import os
+import http.server
+import socketserver
+import threading
 import json
+import os
+import websockets
 import logging
-from aiohttp import web
 
-logging.getLogger("aiohttp").setLevel(logging.CRITICAL)
+logging.getLogger("websockets").setLevel(logging.CRITICAL)
+logging.getLogger("websockets.server").setLevel(logging.CRITICAL)
+logging.getLogger("websockets.protocol").setLevel(logging.CRITICAL)
 
-PORT = int(os.getenv("PORT", 8000))
+PORT = 8000
+WS_PORT = 8080
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+
+class Handler(http.server.SimpleHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, directory=DIRECTORY, **kwargs)
+
+    def log_message(self, format, *args):
+        pass
+
+def run_http_server():
+    with socketserver.TCPServer(("", PORT), Handler) as httpd:
+        httpd.serve_forever()
 
 connected_clients = set()
 bot_history = {}
 
-async def index_handler(request):
-    return web.FileResponse(os.path.join(DIRECTORY, "index.html"))
-
-async def style_handler(request):
-    return web.FileResponse(os.path.join(DIRECTORY, "style.css"))
-
-async def js_handler(request):
-    return web.FileResponse(os.path.join(DIRECTORY, "app.js"))
-
-async def ws_handler(request):
-    ws = web.WebSocketResponse()
-    await ws.prepare(request)
-    
-    connected_clients.add(ws)
+async def handler(websocket):
+    connected_clients.add(websocket)
     
     for bot_name, history in bot_history.items():
         for cached_msg in history:
             try:
-                await ws.send_str(cached_msg)
+                await websocket.send(cached_msg)
             except Exception:
                 pass
                 
@@ -38,18 +43,17 @@ async def ws_handler(request):
         async def broadcast(message):
             websockets_to_remove = []
             for client in connected_clients:
-                if client != ws:
+                if client != websocket:
                     try:
-                        await client.send_str(message)
+                        await client.send(message)
                     except Exception:
                         websockets_to_remove.append(client)
             for client in websockets_to_remove:
                 if client in connected_clients:
                     connected_clients.remove(client)
 
-        async for msg in ws:
-            if msg.type == web.WSMsgType.TEXT:
-                message = msg.data
+        async def process_messages():
+            async for message in websocket:
                 try:
                     payload = json.loads(message)
                     bot_name = payload.get("bot_name")
@@ -61,27 +65,18 @@ async def ws_handler(request):
                             bot_history[bot_name].pop(0)
                 except Exception:
                     pass
+                    
                 await broadcast(message)
-            elif msg.type == web.WSMsgType.ERROR:
-                pass
+
+        await process_messages()
+                
     except Exception:
         pass
     finally:
-        if ws in connected_clients:
-            connected_clients.remove(ws)
-    return ws
+        if websocket in connected_clients:
+            connected_clients.remove(websocket)
 
 async def start_web_server():
-    app = web.Application()
-    app.router.add_get("/", index_handler)
-    app.router.add_get("/style.css", style_handler)
-    app.router.add_get("/app.js", js_handler)
-    app.router.add_get("/ws", ws_handler)
-    
-    runner = web.AppRunner(app)
-    await runner.setup()
-    
-    site = web.TCPSite(runner, host=None, port=PORT)
-    await site.start()
-    
-    await asyncio.sleep(0.5)
+    t = threading.Thread(target=run_http_server, daemon=True)
+    t.start()
+    await websockets.serve(handler, "127.0.0.1", WS_PORT)

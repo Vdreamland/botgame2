@@ -1,5 +1,4 @@
-const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
-const socketUrl = protocol + window.location.host + "/ws";
+const socketUrl = "ws://127.0.0.1:8080";
 let socket;
 let agentsData = {};
 let activeAgent = null;
