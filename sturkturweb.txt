@@ -42,7 +42,6 @@
     │   │   └── ruin_exploration_strategy.py
     │   ├── memory.py              
     │   └── decision_maker.py              
-
 ├── web/                           
 │   ├── index.html                 
 │   ├── style.css                 
@@ -54,7 +53,7 @@ decision_maker.py
 memory.py
 
 ai/strategy/
-__init__.py
+__init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/strategy/__init__.py
 movement_strategy.py
 ruin_exploration_strategy.py
 
