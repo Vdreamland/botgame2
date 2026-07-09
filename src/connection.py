@@ -91,7 +91,6 @@ async def connect_and_play(bot_name, api_key, entry_type):
                     
                 elif msg_type in ("agent_view", "turn_advanced"):
                     has_logged_wait = False
-                    is_first_frame = not has_logged_gameplay
                     if not has_logged_gameplay:
                         log_info(bot_name, "Ready in game. Active loop entered.")
                         has_logged_gameplay = True
@@ -107,9 +106,12 @@ async def connect_and_play(bot_name, api_key, entry_type):
                     await log_sender.send_agent_info(view)
                     
                     recent_logs = view.get("recentLogs", [])
-                    if recent_logs and not is_first_frame:
+                    if recent_logs:
                         for log_entry in recent_logs:
                             if isinstance(log_entry, dict):
+                                entry_turn = log_entry.get("turn")
+                                if entry_turn is not None and entry_turn != turn:
+                                    continue
                                 log_msg = log_entry.get("message", "")
                             else:
                                 log_msg = str(log_entry)
