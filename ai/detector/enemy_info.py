@@ -9,14 +9,14 @@ class EnemyInfoDetector:
     def get_alive_agents(self):
         alive = []
         for agent in self.visible_agents:
-            if isinstance(agent, dict) and not agent.get("isDead", False):
+            if isinstance(agent, dict) and agent.get("hp", 0) > 0 and not agent.get("isDead", False):
                 alive.append(agent)
         return alive
 
     def get_alive_monsters(self):
         alive = []
         for monster in self.visible_monsters:
-            if isinstance(monster, dict) and not monster.get("isDead", False):
+            if isinstance(monster, dict) and monster.get("hp", 0) > 0 and not monster.get("isDead", False):
                 alive.append(monster)
         return alive
 
