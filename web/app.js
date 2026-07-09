@@ -125,7 +125,17 @@ function connect() {
   };
 }
 
+let updateGlobalStatsPending = false;
 function updateGlobalStats() {
+  if (updateGlobalStatsPending) return;
+  updateGlobalStatsPending = true;
+  requestAnimationFrame(() => {
+    updateGlobalStatsPending = false;
+    _actualUpdateGlobalStats();
+  });
+}
+
+function _actualUpdateGlobalStats() {
   const totalBotsElem = document.getElementById("total-bots");
   const totalSmoltzElem = document.getElementById("total-smoltz");
   const botsPlayingElem = document.getElementById("bots-playing");
@@ -185,7 +195,17 @@ function updateGlobalStats() {
   if (botsPaidElem) botsPaidElem.textContent = paidCount;
 }
 
+let updateTabsPending = false;
 function updateTabs() {
+  if (updateTabsPending) return;
+  updateTabsPending = true;
+  requestAnimationFrame(() => {
+    updateTabsPending = false;
+    _actualUpdateTabs();
+  });
+}
+
+function _actualUpdateTabs() {
   const tabsContainer = document.getElementById("tabs");
   if (!tabsContainer) return;
   tabsContainer.innerHTML = "";
@@ -245,7 +265,17 @@ function switchAgent(botName) {
   renderLogs();
 }
 
+let renderLogsPending = false;
 function renderLogs() {
+  if (renderLogsPending) return;
+  renderLogsPending = true;
+  requestAnimationFrame(() => {
+    renderLogsPending = false;
+    _actualRenderLogs();
+  });
+}
+
+function _actualRenderLogs() {
   const container = document.getElementById("log-cards-container");
   const placeholder = document.getElementById("placeholder");
   const viewport = document.getElementById("viewport");
