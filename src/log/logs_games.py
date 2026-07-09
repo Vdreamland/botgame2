@@ -42,7 +42,7 @@ class GameLogSender:
         
         msg_type = payload.get("type")
         
-        if ws_success and msg_type in ("detail", "status_update"):
+        if ws_success and msg_type in ("detail", "status_update", "turn", "waiting"):
             return
             
         if msg_type == "turn":
