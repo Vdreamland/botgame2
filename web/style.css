@@ -354,8 +354,8 @@ body {
     max-height: 250px;
   }
   .logs-viewport {
-    min-height: 400px;
-    overflow: visible;
+    min-height: 450px;
+    overflow: auto;
   }
 }
 

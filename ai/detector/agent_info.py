@@ -80,21 +80,21 @@ class AgentInfoDetector:
         return self.zone_detector.get_region_name_to_id_map()
 
     def get_enemy_logs(self):
-        distances = self.zone_detector.get_region_distances()
-        enemies_map = self.enemy_detector.get_enemies_by_layer(distances)
-        
-        if not enemies_map:
-            return []
-        
-        log_lines = ["Enemy Info :"]
-        first_block = True
-        for dist in sorted(enemies_map.keys()):
-            for r_name, enemy_list in enemies_map[dist].items():
-                if not first_block:
-                    log_lines.append("")
-                else:
-                    first_block = False
-                log_lines.append(f"{r_name} :")
-                for enemy_str in enemy_list:
-                    log_lines.append(enemy_str)
-        return log_lines
+                distances = self.zone_detector.get_region_distances()
+                enemies_map = self.enemy_detector.get_enemies_by_layer(distances)
+                
+                if not enemies_map:
+                    return []
+                
+                log_lines = ["Enemy Info :"]
+                first_block = True
+                for dist in sorted(enemies_map.keys()):
+                    for r_name, enemy_list in enemies_map[dist].items():
+                        if not first_block:
+                            log_lines.append("")
+                        else:
+                            first_block = False
+                        log_lines.append(f"{r_name} :")
+                        for enemy_str in enemy_list:
+                            log_lines.append(enemy_str)
+                return log_lines
