@@ -1,7 +1,23 @@
 class GroundItemDetector:
     def __init__(self, view_data):
         self.view_data = view_data or {}
-        self.visible_items = self.view_data.get("visibleItems") or self.view_data.get("items") or []
+        self.visible_items = []
+        
+        current_region = self.view_data.get("currentRegion", {})
+        if isinstance(current_region, dict):
+            r_id = current_region.get("id")
+            for item in current_region.get("items", []):
+                if isinstance(item, dict) and r_id:
+                    item["regionId"] = r_id
+                    self.visible_items.append(item)
+                    
+        for reg in self.view_data.get("visibleRegions", []):
+            if isinstance(reg, dict):
+                r_id = reg.get("id")
+                for item in reg.get("items", []):
+                    if isinstance(item, dict) and r_id:
+                        item["regionId"] = r_id
+                        self.visible_items.append(item)
 
     def get_items_by_region(self):
         items_by_reg = {}
