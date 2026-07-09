@@ -6,6 +6,7 @@ from .game_helper import (
     RECOVERY,
     TERRAIN_MODS,
     WEATHER_MODS,
+    FACILITIES,
     AGENT_BASE,
     get_weapon_bonus,
     get_armor_bonus,

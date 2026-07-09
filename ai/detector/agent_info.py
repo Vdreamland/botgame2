@@ -58,3 +58,9 @@ class AgentInfoDetector:
 
     def get_current_zone_status(self):
         return self.deadzone_detector.get_region_status(self.zone_detector.current_region)
+
+    def get_current_region_id(self):
+        return self.current_region.get("id", "")
+
+    def get_region_name_to_id_map(self):
+        return self.zone_detector.get_region_name_to_id_map()

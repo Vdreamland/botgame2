@@ -148,6 +148,39 @@ WEATHER_MODS = {
     }
 }
 
+FACILITIES = {
+    "supply_cache": {
+        "type": "supply_cache",
+        "action": "interact",
+        "priority": "high"
+    },
+    "medical_facility": {
+        "type": "medical_facility",
+        "action": "interact",
+        "priority": "high"
+    },
+    "watchtower": {
+        "type": "watchtower",
+        "action": "interact",
+        "priority": "medium"
+    },
+    "broadcast_station": {
+        "type": "broadcast_station",
+        "action": "interact",
+        "priority": "low"
+    },
+    "cave": {
+        "type": "cave",
+        "action": "interact",
+        "priority": "medium"
+    },
+    "ruin": {
+        "type": "ruin",
+        "action": "explore",
+        "priority": "high"
+    }
+}
+
 AGENT_BASE = {
     "hp": 100,
     "atk": 25,

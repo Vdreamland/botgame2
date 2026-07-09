@@ -85,3 +85,17 @@ class ZoneDetector:
             layers[dist].sort()
 
         return layers
+
+    def get_region_name_to_id_map(self):
+        region_map = {}
+        start_id = self.current_region.get("id")
+        start_name = self.current_region.get("name")
+        if start_name and start_id:
+            region_map[start_name] = start_id
+
+        for r in self.visible_regions:
+            r_id = r.get("id")
+            r_name = r.get("name")
+            if r_name and r_id:
+                region_map[r_name] = r_id
+        return region_map
