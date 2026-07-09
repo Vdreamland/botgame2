@@ -72,8 +72,8 @@ async def connect_and_play(bot_name, api_key, entry_type):
                         silence = now - last_received_time
                         if silence > 45.0:
                             log_warning(bot_name, "Watchdog detected connection inactivity for 45 seconds. Force-closing socket...")
-                            if client.ws and client.ws.transport:
-                                client.ws.transport.close()
+                            if client._ws and client._ws.transport:
+                                client._ws.transport.close()
                             break
                         else:
                             log_info(bot_name, f"Waiting for next turn... (Silence: {int(silence)}s / 45s)")
