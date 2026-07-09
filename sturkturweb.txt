@@ -49,13 +49,13 @@
 │   └── app.js   
 
 ai/
-decision_maker.py
-memory.py
+decision_maker.py https://github.com/Vdreamland/botgame2/blob/master/ai/decision_maker.py
+memory.py https://github.com/Vdreamland/botgame2/blob/master/ai/memory.py
 
 ai/strategy/
 __init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/strategy/__init__.py
-movement_strategy.py
-ruin_exploration_strategy.py
+movement_strategy.py https://github.com/Vdreamland/botgame2/blob/master/ai/strategy/movement_strategy.py
+ruin_exploration_strategy.py https://github.com/Vdreamland/botgame2/blob/master/ai/strategy/ruin_exploration_strategy.py
 
 
 ai/priority/

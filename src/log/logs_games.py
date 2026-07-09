@@ -59,7 +59,7 @@ class GameLogSender:
         elif msg_type == "reenter":
             logger.info(f"[{self.bot_name}] Gameplay frames detected. Re-entering active loop.")
 
-    async def send_agent_info(self, view_data, turn=None):
+    async def send_agent_info(self, view_data):
         detector = AgentInfoDetector(view_data)
          
         hp_line = f"Hp {detector.get_hp()}/{detector.get_max_hp()} / Ep {detector.get_ep()}/{detector.get_max_ep()} / Kill {detector.get_kills()}"
@@ -123,12 +123,6 @@ class GameLogSender:
                 await self.send_log({"type": "detail", "message": line})
 
         recent_logs = view_data.get("recentLogs") or []
-        current_turn = turn
-        if current_turn is None:
-            current_turn = 1
-            for log_entry in recent_logs:
-                if isinstance(log_entry, dict) and "turn" in log_entry:
-                    current_turn = max(current_turn, log_entry["turn"])
 
         attack_list = []
         item_list = []
@@ -138,9 +132,7 @@ class GameLogSender:
         for log_entry in recent_logs:
             log_str = ""
             if isinstance(log_entry, dict):
-                entry_turn = log_entry.get("turn")
-                if entry_turn in (current_turn, current_turn - 1):
-                    log_str = log_entry.get("message", "")
+                log_str = log_entry.get("message", "")
             else:
                 log_str = str(log_entry)
 
@@ -157,12 +149,14 @@ class GameLogSender:
                 cleaned = " ".join(cleaned.split())
                 if cleaned.endswith("."):
                     cleaned = cleaned[:-1]
-                attack_list.append(cleaned)
+                if cleaned not in attack_list:
+                    attack_list.append(cleaned)
             elif is_item:
                 cleaned = re.sub(rf"\b{re.escape(self.bot_name)}\b", "you", log_str, flags=re.IGNORECASE)
                 if cleaned.endswith("."):
                     cleaned = cleaned[:-1]
-                item_list.append(cleaned)
+                if cleaned not in item_list:
+                    item_list.append(cleaned)
 
         attack_str = " / ".join(attack_list) if attack_list else "None"
         item_str = " / ".join(item_list) if item_list else "None"
