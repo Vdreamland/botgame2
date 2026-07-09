@@ -139,20 +139,14 @@ function _actualUpdateGlobalStats() {
   const totalBotsElem = document.getElementById("total-bots");
   const totalSmoltzElem = document.getElementById("total-smoltz");
   const botsPlayingElem = document.getElementById("bots-playing");
-  const botsAliveElem = document.getElementById("bots-alive");
   const botsMatchingElem = document.getElementById("bots-matching");
-  const botsLobbyElem = document.getElementById("bots-lobby");
-  const botsDeadElem = document.getElementById("bots-dead");
   const botsFreeElem = document.getElementById("bots-free");
   const botsPaidElem = document.getElementById("bots-paid");
 
   const botNames = Object.keys(agentsData);
   let totalSmoltz = 0;
   let playingCount = 0;
-  let aliveCount = 0;
   let matchingCount = 0;
-  let lobbyCount = 0;
-  let deadCount = 0;
   let freeCount = 0;
   let paidCount = 0;
 
@@ -162,12 +156,6 @@ function _actualUpdateGlobalStats() {
 
     if (agent.status === "playing") {
       playingCount++;
-      if (agent.isAlive) {
-        aliveCount++;
-      } else {
-        deadCount++;
-      }
-
       if (agent.entryType === "paid") {
         paidCount++;
       } else {
@@ -175,10 +163,6 @@ function _actualUpdateGlobalStats() {
       }
     } else if (agent.status === "matchmaking") {
       matchingCount++;
-    } else if (agent.status === "lobby") {
-      lobbyCount++;
-    } else if (agent.status === "dead") {
-      deadCount++;
     }
   });
 
@@ -187,10 +171,7 @@ function _actualUpdateGlobalStats() {
     totalSmoltzElem.textContent = totalSmoltz.toLocaleString();
 
   if (botsPlayingElem) botsPlayingElem.textContent = playingCount;
-  if (botsAliveElem) botsAliveElem.textContent = aliveCount;
   if (botsMatchingElem) botsMatchingElem.textContent = matchingCount;
-  if (botsLobbyElem) botsLobbyElem.textContent = lobbyCount;
-  if (botsDeadElem) botsDeadElem.textContent = deadCount;
   if (botsFreeElem) botsFreeElem.textContent = freeCount;
   if (botsPaidElem) botsPaidElem.textContent = paidCount;
 }
