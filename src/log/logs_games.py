@@ -87,7 +87,7 @@ class GameLogSender:
             inv_items = "Empty"
         inv_line = f"Inventory ({len(inventory)}/{detector.get_max_inventory()} Slots) : {inv_items}"
         
-        loc_line = f"Location : {detector.get_location()} / Terrain : {detector.get_terrain().capitalize()} / Weather : {detector.get_weather().capitalize()} / Vision {detector.get_vision()} / Links {detector.get_links_count()}"
+        loc_line = f"Location : {detector.get_location()} [{detector.get_current_zone_status()}] / Terrain : {detector.get_terrain().capitalize()} / Weather : {detector.get_weather().capitalize()} / Vision {detector.get_vision()} / Links {detector.get_links_count()}"
         
         await self.send_log({"type": "detail", "message": hp_line})
         await self.send_log({"type": "detail", "message": atk_def_line})
