@@ -157,7 +157,6 @@ async def connect_and_play(bot_name, api_key, entry_type):
                                 log_msg = str(log_entry)
                             if log_msg:
                                 log_info(bot_name, f"Event: {log_msg}")
-                                await log_sender.send_log({"type": "detail", "message": log_msg})
 
                     if not is_alive:
                         log_info(bot_name, f"Death detected on Turn {turn}! HP: {hp}, isAlive: {self_data.get('isAlive')}. Exiting game loop...")
