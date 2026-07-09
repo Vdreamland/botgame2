@@ -1,10 +1,12 @@
 from .zone_detector import ZoneDetector
+from .deadzone_detector import DeadZoneDetector
 
 class AgentInfoDetector:
     def __init__(self, view_data):
         self.view_data = view_data or {}
         self.self_data = self.view_data.get("self", {})
         self.zone_detector = ZoneDetector(self.view_data)
+        self.deadzone_detector = DeadZoneDetector(self.view_data)
 
     def get_location(self):
         return self.zone_detector.get_location()
@@ -53,3 +55,6 @@ class AgentInfoDetector:
 
     def get_zones(self):
         return self.zone_detector.detect_zones()
+
+    def get_current_zone_status(self):
+        return self.deadzone_detector.get_region_status(self.zone_detector.current_region)

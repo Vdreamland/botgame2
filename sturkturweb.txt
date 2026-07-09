@@ -19,6 +19,8 @@
     │   │   ├── __init__.py        # Berkas inisialisasi paket detector
     │   │   ├── agent_info.py      # Pengurai statistik diri agen seperti HP, EP, inventaris, dan peralatan
     │   │   ├── zone_detector.py
+    │   │   ├── deadzone_detector.py
+
 
 
 ├── web/                           
@@ -34,6 +36,9 @@ ai/detector/
 __init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/__init__.py
 agent_info.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/agent_info.py
 zone_detector.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/zone_detector.py
+deadzone_detector.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/deadzone_detector.py
+
+
 
 botgame2/
 .env https://github.com/Vdreamland/botgame2/blob/master/.env

@@ -1,3 +1,5 @@
+from .deadzone_detector import DeadZoneDetector
+
 class ZoneDetector:
     def __init__(self, view_data):
         self.view_data = view_data or {}
@@ -67,6 +69,7 @@ class ZoneDetector:
             if r_id:
                 regions_by_id[r_id] = r
 
+        dead_detector = DeadZoneDetector(self.view_data)
         queue = [(start_id, 0)]
         visited = {start_id}
         layers = {}
@@ -76,9 +79,12 @@ class ZoneDetector:
             if curr_id != start_id:
                 if dist not in layers:
                     layers[dist] = []
-                r_name = regions_by_id[curr_id].get("name", "Unknown")
-                if r_name not in layers[dist]:
-                    layers[dist].append(r_name)
+                reg_data = regions_by_id[curr_id]
+                r_name = reg_data.get("name", "Unknown")
+                status = dead_detector.get_region_status(reg_data)
+                r_display = f"{r_name} [{status}]"
+                if r_display not in layers[dist]:
+                    layers[dist].append(r_display)
 
             curr_reg = regions_by_id.get(curr_id, {})
             conns = curr_reg.get("connections") or curr_reg.get("links") or []
