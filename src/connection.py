@@ -67,13 +67,16 @@ async def connect_and_play(bot_name, api_key, entry_type):
                 nonlocal last_received_time
                 try:
                     while True:
-                        await asyncio.sleep(5.0)
+                        await asyncio.sleep(15.0)
                         now = asyncio.get_event_loop().time()
-                        if now - last_received_time > 45.0:
+                        silence = now - last_received_time
+                        if silence > 45.0:
                             log_warning(bot_name, "Watchdog detected connection inactivity for 45 seconds. Force-closing socket...")
-                            if client.ws:
-                                await client.ws.close()
+                            if client.ws and client.ws.transport:
+                                client.ws.transport.close()
                             break
+                        else:
+                            log_info(bot_name, f"Waiting for next turn... (Silence: {int(silence)}s / 45s)")
                 except asyncio.CancelledError:
                     pass
 
@@ -84,7 +87,6 @@ async def connect_and_play(bot_name, api_key, entry_type):
                     current_timeout = 5.0 if expect_immediate_frame else 60.0
                     msg = await asyncio.wait_for(client.recv(), timeout=current_timeout)
                     expect_immediate_frame = False
-                    last_received_time = asyncio.get_event_loop().time()
                 except asyncio.TimeoutError:
                     if expect_immediate_frame:
                         log_warning(bot_name, "No immediate frames on ALREADY_IN_GAME. Post-death delay likely. Retrying shortly...")
@@ -93,6 +95,9 @@ async def connect_and_play(bot_name, api_key, entry_type):
                     break
 
                 msg_type = msg.get("type")
+
+                if msg_type in ("queued", "assigned", "agent_view", "turn_advanced", "waiting"):
+                    last_received_time = asyncio.get_event_loop().time()
 
                 active_game_id = msg.get("gameId")
                 if active_game_id:
