@@ -1,15 +1,10 @@
 import asyncio
-import json
 import os
-import websockets
+import json
 import logging
-import http.server
-import socketserver
-import threading
+from aiohttp import web
 
-logging.getLogger("websockets").setLevel(logging.CRITICAL)
-logging.getLogger("websockets.server").setLevel(logging.CRITICAL)
-logging.getLogger("websockets.protocol").setLevel(logging.CRITICAL)
+logging.getLogger("aiohttp").setLevel(logging.CRITICAL)
 
 PORT = int(os.getenv("PORT", 8000))
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -17,39 +12,19 @@ DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 connected_clients = set()
 bot_history = {}
 
-async def process_request(path, request_headers):
-    import mimetypes
-    clean_path = path.split("?")[0]
-    if clean_path == "/":
-        clean_path = "/index.html"
-        
-    file_path = os.path.join(DIRECTORY, clean_path.lstrip("/"))
-    if not os.path.abspath(file_path).startswith(DIRECTORY):
-        return 403, [], b"Forbidden"
-        
-    if os.path.exists(file_path) and os.path.isfile(file_path):
-        mime_type, _ = mimetypes.guess_type(file_path)
-        mime_type = mime_type or "application/octet-stream"
-        with open(file_path, "rb") as f:
-            body = f.read()
-        headers = [
-            ("Content-Type", mime_type),
-            ("Content-Length", str(len(body)))
-        ]
-        return 200, headers, body
-        
-    if clean_path == "/ws":
-        return None
-        
-    return 404, [], b"Not Found"
+async def index_handler(request):
+    return web.FileResponse(os.path.join(DIRECTORY, "index.html"))
 
-async def handler(websocket):
-    connected_clients.add(websocket)
+async def ws_handler(request):
+    ws = web.WebSocketResponse()
+    await ws.prepare(request)
+    
+    connected_clients.add(ws)
     
     for bot_name, history in bot_history.items():
         for cached_msg in history:
             try:
-                await websocket.send(cached_msg)
+                await ws.send_str(cached_msg)
             except Exception:
                 pass
                 
@@ -57,17 +32,18 @@ async def handler(websocket):
         async def broadcast(message):
             websockets_to_remove = []
             for client in connected_clients:
-                if client != websocket:
+                if client != ws:
                     try:
-                        await client.send(message)
+                        await client.send_str(message)
                     except Exception:
                         websockets_to_remove.append(client)
             for client in websockets_to_remove:
                 if client in connected_clients:
                     connected_clients.remove(client)
 
-        async def process_messages():
-            async for message in websocket:
+        async for msg in ws:
+            if msg.type == web.WSMsgType.TEXT:
+                message = msg.data
                 try:
                     payload = json.loads(message)
                     bot_name = payload.get("bot_name")
@@ -79,16 +55,24 @@ async def handler(websocket):
                             bot_history[bot_name].pop(0)
                 except Exception:
                     pass
-                    
                 await broadcast(message)
-
-        await process_messages()
-                
+            elif msg.type == web.WSMsgType.ERROR:
+                pass
     except Exception:
         pass
     finally:
-        if websocket in connected_clients:
-            connected_clients.remove(websocket)
+        if ws in connected_clients:
+            connected_clients.remove(ws)
+    return ws
 
 async def start_web_server():
-    await websockets.serve(handler, "0.0.0.0", PORT, process_request=process_request)
+    app = web.Application()
+    app.router.add_get("/", index_handler)
+    app.router.add_get("/ws", ws_handler)
+    app.router.add_static("/", path=DIRECTORY, name="static")
+    
+    runner = web.AppRunner(app)
+    await runner.setup()
+    
+    site = web.TCPSite(runner, "0.0.0.0", PORT)
+    await site.start()
