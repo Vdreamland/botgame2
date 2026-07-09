@@ -67,7 +67,7 @@ async def connect_and_play(bot_name, api_key, entry_type):
                 nonlocal last_received_time
                 try:
                     while True:
-                        await asyncio.sleep(15.0)
+                        await asyncio.sleep(5.0)
                         now = asyncio.get_event_loop().time()
                         silence = now - last_received_time
                         if silence > 45.0:
@@ -75,8 +75,6 @@ async def connect_and_play(bot_name, api_key, entry_type):
                             if client._ws and client._ws.transport:
                                 client._ws.transport.close()
                             break
-                        else:
-                            log_info(bot_name, f"Waiting for next turn... (Silence: {int(silence)}s / 45s)")
                 except asyncio.CancelledError:
                     pass
 
