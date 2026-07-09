@@ -36,12 +36,15 @@ async def handler(websocket):
     connected_clients.add(websocket)
     connected_browsers.add(websocket)
  
-    for bot_name, history in bot_history.items():
-        for cached_msg in history:
-            try:
-                await websocket.send(cached_msg)
-            except Exception:
-                pass
+    await asyncio.sleep(0.1)
+ 
+    if websocket in connected_browsers:
+        for bot_name, history in bot_history.items():
+            for cached_msg in history:
+                try:
+                    await websocket.send(cached_msg)
+                except Exception:
+                    pass
  
     try:
         async def broadcast(message):
