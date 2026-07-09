@@ -79,8 +79,10 @@ class FacilityDetector:
                     f_type = fac.get("type") or fac.get("name") or "facility"
                     f_name = f_type.replace("_", " ").title()
                     status = fac.get("status", "Ready")
-                    status_str = status.capitalize()
-                    fac_str_list.append(f"{f_name} [{status_str}]")
+                    if status == "Used":
+                        fac_str_list.append(f"{f_name} [Already Used]")
+                    else:
+                        fac_str_list.append(f_name)
                 
                 layer_map[dist][r_name] = ", ".join(sorted(fac_str_list))
         return layer_map
