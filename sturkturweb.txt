@@ -27,7 +27,7 @@
     │   │   ├── zone_detector.py
     │   │   ├── deadzone_detector.py
     │   │   ├── ground_item_detector.py
-    │   │   ├── facility_detector.py
+    │   │   └── facility_detector.py
     │   ├── priority/              
     │   │   ├── __init__.py        
     │   │   ├── equipment_prior.py     
@@ -35,8 +35,13 @@
     │   │   ├── ground_loot_prior.py
     │   │   ├── target_kill_prior.py
     │   │   ├── survival_prior.py
-    │   │   ├── recovery_prior.py
-
+    │   │   └── recovery_prior.py
+    │   ├── strategy/              
+    │   │   ├── __init__.py        
+    │   │   ├── navigation_strategy.py     
+    │   │   └── ruin_exploration_strategy.py
+    │   ├── memory.py              
+    │   └── decision_maker.py              
 
 ├── web/                           
 │   ├── index.html                 
@@ -44,6 +49,14 @@
 │   ├── web_server.py
 │   └── app.js   
 
+ai/
+decision_maker.py
+memory.py
+
+ai/strategy/
+__init__.py
+movement_strategy.py
+ruin_exploration_strategy.py
 
 
 ai/priority/
