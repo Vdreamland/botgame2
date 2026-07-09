@@ -143,7 +143,7 @@ async def connect_and_play(bot_name, api_key, entry_type):
 
                     log_info(bot_name, f"Processing Turn {turn} (HP: {hp}/{max_hp}, EP: {ep}, Status: {status})")
 
-                    await log_sender.send_agent_info(view)
+                    await log_sender.send_agent_info(view, turn)
 
                     recent_logs = view.get("recentLogs", [])
                     if recent_logs:
