@@ -3,6 +3,7 @@ import websockets
 import logging
 import sys
 import asyncio
+import re
 from ai.detector import AgentInfoDetector
 
 logger = logging.getLogger("botgame.game")
@@ -127,8 +128,6 @@ class GameLogSender:
         attack_list = []
         item_list = []
 
-        import re
-
         for log_entry in recent_logs:
             log_str = ""
             if isinstance(log_entry, dict):
@@ -137,6 +136,9 @@ class GameLogSender:
                 log_str = str(log_entry)
 
             if not log_str:
+                continue
+
+            if self.bot_name.lower() not in log_str.lower():
                 continue
 
             is_attack = any(k in log_str.lower() for k in ["attack", "kill", "damage", "defeat", "slay", "slain"])
