@@ -101,7 +101,7 @@ async def connect_and_play(bot_name, api_key, entry_type):
                     
                     view = msg.get("view", {})
                     self_data = view.get("self", {})
-                    is_alive = self_data.get("isAlive", True)
+                    is_alive = self_data.get("isAlive", True) and self_data.get("hp", 0) > 0
                     
                     await log_sender.send_agent_info(view)
                     
@@ -117,6 +117,7 @@ async def connect_and_play(bot_name, api_key, entry_type):
                     
                     if not is_alive:
                         log_info(bot_name, "Agent died.")
+                        await log_sender.send_log({"type": "detail", "message": "=== AGENT ELIMINATED / DIED ==="})
                         await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": False})
                         break
                     elif status == "finished":
