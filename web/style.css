@@ -304,6 +304,9 @@ body {
   padding: 14px 18px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
 }
+.turn-card .detail-list {
+  font-size: 13px;
+}
 .turn-header {
   display: flex;
   justify-content: space-between;

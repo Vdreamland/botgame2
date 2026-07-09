@@ -50,6 +50,7 @@ function connect() {
         turnObj = {
           turn: turnNum,
           status: turnStatus,
+          logs: [],
         };
         agent.turns.push(turnObj);
       } else {
@@ -66,11 +67,26 @@ function connect() {
         turnObj = {
           turn: turnNum,
           status: "waiting",
+          logs: [],
         };
         agent.turns.push(turnObj);
       } else {
         turnObj.status = "waiting";
       }
+      if (activeAgent === botName) {
+        renderLogs();
+      }
+    } else if (msg.type === "detail") {
+      if (agent.turns.length === 0) {
+        agent.turns.push({
+          turn: 1,
+          status: "running",
+          logs: [],
+        });
+      }
+      const currentTurn = agent.turns[agent.turns.length - 1];
+      currentTurn.logs.push(msg.message);
+
       if (activeAgent === botName) {
         renderLogs();
       }
@@ -260,6 +276,18 @@ function renderLogs() {
     cardHeader.appendChild(statusLabel);
     card.appendChild(cardHeader);
 
+    if (t.logs && t.logs.length > 0) {
+      const list = document.createElement("ul");
+      list.className = "detail-list";
+      t.logs.forEach((logText) => {
+        const item = document.createElement("li");
+        item.className = "detail-item";
+        item.textContent = logText;
+        list.appendChild(item);
+      });
+      card.appendChild(list);
+    }
+
     container.appendChild(card);
   });
 
@@ -278,8 +306,18 @@ document.getElementById("copy-logs-btn").onclick = () => {
   let copyText = `${activeAgent} GAME LOGS\n`;
   copyText += `=======================\n`;
 
-  const turnLines = sortedTurns.map((t) => `Turn ${t.turn}`);
-  copyText += turnLines.join("\n\n") + "\n";
+  const turnBlocks = sortedTurns.map((t) => {
+    let block = `Turn ${t.turn}`;
+    if (t.logs && t.logs.length > 0) {
+      const filteredLogs = t.logs.filter((line) => !line.includes("---"));
+      if (filteredLogs.length > 0) {
+        block += "\n" + filteredLogs.join("\n");
+      }
+    }
+    return block;
+  });
+
+  copyText += turnBlocks.join("\n\n") + "\n";
 
   navigator.clipboard.writeText(copyText).then(() => {
     const btn = document.getElementById("copy-logs-btn");

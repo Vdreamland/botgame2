@@ -12,6 +12,32 @@
         ├── __init__.py
         ├── log_connections.py
         └── logs_games.py
+    ├── ai/                        # Folder utama modul kecerdasan buatan agen
+    │   ├── __init__.py            # Berkas inisialisasi paket AI
+    │   │
+    │   ├── detector/              # Subsistem pengurai status lingkungan dari masukan mentah server
+    │   │   ├── __init__.py        # Berkas inisialisasi paket detector
+    │   │   ├── agent_info.py      # Pengurai statistik diri agen seperti HP, EP, inventaris, dan peralatan
+    │   │   ├── deadzone_detector.py # Pengurai status wilayah deadzone aktif dan pending collapse
+    │   │   ├── enemy_detector.py  # Pengurai status, jarak, dan statistik musuh atau monster secara live
+    │   │   ├── loot_detector.py   # Pengurai barang-barang yang tergeletak di lantai sekitar wilayah agen
+    │   │   ├── radar_detector.py  # Pengurai peta radar regional sekitar wilayah agen
+    │   │   └── zone_detector.py   # Pengurai wilayah agen, cuaca, jenis terrain, serta gas/radiasi berbahaya
+    │   ├── strategy/              
+    │   │    ├── __init__.py        
+    │   │    ├── decision_maker.py  
+    │   │    ├── navigation_strategy.py 
+    │   │    ├── ruin_exploration_strategy.py 
+    │   │    ├── whisper_sabotage.py
+    │   └── priority/              # Subsistem pengambil keputusan strategis agen
+    │       ├── __init__.py        
+    │       ├── loot_helper.py
+    │       ├── equipped_priority.py
+    │       ├── ground_loot_priority.py
+    │       ├── interact_priority.py
+    │       ├── survival_priority.py
+    │       ├── recovery_priority.py
+    │       ├── target_kill_priority.py
 ├── web/                           
 │   ├── index.html                 
 │   ├── style.css                 
@@ -41,7 +67,9 @@ style.css https://github.com/Vdreamland/botgame2/blob/master/web/style.css
 web_server.py https://github.com/Vdreamland/botgame2/blob/master/web/web_server.py
 app.js https://github.com/Vdreamland/botgame2/blob/master/web/app.js
 
-
+requirements.txt https://github.com/Vdreamland/botgame2/blob/master/requirements.txt
+.env https://github.com/Vdreamland/botgame2/blob/master/.env
+rungame.py https://github.com/Vdreamland/botgame2/blob/master/rungame.py
 
 Reference :
 actions.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/actions.md
@@ -61,9 +89,7 @@ gotchas.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/go
 strategy.md https://github.com/Vdreamland/botgame2/blob/master/docs/game-knowledge/strategy.md
 combat-items.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/combat-items.md
 
-requirements.txt https://github.com/Vdreamland/botgame2/blob/master/requirements.txt
-.env https://github.com/Vdreamland/botgame2/blob/master/.env
-rungame.py https://github.com/Vdreamland/botgame2/blob/master/rungame.py
+
 
 
 

@@ -103,11 +103,22 @@ async def connect_and_play(bot_name, api_key, entry_type):
                     self_data = view.get("self", {})
                     is_alive = self_data.get("isAlive", True)
                     
+                    await log_sender.send_agent_info(view)
+                    
+                    recent_logs = view.get("recentLogs", [])
+                    if recent_logs:
+                        for log_entry in recent_logs:
+                            if isinstance(log_entry, dict):
+                                log_msg = log_entry.get("message", "")
+                            else:
+                                log_msg = str(log_entry)
+                            if log_msg:
+                                await log_sender.send_log({"type": "detail", "message": log_msg})
+                    
                     if not is_alive:
                         log_info(bot_name, "Agent died.")
                         await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": False})
                     elif status == "finished":
-                        is_alive = True
                         await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
                         break
                     else:
@@ -122,13 +133,11 @@ async def connect_and_play(bot_name, api_key, entry_type):
                     await log_sender.send_log({"type": "waiting", "turn": turn})
                     
                 elif msg_type == "game_ended":
-                    is_alive = True
                     await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
                     break
                     
     except Exception as e:
         log_error(bot_name, f"Error in connection loop: {e}")
     finally:
-        is_alive = True
         await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
         await log_sender.close()
