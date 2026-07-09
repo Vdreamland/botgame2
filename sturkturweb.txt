@@ -28,16 +28,32 @@
     │   │   ├── deadzone_detector.py
     │   │   ├── ground_item_detector.py
     │   │   ├── facility_detector.py
-
-
-
+    │   ├── priority/              
+    │   │   ├── __init__.py        
+    │   │   ├── equipment_prior.py     
+    │   │   ├── interact_priority.py
+    │   │   ├── ground_loot_prior.py
+    │   │   ├── target_kill_prior.py
+    │   │   ├── survival_prior.py
+    │   │   ├── recovery_prior.py
 
 
 ├── web/                           
 │   ├── index.html                 
 │   ├── style.css                 
 │   ├── web_server.py
-│   └── app.js                     
+│   └── app.js   
+
+
+
+ai/priority/
+__init__.py
+equipment_prior.py
+interact_priority.py
+ground_loot_prior.py
+target_kill_prior.py
+survival_prior.py
+recovery_prior.py
 
 ai/
 __init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/__init__.py
