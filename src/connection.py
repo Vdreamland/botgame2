@@ -113,7 +113,13 @@ async def connect_and_play(bot_name, api_key, entry_type):
 
                     view = msg.get("view", {})
                     self_data = view.get("self", {})
-                    is_alive = self_data.get("isAlive", True) and self_data.get("hp", 0) > 0
+                    
+                    hp = self_data.get("hp", 0)
+                    max_hp = self_data.get("maxHp") or self_data.get("max_hp", 100)
+                    ep = self_data.get("ep", 0)
+                    is_alive = self_data.get("isAlive", True) and hp > 0
+
+                    log_info(bot_name, f"Processing Turn {turn} (HP: {hp}/{max_hp}, EP: {ep}, Status: {status})")
 
                     await log_sender.send_agent_info(view)
 
@@ -131,11 +137,12 @@ async def connect_and_play(bot_name, api_key, entry_type):
                                 await log_sender.send_log({"type": "detail", "message": log_msg})
 
                     if not is_alive:
-                        log_info(bot_name, "Agent died.")
+                        log_info(bot_name, f"Death detected on Turn {turn}! HP: {hp}, isAlive: {self_data.get('isAlive')}. Exiting game loop...")
                         await log_sender.send_log({"type": "detail", "message": "=== AGENT ELIMINATED / DIED ==="})
                         await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": False})
                         break
                     elif status == "finished":
+                        log_info(bot_name, f"Game status finished on Turn {turn}. Exiting game loop...")
                         await log_sender.send_log({"type": "finished", "status": status})
                         await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
                         break
@@ -151,12 +158,16 @@ async def connect_and_play(bot_name, api_key, entry_type):
                     await log_sender.send_log({"type": "waiting", "turn": turn})
 
                 elif msg_type == "game_ended":
+                    log_info(bot_name, "Game ended message received. Exiting game loop...")
                     await log_sender.send_log({"type": "ended"})
                     await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
                     break
 
     except Exception as e:
-        log_error(bot_name, f"Error in connection loop: {e}")
+        if "ConnectionClosed" in type(e).__name__:
+            log_info(bot_name, f"Match finished or connection terminated. Sockets closed cleanly ({e}).")
+        else:
+            log_error(bot_name, f"Error in connection loop: {e}")
     finally:
         await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
         await asyncio.sleep(0.5)
