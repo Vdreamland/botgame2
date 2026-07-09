@@ -1,4 +1,5 @@
-const socketUrl = "ws://" + window.location.hostname + ":8080";
+const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+const socketUrl = protocol + window.location.host + "/ws";
 let socket;
 let agentsData = {};
 let activeAgent = null;
@@ -268,6 +269,32 @@ function renderLogs() {
     viewport.scrollTop = viewport.scrollHeight;
   }
 }
+
+document.getElementById("copy-logs-btn").onclick = () => {
+  if (!activeAgent || !agentsData[activeAgent]) return;
+  const agent = agentsData[activeAgent];
+  if (agent.turns.length === 0) return;
+
+  const sortedTurns = [...agent.turns].sort((a, b) => a.turn - b.turn);
+  let copyText = `${activeAgent} GAME LOGS\n`;
+  copyText += `=======================\n`;
+
+  const turnLines = sortedTurns.map((t) => `Turn ${t.turn}`);
+  copyText += turnLines.join("\n\n") + "\n";
+
+  navigator.clipboard.writeText(copyText).then(() => {
+    const btn = document.getElementById("copy-logs-btn");
+    const oldText = btn.textContent;
+    btn.textContent = "COPIED!";
+    btn.style.borderColor = "var(--success)";
+    btn.style.color = "var(--success)";
+    setTimeout(() => {
+      btn.textContent = oldText;
+      btn.style.borderColor = "";
+      btn.style.color = "";
+    }, 2000);
+  });
+};
 
 document.getElementById("search-bot").oninput = (e) => {
   botSearchQuery = e.target.value;
