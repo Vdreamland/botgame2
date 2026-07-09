@@ -31,6 +31,14 @@ function connect() {
     const agent = agentsData[botName];
 
     if (msg.type === "status_update") {
+      if (
+        msg.status === "matchmaking" ||
+        (msg.status === "playing" &&
+          msg.game_id &&
+          msg.game_id !== agent.gameId)
+      ) {
+        agent.turns = [];
+      }
       agent.status = msg.status;
       agent.credits = msg.credits;
       agent.gameId = msg.game_id || agent.gameId;
