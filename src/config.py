@@ -38,10 +38,11 @@ def load_active_accounts():
     for i in range(1, NUM_BOTS + 1):
         name = os.getenv(f"BOT{i}_NAME")
         api_key = os.getenv(f"BOT{i}_API_KEY")
+        entry_type = os.getenv(f"BOT{i}_ROOM_PREFERENCE") or DEFAULT_ENTRY_TYPE
         if name and api_key:
             processed.append({
                 "name": name,
                 "api_key": api_key,
-                "entry_type": DEFAULT_ENTRY_TYPE
+                "entry_type": entry_type
             })
     return processed
