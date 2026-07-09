@@ -26,6 +26,8 @@
     │   │   ├── enemy_info.py      
     │   │   ├── zone_detector.py
     │   │   ├── deadzone_detector.py
+    │   │   ├── ground_item_detector.py
+
 
 
 
@@ -44,7 +46,7 @@ agent_info.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/age
 enemy_info.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/enemy_info.py
 zone_detector.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/zone_detector.py
 deadzone_detector.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/deadzone_detector.py
-
+ground_item_detector.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/ground_item_detector.py
 
 
 botgame2/
