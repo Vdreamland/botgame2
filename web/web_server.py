@@ -61,7 +61,7 @@ async def handler(websocket):
                         if bot_name not in bot_history:
                             bot_history[bot_name] = []
                         bot_history[bot_name].append(message)
-                        if len(bot_history[bot_name]) > 50:
+                        if len(bot_history[bot_name]) > 500:
                             bot_history[bot_name].pop(0)
                 except Exception:
                     pass

@@ -60,7 +60,12 @@ async def connect_and_play(bot_name, api_key, entry_type):
             in_gameplay = False
             
             while True:
-                msg = await client.recv()
+                try:
+                    msg = await asyncio.wait_for(client.recv(), timeout=60.0)
+                except asyncio.TimeoutError:
+                    log_warning(bot_name, "Connection inactive for 60 seconds. Reconnecting...")
+                    break
+
                 msg_type = msg.get("type")
                 
                 active_game_id = msg.get("gameId")
