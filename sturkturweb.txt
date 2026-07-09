@@ -12,10 +12,6 @@
         ├── __init__.py
         ├── log_connections.py
         └── logs_games.py
-
-
-
-
 ├── web/                           
 │   ├── index.html                 
 │   ├── style.css                 
@@ -39,11 +35,11 @@ __init__.py https://github.com/Vdreamland/botgame2/blob/master/src/log/__init__.
 log_connections.py https://github.com/Vdreamland/botgame2/blob/master/src/log/log_connections.py
 logs_games.py https://github.com/Vdreamland/botgame2/blob/master/src/log/logs_games.py
 
-
-
-
-
-
+web/  
+index.html
+style.css
+web_server.py
+app.js
 
 
 

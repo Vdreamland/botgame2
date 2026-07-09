@@ -1,15 +1,8 @@
 import asyncio
-from src.config import VERSION, WS_JOIN_URL
+from src.config import VERSION, WS_JOIN_URL, WEB_LOG_URL
 from src.websocket import GameWebSocket
 from src.log.log_connections import log_info, log_warning, log_error
-from src.log.logs_games import (
-    log_game_turn,
-    log_game_detail,
-    log_game_waiting,
-    log_game_ended,
-    log_game_finished,
-    log_game_reenter
-)
+from src.log.logs_games import GameLogSender
 
 async def connect_and_play(bot_name, api_key, entry_type):
     if not api_key:
@@ -22,6 +15,8 @@ async def connect_and_play(bot_name, api_key, entry_type):
     }
     
     log_info(bot_name, f"Connecting to {WS_JOIN_URL}...")
+    log_sender = GameLogSender(bot_name, WEB_LOG_URL)
+    await log_sender.connect()
     
     try:
         async with GameWebSocket(WS_JOIN_URL, headers) as client:
@@ -78,30 +73,30 @@ async def connect_and_play(bot_name, api_key, entry_type):
                     
                 elif msg_type in ("agent_view", "turn_advanced"):
                     if not in_gameplay:
-                        log_game_reenter(bot_name)
+                        await log_sender.send_log({"type": "reenter"})
                         in_gameplay = True
                         
                     status = msg.get("status")
                     turn = msg.get("turn")
-                    log_game_turn(bot_name, turn, status)
+                    await log_sender.send_log({"type": "turn", "turn": turn, "status": status})
                     
                     view = msg.get("view", {})
                     self_data = view.get("self", {})
                     recent_logs = view.get("recentLogs", [])
                     if recent_logs:
                         for log_entry in recent_logs:
-                            log_game_detail(bot_name, log_entry)
+                            await log_sender.send_log({"type": "detail", "message": log_entry})
                     
                     if status == "finished" or not self_data.get("isAlive", True):
-                        log_game_finished(bot_name, status)
+                        await log_sender.send_log({"type": "finished", "status": status})
                         break
                         
                 elif msg_type == "waiting":
                     turn = msg.get("turn")
-                    log_game_waiting(bot_name, turn)
+                    await log_sender.send_log({"type": "waiting", "turn": turn})
                     
                 elif msg_type == "game_ended":
-                    log_game_ended(bot_name)
+                    await log_sender.send_log({"type": "ended"})
                     break
                     
                 else:
@@ -109,3 +104,5 @@ async def connect_and_play(bot_name, api_key, entry_type):
                     
     except Exception as e:
         log_error(bot_name, f"Error in connection loop: {e}")
+    finally:
+        await log_sender.close()

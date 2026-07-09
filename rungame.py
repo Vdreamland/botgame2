@@ -2,6 +2,7 @@ import asyncio
 from src.config import load_active_accounts
 from src.connection import connect_and_play
 from src.log.log_connections import log_info, log_error
+from web.web_server import start_web_server
 
 async def bot_worker(account):
     bot_name = account["name"]
@@ -18,6 +19,12 @@ async def bot_worker(account):
         await asyncio.sleep(5)
 
 async def main():
+    try:
+        await start_web_server()
+        print("Local web server started at http://localhost:8000")
+    except Exception as e:
+        print(f"Failed to start local web server: {e}")
+
     try:
         accounts = load_active_accounts()
     except Exception as e:
