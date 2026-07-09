@@ -358,3 +358,13 @@ body {
     overflow: visible;
   }
 }
+
+.zone-safe {
+  color: var(--success);
+  font-weight: 700;
+}
+
+.zone-dead {
+  color: var(--danger);
+  font-weight: 700;
+}

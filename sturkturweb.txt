@@ -7,7 +7,8 @@
     ├── __init__.py
     ├── config.py
     ├── connection.py        
-    ├── websocket.py            
+    ├── websocket.py
+    ├── game_data.py
     └── log/
         ├── __init__.py
         ├── log_connections.py
@@ -50,6 +51,7 @@ __init__.py  https://github.com/Vdreamland/botgame2/blob/master/src/__init__.py
 config.py https://github.com/Vdreamland/botgame2/blob/master/src/config.py
 connection.py https://github.com/Vdreamland/botgame2/blob/master/src/connection.py
 websocket.py https://github.com/Vdreamland/botgame2/blob/master/src/websocket.py
+game_data.py https://github.com/Vdreamland/botgame2/blob/master/src/game_data.py
 
 src/log/
 __init__.py https://github.com/Vdreamland/botgame2/blob/master/src/log/__init__.py

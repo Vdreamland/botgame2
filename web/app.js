@@ -282,7 +282,13 @@ function renderLogs() {
       t.logs.forEach((logText) => {
         const item = document.createElement("li");
         item.className = "detail-item";
-        item.textContent = logText;
+        let formattedText = logText
+          .replace(/\[SafeZone\]/g, '<span class="zone-safe">[SafeZone]</span>')
+          .replace(
+            /\[DeadZone\]/g,
+            '<span class="zone-dead">[DeadZone]</span>',
+          );
+        item.innerHTML = formattedText;
         list.appendChild(item);
       });
       card.appendChild(list);
