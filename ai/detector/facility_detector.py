@@ -1,7 +1,39 @@
 class FacilityDetector:
     def __init__(self, view_data):
         self.view_data = view_data or {}
-        self.visible_facilities = self.view_data.get("visibleFacilities") or self.view_data.get("facilities") or []
+        self.visible_facilities = []
+
+        root_facs = self.view_data.get("visibleFacilities") or self.view_data.get("facilities")
+        if isinstance(root_facs, list):
+            for fac in root_facs:
+                if isinstance(fac, dict):
+                    self.visible_facilities.append(fac)
+
+        current_region = self.view_data.get("currentRegion", {})
+        if isinstance(current_region, dict):
+            r_id = current_region.get("id")
+            facs = current_region.get("facilities") or current_region.get("facility")
+            if isinstance(facs, list):
+                for fac in facs:
+                    if isinstance(fac, dict) and r_id:
+                        fac["regionId"] = r_id
+                        self.visible_facilities.append(fac)
+            elif isinstance(facs, dict) and r_id:
+                facs["regionId"] = r_id
+                self.visible_facilities.append(facs)
+
+        for reg in self.view_data.get("visibleRegions", []):
+            if isinstance(reg, dict):
+                r_id = reg.get("id")
+                facs = reg.get("facilities") or reg.get("facility")
+                if isinstance(facs, list):
+                    for fac in facs:
+                        if isinstance(fac, dict) and r_id:
+                            fac["regionId"] = r_id
+                            self.visible_facilities.append(fac)
+                elif isinstance(facs, dict) and r_id:
+                    facs["regionId"] = r_id
+                    self.visible_facilities.append(facs)
 
     def get_facilities_by_region(self):
         fac_by_reg = {}
