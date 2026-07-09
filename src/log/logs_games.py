@@ -21,6 +21,7 @@ class GameLogSender:
     async def connect(self):
         try:
             self.ws = await websockets.connect(self.web_log_url)
+            logger.info(f"[{self.bot_name}] Connected to local web log server at {self.web_log_url}")
         except Exception:
             self.ws = None
             logger.info(f"[{self.bot_name}] Web log server offline. Falling back to PowerShell.")
@@ -30,25 +31,31 @@ class GameLogSender:
             await self.ws.close()
 
     async def send_log(self, payload):
+        ws_success = False
         if self.ws:
             try:
                 payload["bot_name"] = self.bot_name
                 await self.ws.send(json.dumps(payload))
-                return
+                ws_success = True
             except Exception:
                 self.ws = None
         
-        if payload.get("type") == "turn":
+        msg_type = payload.get("type")
+        
+        if ws_success and msg_type in ("detail", "status_update"):
+            return
+            
+        if msg_type == "turn":
             logger.info(f"[{self.bot_name}] [Turn {payload.get('turn')}] Status: {payload.get('status')}")
-        elif payload.get("type") == "detail":
+        elif msg_type == "detail":
             logger.info(f"[{self.bot_name}] -> Game Log: {payload.get('message')}")
-        elif payload.get("type") == "waiting":
+        elif msg_type == "waiting":
             logger.info(f"[{self.bot_name}] [Turn {payload.get('turn')}] Game status: waiting. Waiting for other agents...")
-        elif payload.get("type") == "ended":
+        elif msg_type == "ended":
             logger.info(f"[{self.bot_name}] Game has ended.")
-        elif payload.get("type") == "finished":
+        elif msg_type == "finished":
             logger.info(f"[{self.bot_name}] Game finished or Agent is no longer alive. Status: {payload.get('status')}")
-        elif payload.get("type") == "reenter":
+        elif msg_type == "reenter":
             logger.info(f"[{self.bot_name}] Gameplay frames detected. Re-entering active loop.")
 
     async def send_agent_info(self, view_data):
@@ -95,6 +102,12 @@ class GameLogSender:
             for dist in sorted(zones.keys()):
                 regions_str = ", ".join(zones[dist])
                 await self.send_log({"type": "detail", "message": f"Layer {dist}: {regions_str}"})
+
+        fac_logs = detector.get_facility_logs()
+        if fac_logs:
+            await self.send_log({"type": "detail", "message": ""})
+            for line in fac_logs:
+                await self.send_log({"type": "detail", "message": line})
 
         ground_logs = detector.get_ground_item_logs()
         if ground_logs:
