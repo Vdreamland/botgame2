@@ -4,6 +4,58 @@ class ZoneDetector:
         self.current_region = self.view_data.get("currentRegion", {})
         self.visible_regions = self.view_data.get("visibleRegions", [])
 
+    def get_location(self):
+        return self.current_region.get("name", "Unknown")
+
+    def get_terrain(self):
+        return self.current_region.get("terrain", "Unknown")
+
+    def get_weather(self):
+        return self.current_region.get("weather", "None")
+
+    def get_links_count(self):
+        links = self.current_region.get("links") or self.current_region.get("connections")
+        if isinstance(links, list):
+            return len(links)
+        elif isinstance(links, int):
+            return links
+        return 0
+
+    def get_vision(self):
+        terrain = self.get_terrain().lower()
+        weather = self.get_weather().lower()
+
+        terrain_mod = 0
+        if terrain == "plains":
+            terrain_mod = 1
+        elif terrain == "hills":
+            terrain_mod = 2
+        elif terrain == "forest":
+            terrain_mod = -1
+        elif terrain == "cave":
+            terrain_mod = -2
+
+        weather_mod = 0
+        if weather == "clear":
+            weather_mod = 0
+        elif weather == "rain":
+            weather_mod = -1
+        elif weather == "fog":
+            weather_mod = -2
+        elif weather == "storm":
+            weather_mod = -2
+
+        has_binoculars = False
+        inventory = self.view_data.get("self", {}).get("inventory", [])
+        for item in inventory:
+            if isinstance(item, dict) and item.get("name") == "Binoculars":
+                has_binoculars = True
+                break
+
+        binoculars_mod = 1 if has_binoculars else 0
+        total_vision = terrain_mod + weather_mod + binoculars_mod
+        return f"+{total_vision}" if total_vision > 0 else str(total_vision)
+
     def detect_zones(self):
         start_id = self.current_region.get("id")
         if not start_id:

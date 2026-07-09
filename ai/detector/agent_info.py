@@ -4,27 +4,22 @@ class AgentInfoDetector:
     def __init__(self, view_data):
         self.view_data = view_data or {}
         self.self_data = self.view_data.get("self", {})
-        self.current_region = self.view_data.get("currentRegion", {})
+        self.zone_detector = ZoneDetector(self.view_data)
 
     def get_location(self):
-        return self.current_region.get("name", "Unknown")
+        return self.zone_detector.get_location()
 
     def get_terrain(self):
-        return self.current_region.get("terrain", "Unknown")
+        return self.zone_detector.get_terrain()
 
     def get_weather(self):
-        return self.current_region.get("weather", "None")
+        return self.zone_detector.get_weather()
 
     def get_vision(self):
-        return self.current_region.get("vision", 0)
+        return self.zone_detector.get_vision()
 
     def get_links_count(self):
-        links = self.current_region.get("links") or self.current_region.get("connections")
-        if isinstance(links, list):
-            return len(links)
-        elif isinstance(links, int):
-            return links
-        return 0
+        return self.zone_detector.get_links_count()
 
     def get_hp(self):
         return self.self_data.get("hp", 0)
@@ -57,5 +52,4 @@ class AgentInfoDetector:
         return self.self_data.get("maxInventory", 10)
 
     def get_zones(self):
-        detector = ZoneDetector(self.view_data)
-        return detector.detect_zones()
+        return self.zone_detector.detect_zones()
