@@ -127,6 +127,7 @@ class GameLogSender:
 
         attack_list = []
         item_list = []
+        all_events_list = []
 
         for log_entry in recent_logs:
             log_str = ""
@@ -137,6 +138,14 @@ class GameLogSender:
 
             if not log_str:
                 continue
+
+            if log_str.endswith("."):
+                log_clean = log_str[:-1]
+            else:
+                log_clean = log_str
+
+            if log_clean not in all_events_list:
+                all_events_list.append(log_clean)
 
             is_attack = any(k in log_str.lower() for k in ["attack", "kill", "damage", "defeat", "slay", "slain", "lost", "hp", "deathzone", "deadzone", "shrank", "hurt"])
             is_item = any(k in log_str.lower() for k in ["pick", "drop", "equip", "found", "use", "inventory", "took", "obtain", "grab"])
@@ -159,8 +168,12 @@ class GameLogSender:
 
         attack_str = " / ".join(attack_list) if attack_list else "None"
         item_str = " / ".join(item_list) if item_list else "None"
+        all_events_str = " / ".join(all_events_list) if all_events_list else "None"
 
         await self.send_log({"type": "detail", "message": ""})
         await self.send_log({"type": "detail", "message": "Log :"})
         await self.send_log({"type": "detail", "message": f"attack : {attack_str}"})
         await self.send_log({"type": "detail", "message": f"item : {item_str}"})
+        await self.send_log({"type": "detail", "message": ""})
+        await self.send_log({"type": "detail", "message": "All Events Log :"})
+        await self.send_log({"type": "detail", "message": f"{all_events_str}"})
