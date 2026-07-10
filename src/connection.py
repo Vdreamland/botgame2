@@ -43,6 +43,17 @@ async def connect_and_play(bot_name, api_key, entry_type):
             if decision == "BLOCKED":
                 missing = welcome.get("readiness", {}).get("freeRoom", {}).get("missing", [])
                 log_error(bot_name, f"Readiness BLOCKED. Reasons: {missing}")
+                
+                codes = []
+                for m in missing:
+                    if isinstance(m, dict):
+                        codes.append(m.get("code"))
+                    else:
+                        codes.append(str(m))
+                        
+                if "ACTIVE_FREE_GAME_EXISTS" in codes:
+                    log_warning(bot_name, "Previous session still active on server. Waiting 10 seconds...")
+                    await asyncio.sleep(10.0)
                 return
 
             if decision == "PAID_ONLY":
@@ -75,14 +86,16 @@ async def connect_and_play(bot_name, api_key, entry_type):
                         log_warning(bot_name, "Connection inactive for 120 seconds. Reconnecting...")
                     break
 
+                log_info(bot_name, f"DEBUG WS Frame: {msg}")
                 msg_type = msg.get("type")
 
                 active_game_id = msg.get("gameId")
                 if active_game_id:
                     game_id = active_game_id
 
-                if msg_type == "event":
-                    event_msg = msg.get("message")
+                if msg_type == "log":
+                    log_data = msg.get("log") or {}
+                    event_msg = log_data.get("message")
                     if event_msg:
                         accumulated_events.append(event_msg)
                     continue
@@ -149,6 +162,7 @@ async def connect_and_play(bot_name, api_key, entry_type):
                         log_info(bot_name, f"Death detected on Turn {turn}! HP: {hp}, isAlive: {self_data.get('isAlive')}. Exiting game loop...")
                         await log_sender.send_log({"type": "detail", "message": "=== AGENT ELIMINATED / DIED ==="})
                         await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": False})
+                        await asyncio.sleep(15.0)
                         break
                     elif status == "finished":
                         log_info(bot_name, f"Game status finished on Turn {turn}. Exiting game loop...")
