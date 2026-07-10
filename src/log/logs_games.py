@@ -41,12 +41,12 @@ class GameLogSender:
                 ws_success = True
             except Exception:
                 self.ws = None
-         
+        
         msg_type = payload.get("type")
-         
+        
         if ws_success and msg_type in ("detail", "status_update", "turn", "waiting"):
             return
-         
+        
         if msg_type == "turn":
             logger.info(f"[{self.bot_name}] [Turn {payload.get('turn')}] Status: {payload.get('status')}")
         elif msg_type == "detail":
@@ -62,10 +62,10 @@ class GameLogSender:
 
     async def send_agent_info(self, view_data, turn=None):
         detector = AgentInfoDetector(view_data)
-         
+        
         hp_line = f"Hp {detector.get_hp()}/{detector.get_max_hp()} / Ep {detector.get_ep()}/{detector.get_max_ep()} / Kill {detector.get_kills()}"
         atk_def_line = f"ATK: {detector.get_atk()} / DEF: {detector.get_def()}"
-         
+        
         equipped = detector.get_equipped()
         weapon_name = "None"
         armor_name = "None"
@@ -76,21 +76,21 @@ class GameLogSender:
         if isinstance(armor_item, dict) and armor_item.get("name"):
             armor_name = armor_item.get("name")
         eq_line = f"Equipped : Weapon : {weapon_name} / Armour : {armor_name}"
-         
+        
         inventory = detector.get_inventory()
         grouped_inv = {}
         for item in inventory:
             name = item.get("name", "Unknown")
             qty = item.get("quantity", 1)
             grouped_inv[name] = grouped_inv.get(name, 0) + qty
-         
+        
         inv_items = ", ".join([f"{name} [{qty}]" for name, qty in grouped_inv.items()])
         if not inv_items:
             inv_items = "Empty"
         inv_line = f"Inventory ({len(inventory)}/{detector.get_max_inventory()} Slots) : {inv_items}"
-         
+        
         loc_line = f"Location : {detector.get_location()} [{detector.get_current_zone_status()}] / Terrain : {detector.get_terrain().capitalize()} / Weather : {detector.get_weather().capitalize()} / Vision {detector.get_vision()} / Links {detector.get_links_count()}"
-         
+        
         await self.send_log({"type": "detail", "message": hp_line})
         await self.send_log({"type": "detail", "message": atk_def_line})
         await self.send_log({"type": "detail", "message": eq_line})
@@ -104,19 +104,19 @@ class GameLogSender:
             for dist in sorted(zones.keys()):
                 regions_str = ", ".join(zones[dist])
                 await self.send_log({"type": "detail", "message": f"Layer {dist}: {regions_str}"})
-                
+        
         fac_logs = detector.get_facility_logs()
         if fac_logs:
             await self.send_log({"type": "detail", "message": ""})
             for line in fac_logs:
                 await self.send_log({"type": "detail", "message": line})
-                
+        
         ground_logs = detector.get_ground_item_logs()
         if ground_logs:
             await self.send_log({"type": "detail", "message": ""})
             for line in ground_logs:
                 await self.send_log({"type": "detail", "message": line})
-                
+        
         enemy_logs = detector.get_enemy_logs()
         if enemy_logs:
             await self.send_log({"type": "detail", "message": ""})
@@ -138,10 +138,10 @@ class GameLogSender:
             if not log_str:
                 continue
 
-            if self.bot_name.lower() not in log_str.lower():
+            if self.bot_name.lower() not in log_str.lower() and "you" not in log_str.lower():
                 continue
 
-            is_attack = any(k in log_str.lower() for k in ["attack", "kill", "damage", "defeat", "slay", "slain"])
+            is_attack = any(k in log_str.lower() for k in ["attack", "kill", "damage", "defeat", "slay", "slain", "lost", "hp", "deathzone", "deadzone", "shrank", "hurt"])
             is_item = any(k in log_str.lower() for k in ["pick", "drop", "equip", "found", "use", "inventory", "took", "obtain", "grab"])
 
             if is_attack:

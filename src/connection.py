@@ -59,43 +59,22 @@ async def connect_and_play(bot_name, api_key, entry_type):
             game_id = None
             agent_id = None
             in_gameplay = False
-            
+
             expect_immediate_frame = (decision == "ALREADY_IN_GAME")
-            last_received_time = asyncio.get_event_loop().time()
-
-            async def watchdog():
-                nonlocal last_received_time
-                try:
-                    while True:
-                        await asyncio.sleep(5.0)
-                        now = asyncio.get_event_loop().time()
-                        silence = now - last_received_time
-                        if silence > 45.0:
-                            log_warning(bot_name, "Watchdog detected connection inactivity for 45 seconds. Force-closing socket...")
-                            if client._ws and client._ws.transport:
-                                client._ws.transport.close()
-                            break
-                except asyncio.CancelledError:
-                    pass
-
-            watchdog_task = asyncio.create_task(watchdog())
 
             while True:
                 try:
-                    current_timeout = 5.0 if expect_immediate_frame else 60.0
+                    current_timeout = 5.0 if expect_immediate_frame else 120.0
                     msg = await asyncio.wait_for(client.recv(), timeout=current_timeout)
                     expect_immediate_frame = False
                 except asyncio.TimeoutError:
                     if expect_immediate_frame:
                         log_warning(bot_name, "No immediate frames on ALREADY_IN_GAME. Post-death delay likely. Retrying shortly...")
                     else:
-                        log_warning(bot_name, "Connection inactive for 60 seconds. Reconnecting...")
+                        log_warning(bot_name, "Connection inactive for 120 seconds. Reconnecting...")
                     break
 
                 msg_type = msg.get("type")
-
-                if msg_type in ("queued", "assigned", "agent_view", "turn_advanced", "waiting"):
-                    last_received_time = asyncio.get_event_loop().time()
 
                 active_game_id = msg.get("gameId")
                 if active_game_id:
@@ -135,7 +114,7 @@ async def connect_and_play(bot_name, api_key, entry_type):
 
                     view = msg.get("view", {})
                     self_data = view.get("self", {})
-                    
+
                     hp = self_data.get("hp", 0)
                     max_hp = self_data.get("maxHp") or self_data.get("max_hp", 100)
                     ep = self_data.get("ep", 0)
@@ -153,7 +132,8 @@ async def connect_and_play(bot_name, api_key, entry_type):
                                 log_msg = log_entry.get("message", "")
                             else:
                                 log_msg = str(log_entry)
-                            if log_msg and bot_name.lower() in log_msg.lower(): log_info(bot_name, f"Event: {log_msg}")
+                            if log_msg and bot_name.lower() in log_msg.lower():
+                                log_info(bot_name, f"Event: {log_msg}")
 
                     if not is_alive:
                         log_info(bot_name, f"Death detected on Turn {turn}! HP: {hp}, isAlive: {self_data.get('isAlive')}. Exiting game loop...")
@@ -188,8 +168,6 @@ async def connect_and_play(bot_name, api_key, entry_type):
         else:
             log_error(bot_name, f"Error in connection loop: {e}")
     finally:
-        if 'watchdog_task' in locals() and not watchdog_task.done():
-            watchdog_task.cancel()
         await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
         await asyncio.sleep(0.5)
         await log_sender.close()
