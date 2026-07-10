@@ -125,9 +125,9 @@ class GameLogSender:
 
         recent_logs = logs_list if logs_list is not None else (view_data.get("recentLogs") or [])
 
-        attack_list = []
-        item_list = []
-        all_events_list = []
+        battle_list = []
+        action_list = []
+        move_list = []
 
         for log_entry in recent_logs:
             log_str = ""
@@ -147,36 +147,24 @@ class GameLogSender:
             else:
                 log_clean = log_str
 
-            if log_clean not in all_events_list:
-                all_events_list.append(log_clean)
+            log_lower = log_clean.lower()
 
-            is_attack = any(k in log_str.lower() for k in ["attack", "kill", "damage", "defeat", "slay", "slain", "lost", "hp", "deathzone", "deadzone", "shrank", "hurt"])
-            is_item = any(k in log_str.lower() for k in ["pick", "drop", "equip", "found", "use", "inventory", "took", "obtain", "grab"])
+            if "move" in log_lower:
+                if log_clean not in move_list:
+                    move_list.append(log_clean)
+            elif any(k in log_lower for k in ["attack", "kill", "damage", "defeat", "slay", "slain", "lost", "hp", "deathzone", "deadzone", "shrank", "hurt"]):
+                if log_clean not in battle_list:
+                    battle_list.append(log_clean)
+            elif any(k in log_lower for k in ["pick", "drop", "equip", "found", "use", "inventory", "took", "obtain", "grab", "rest", "excavat", "bandage"]):
+                if log_clean not in action_list:
+                    action_list.append(log_clean)
 
-            if is_attack:
-                cleaned = re.sub(rf"\b{re.escape(self.bot_name)}\b", "you", log_str, flags=re.IGNORECASE)
-                cleaned = re.sub(r"\battacked\b", "attack", cleaned, flags=re.IGNORECASE)
-                cleaned = re.sub(r"\bfor\b", "", cleaned, flags=re.IGNORECASE)
-                cleaned = " ".join(cleaned.split())
-                if cleaned.endswith("."):
-                    cleaned = cleaned[:-1]
-                if cleaned not in attack_list:
-                    attack_list.append(cleaned)
-            elif is_item:
-                cleaned = re.sub(rf"\b{re.escape(self.bot_name)}\b", "you", log_str, flags=re.IGNORECASE)
-                if cleaned.endswith("."):
-                    cleaned = cleaned[:-1]
-                if cleaned not in item_list:
-                    item_list.append(cleaned)
+        battle_str = " / ".join(battle_list) if battle_list else "None"
+        action_str = " / ".join(action_list) if action_list else "None"
+        move_str = " / ".join(move_list) if move_list else "None"
 
-        attack_str = " / ".join(attack_list) if attack_list else "None"
-        item_str = " / ".join(item_list) if item_list else "None"
-        all_events_str = " / ".join(all_events_list) if all_events_list else "None"
-
-        await self.send_log({"type": "detail", "message": ""})
-        await self.send_log({"type": "detail", "message": "Log :"})
-        await self.send_log({"type": "detail", "message": f"attack : {attack_str}"})
-        await self.send_log({"type": "detail", "message": f"item : {item_str}"})
         await self.send_log({"type": "detail", "message": ""})
         await self.send_log({"type": "detail", "message": "All Events Log :"})
-        await self.send_log({"type": "detail", "message": f"{all_events_str}"})
+        await self.send_log({"type": "detail", "message": f"Battle : {battle_str}"})
+        await self.send_log({"type": "detail", "message": f"Action: {action_str}"})
+        await self.send_log({"type": "detail", "message": f"Move : {move_str}"})
