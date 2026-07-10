@@ -95,8 +95,22 @@ async def connect_and_play(bot_name, api_key, entry_type):
                 if msg_type == "log":
                     log_data = msg.get("log") or {}
                     event_msg = log_data.get("message")
+                    
                     if event_msg:
                         accumulated_events.append(event_msg)
+                        
+                    log_entry_type = log_data.get("type")
+                    if log_entry_type == "death":
+                        details = log_data.get("details", {})
+                        target_name = details.get("targetName", "")
+                        
+                        if target_name.lower() == bot_name.lower():
+                            log_info(bot_name, f"Death detected via global log: {event_msg}")
+                            await log_sender.send_log({"type": "detail", "message": "=== AGENT ELIMINATED / DIED ==="})
+                            await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": False})
+                            log_info(bot_name, "Waiting 15 seconds for server to clear slot...")
+                            await asyncio.sleep(15.0)
+                            break
                     continue
 
                 elif msg_type == "queued":
