@@ -153,8 +153,7 @@ async def connect_and_play(bot_name, api_key, entry_type):
                                 log_msg = log_entry.get("message", "")
                             else:
                                 log_msg = str(log_entry)
-                            if log_msg and bot_name.lower() in log_msg.lower():
-                                log_info(bot_name, f"Event: {log_msg}")
+                            if log_msg: log_info(bot_name, f"Event: {log_msg}")
 
                     if not is_alive:
                         log_info(bot_name, f"Death detected on Turn {turn}! HP: {hp}, isAlive: {self_data.get('isAlive')}. Exiting game loop...")
