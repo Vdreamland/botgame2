@@ -138,9 +138,6 @@ class GameLogSender:
             if not log_str:
                 continue
 
-            if self.bot_name.lower() not in log_str.lower() and "you" not in log_str.lower():
-                continue
-
             is_attack = any(k in log_str.lower() for k in ["attack", "kill", "damage", "defeat", "slay", "slain", "lost", "hp", "deathzone", "deadzone", "shrank", "hurt"])
             is_item = any(k in log_str.lower() for k in ["pick", "drop", "equip", "found", "use", "inventory", "took", "obtain", "grab"])
 
