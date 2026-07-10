@@ -106,6 +106,7 @@ async def connect_and_play(bot_name, api_key, entry_type):
                         
                         if target_name.lower() == bot_name.lower():
                             log_info(bot_name, f"Death detected via global log: {event_msg}")
+                            await log_sender.send_log({"type": "detail", "message": f"Fatal Event : {event_msg}"})
                             await log_sender.send_log({"type": "detail", "message": "=== AGENT ELIMINATED / DIED ==="})
                             await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": False})
                             log_info(bot_name, "Waiting 15 seconds for server to clear slot...")
