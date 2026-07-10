@@ -44,7 +44,7 @@ class GameLogSender:
          
         msg_type = payload.get("type")
          
-        if ws_success and msg_type in ("detail", "status_update", "turn", "waiting"):
+        if ws_success and msg_type in ("status_update", "turn", "waiting"):
             return
          
         if msg_type == "turn":
@@ -141,7 +141,7 @@ class GameLogSender:
             if self.bot_name.lower() not in log_str.lower():
                 continue
 
-            is_attack = any(k in log_str.lower() for k in ["attack", "kill", "damage", "defeat", "slay", "slain"])
+            is_attack = any(k in log_str.lower() for k in ["attack", "kill", "damage", "defeat", "slay", "slain", "lost", "hp", "deathzone", "deadzone", "shrank", "hurt"])
             is_item = any(k in log_str.lower() for k in ["pick", "drop", "equip", "found", "use", "inventory", "took", "obtain", "grab"])
 
             if is_attack:
