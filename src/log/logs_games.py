@@ -60,7 +60,7 @@ class GameLogSender:
         elif msg_type == "reenter":
             logger.info(f"[{self.bot_name}] Gameplay frames detected. Re-entering active loop.")
 
-    async def send_agent_info(self, view_data, turn=None):
+    async def send_agent_info(self, view_data, turn=None, logs_list=None):
         detector = AgentInfoDetector(view_data)
         
         hp_line = f"Hp {detector.get_hp()}/{detector.get_max_hp()} / Ep {detector.get_ep()}/{detector.get_max_ep()} / Kill {detector.get_kills()}"
@@ -123,7 +123,7 @@ class GameLogSender:
             for line in enemy_logs:
                 await self.send_log({"type": "detail", "message": line})
 
-        recent_logs = view_data.get("recentLogs") or []
+        recent_logs = logs_list if logs_list is not None else (view_data.get("recentLogs") or [])
 
         attack_list = []
         item_list = []

@@ -61,6 +61,7 @@ async def connect_and_play(bot_name, api_key, entry_type):
             in_gameplay = False
 
             expect_immediate_frame = (decision == "ALREADY_IN_GAME")
+            accumulated_events = []
 
             while True:
                 try:
@@ -80,7 +81,13 @@ async def connect_and_play(bot_name, api_key, entry_type):
                 if active_game_id:
                     game_id = active_game_id
 
-                if msg_type == "queued":
+                if msg_type == "event":
+                    event_msg = msg.get("message")
+                    if event_msg:
+                        accumulated_events.append(event_msg)
+                    continue
+
+                elif msg_type == "queued":
                     if not has_logged_queue:
                         log_info(bot_name, "Queue active. Searching for match...")
                         has_logged_queue = True
@@ -122,9 +129,12 @@ async def connect_and_play(bot_name, api_key, entry_type):
 
                     log_info(bot_name, f"Processing Turn {turn} (HP: {hp}/{max_hp}, EP: {ep}, Status: {status})")
 
-                    await log_sender.send_agent_info(view, turn)
+                    recent_logs = view.get("recentLogs", []) or []
+                    all_logs = list(recent_logs) + accumulated_events
+                    accumulated_events = []
 
-                    recent_logs = view.get("recentLogs", [])
+                    await log_sender.send_agent_info(view, turn, all_logs)
+
                     if recent_logs:
                         for log_entry in recent_logs:
                             log_msg = ""
