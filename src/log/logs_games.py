@@ -139,6 +139,9 @@ class GameLogSender:
             if not log_str:
                 continue
 
+            if self.bot_name.lower() not in log_str.lower() and "you" not in log_str.lower():
+                continue
+
             if log_str.endswith("."):
                 log_clean = log_str[:-1]
             else:

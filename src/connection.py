@@ -86,7 +86,6 @@ async def connect_and_play(bot_name, api_key, entry_type):
                         log_warning(bot_name, "Connection inactive for 120 seconds. Reconnecting...")
                     break
 
-                log_info(bot_name, f"DEBUG WS Frame: {msg}")
                 msg_type = msg.get("type")
 
                 active_game_id = msg.get("gameId")
