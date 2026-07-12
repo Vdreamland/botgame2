@@ -221,7 +221,6 @@ async def connect_and_play(bot_name, api_key, entry_type):
                         if action:
                             thought = action.get("thought")
                             if thought:
-                                log_info(bot_name, f"AI Thought: {thought}")
                                 await log_sender.send_log({"type": "detail", "message": f"AI Thought -> {thought}"})
                             
                             action_payload = {
