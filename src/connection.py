@@ -82,6 +82,7 @@ async def connect_and_play(bot_name, api_key, entry_type):
             accumulated_events = []
             pending_messages = []
             last_logged_turn = -1
+            has_logged_death = False
 
             memory = AgentMemory(bot_name)
 
@@ -143,6 +144,7 @@ async def connect_and_play(bot_name, api_key, entry_type):
                     log_info(bot_name, f"Match found! Room ID: {game_id}")
                     in_gameplay = True
                     is_alive = True
+                    has_logged_death = False
                     await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
 
                 elif msg_type == "not_selected":
@@ -241,18 +243,17 @@ async def connect_and_play(bot_name, api_key, entry_type):
                             await client.send(action_payload)
 
                     if not is_alive:
-                        log_info(bot_name, f"Death detected on Turn {turn}! HP: {hp}, isAlive: {self_data.get('isAlive')}. Exiting game loop...")
-                        await log_sender.send_log({"type": "detail", "message": "=== AGENT ELIMINATED / DIED ==="})
-                        await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": False})
-                        await asyncio.sleep(15.0)
-                        break
-                    elif status == "finished":
+                        if not has_logged_death:
+                            log_info(bot_name, f"Death detected on Turn {turn}! HP: {hp}, isAlive: {self_data.get('isAlive')}. Exiting game loop passively...")
+                            await log_sender.send_log({"type": "detail", "message": "=== AGENT ELIMINATED / DIED ==="})
+                            await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": False})
+                            has_logged_death = True
+
+                    if status == "finished":
                         log_info(bot_name, f"Game status finished on Turn {turn}. Exiting game loop...")
                         await log_sender.send_log({"type": "finished", "status": status})
                         await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
                         break
-                    else:
-                        await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
 
                 elif msg_type == "waiting":
                     has_logged_gameplay = False
