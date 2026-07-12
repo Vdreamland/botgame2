@@ -1,12 +1,13 @@
 import json
 from typing import Dict, Any
-from ai.detector import extract_agent_status
+from ai.detector import extract_agent_status, detect_connected_regions
 
 async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
     if msg_type in ("agent_view", "turn_advanced"):
         view = msg.get("view") or msg.get("agentView") or msg.get("agent_view") or msg.get("data") or {}
         
         status = extract_agent_status(view)
+        regions = detect_connected_regions(view)
         
         name = status["name"]
         context.agent_name = name
@@ -28,9 +29,14 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         last_printed = getattr(context, "last_state", None)
         
         if last_printed != current_state:
-            print(f"\n--- [DAY {day} TURN {turn}] ---")
-            print(f"Agent: {name} | HP: {hp} | EP: {ep} | ATK: {atk} | DEF: {defense} | KILL: {kills}")
+            print(f"\nTurn {turn} {name}")
+            print(f"HP: {hp} | EP: {ep} | ATK: {atk} | DEF: {defense} | KILL: {kills}")
             print(f"Location: ({x}, {y}) ({terrain})")
+            
+            print("\nRegion Detector :")
+            for r in regions:
+                print(f"- {r['name']}")
+                
             context.last_state = current_state
 
         last_hp = getattr(context, "last_hp", None)
