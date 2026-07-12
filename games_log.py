@@ -1,14 +1,6 @@
 import json
 from typing import Dict, Any
-from ai.detector import extract_agent_status, detect_connected_regions
-
-async def _handle_agent_death(msg: Dict[str, Any], view: Dict[str, Any], context: Any, source: str):
-    print(f"[Alert] Agent has died (Detected via {source}). Connection closing...")
-    game_id = msg.get("gameId") or view.get("gameId") or view.get("game", {}).get("gameId")
-    if game_id and hasattr(context, "dead_games") and context.dead_games is not None:
-        context.dead_games.add(game_id)
-    if context.ws:
-        await context.ws.close()
+from ai.detector import extract_agent_status, detect_connected_regions, detect_region_items
 
 async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
     if msg_type in ("agent_view", "turn_advanced"):
@@ -16,6 +8,7 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         
         status = extract_agent_status(msg)
         regions = detect_connected_regions(view)
+        region_items = detect_region_items(view)
         
         name = status["name"]
         context.agent_name = name
@@ -43,15 +36,12 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
             color_red = "\033[91m"
             color_reset = "\033[0m"
             
-            # Label hanya dicetak jika saat ini berdiri di atas petak deadzone
             current_zone_label = f" {color_red}[deadzone]{color_reset}" if is_death_zone else ""
             
             print(f"\n--- [DAY {day} TURN {turn}] ---")
             print(f"Agent: {name} | HP: {hp} | EP: {ep} | ATK: {atk} | DEF: {defense} | KILL: {kills}")
-            # Koordinat angka (x, y) dihapus sepenuhnya dari baris lokasi
             print(f"Location: {region_name}{current_zone_label}")
             
-            # Format horizontal wilayah tetangga (hanya cetak label jika deadzone)
             region_strings = []
             for r in regions:
                 is_dead = r.get("is_death_zone", False)
@@ -63,6 +53,14 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
             
             joined_regions = " / ".join(region_strings)
             print(f"Region detector : {joined_regions}")
+            
+            # Tampilkan Region Item detector secara ringkas sesuai instruksi
+            print("Region Item detector :")
+            if region_items:
+                for r_name, items in region_items.items():
+                    print(f"{r_name} > {', '.join(items)}")
+            else:
+                print("-")
             
             context.last_state = current_state
 

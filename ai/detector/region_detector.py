@@ -4,7 +4,6 @@ def detect_connected_regions(view: Dict[str, Any]) -> List[Dict[str, Any]]:
     current_region = view.get("currentRegion") or view.get("current_region") or {}
     connections = current_region.get("connections") or []
     
-    # Ambil seluruh petak peta yang terlihat di luar kabut dari server
     visible_regions_source = view.get("regions") or view.get("visibleRegions") or view.get("visible_regions") or {}
     
     visible_regions_map = {}
@@ -23,7 +22,6 @@ def detect_connected_regions(view: Dict[str, Any]) -> List[Dict[str, Any]]:
     detected_list = []
     seen_ids = set()
 
-    # 1. Proses jalur terdekat (Adjacent Connections) terlebih dahulu
     for region_id in connections:
         seen_ids.add(region_id)
         r_detail = visible_regions_map.get(region_id)
@@ -47,7 +45,6 @@ def detect_connected_regions(view: Dict[str, Any]) -> List[Dict[str, Any]]:
                 "is_visible": False
             })
 
-    # 2. Proses petak terang lainnya yang ada di dalam jangkauan pandangan bot Anda (Ruins, Court, Theater, dll.)
     for r_id, r_detail in visible_regions_map.items():
         if r_id not in seen_ids and isinstance(r_detail, dict):
             region_name = r_detail.get("name") or r_id[:8]
@@ -62,3 +59,51 @@ def detect_connected_regions(view: Dict[str, Any]) -> List[Dict[str, Any]]:
             })
 
     return detected_list
+
+
+def detect_region_items(view: Dict[str, Any]) -> Dict[str, List[str]]:
+    current_region = view.get("currentRegion") or view.get("current_region") or {}
+    visible_regions_source = view.get("regions") or view.get("visibleRegions") or view.get("visible_regions") or {}
+    connected_source = view.get("connectedRegions") or view.get("connected_regions") or []
+    
+    regions_map = {}
+    
+    if isinstance(current_region, dict) and current_region.get("id"):
+        regions_map[current_region["id"]] = current_region
+        
+    if isinstance(visible_regions_source, list):
+        for r in visible_regions_source:
+            if isinstance(r, dict) and r.get("id"):
+                regions_map[r["id"]] = r
+    elif isinstance(visible_regions_source, dict):
+        for r_id, r in visible_regions_source.items():
+            if isinstance(r, dict):
+                regions_map[r_id] = r
+                
+    for r in connected_source:
+        if isinstance(r, dict) and r.get("id"):
+            regions_map[r["id"]] = r
+            
+    region_contents = {}
+    
+    for r_id, r in regions_map.items():
+        region_name = r.get("name") or f"Region ({r_id[:8]})"
+        detected_items = []
+        
+        # Jenis 2: Deteksi Fasilitas Petak (Watchtower, Supply Cache, Cave, Ruin, dll)
+        facility = r.get("facility")
+        if facility:
+            facility_clean = facility.replace("_", " ")
+            detected_items.append(facility_clean)
+            
+        # Jenis 1: Deteksi Item Fisik (Weapon, Armor, Recovery, Binoculars/Utility)
+        items_list = r.get("items") or []
+        for item in items_list:
+            if isinstance(item, dict):
+                item_name = item.get("name") or item.get("typeId") or "item"
+                detected_items.append(item_name)
+                
+        if detected_items:
+            region_contents[region_name] = detected_items
+            
+    return region_contents
