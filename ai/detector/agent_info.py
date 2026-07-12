@@ -57,15 +57,34 @@ def extract_agent_status(msg: Dict[str, Any]) -> Dict[str, Any]:
     else:
         vision = TERRAIN_VISION_MODS.get(terrain_lower, 0)
         
-    # Deteksi status candi/ruin secara aman
-    ruin_raw = region_data.get("ruin")
+    # Deteksi status candi/ruin secara cerdas & adaptif (SOT fallback)
+    ruin_raw = region_data.get("ruin") or region_data.get("ruinState")
+    
+    if not ruin_raw:
+        # Fallback 1: Cari di top-level view["ruins"] atau view["ruinStates"]
+        ruins_map = view.get("ruins") or view.get("ruinStates") or {}
+        r_id = region_data.get("id")
+        if isinstance(ruins_map, dict):
+            ruin_raw = ruins_map.get(region_name) or ruins_map.get(r_id)
+        elif isinstance(ruins_map, list):
+            for r_ruin in ruins_map:
+                if isinstance(r_ruin, dict) and (r_ruin.get("ruinId") == r_id or r_ruin.get("ruinId") == region_name):
+                    ruin_raw = r_ruin
+                    break
+
     ruin = None
     if isinstance(ruin_raw, dict):
+        status_val = ruin_raw.get("status") or ("Available" if not ruin_raw.get("isEmpty") else "empty")
+        # Format Explorer murni jika terdeteksi kosong/None
+        explorer_val = ruin_raw.get("explorerName") or ruin_raw.get("explorer") or ruin_raw.get("occupiedBy") or "—"
+        if not explorer_val or explorer_val == "null" or explorer_val == "None":
+            explorer_val = "—"
+            
         ruin = {
-            "status": ruin_raw.get("status") or "Available",
+            "status": status_val,
             "gauge": ruin_raw.get("gauge", 0),
             "max_gauge": ruin_raw.get("maxGauge") or ruin_raw.get("max_gauge") or 3,
-            "explorer": ruin_raw.get("explorerName") or ruin_raw.get("explorer") or "—"
+            "explorer": explorer_val
         }
     
     return {
