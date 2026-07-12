@@ -1,6 +1,5 @@
 import os
 import requests
-from src.config import CONFIG
 from src.websocket import GameWebSocket
 from src.log.log_connections import log_info, log_error
 from src.handshake_handler import handle_handshake
@@ -30,7 +29,7 @@ async def connect_and_play(bot_name, api_key, entry_type):
         ("X-Version", os.environ.get("VERSION", "2.0.0"))
     ]
 
-    async with GameWebSocket(url, extra_headers=headers) as ws:
+    async with GameWebSocket(url, headers) as ws:
         state = await handle_handshake(ws, bot_name, entry_type)
         if state in ["playing", "matchmaking"]:
             await run_game_loop(ws, bot_name, state)
