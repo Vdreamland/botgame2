@@ -6,7 +6,8 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
     if msg_type in ("agent_view", "turn_advanced"):
         view = msg.get("view") or msg.get("agentView") or msg.get("agent_view") or msg.get("data") or {}
         
-        status = extract_agent_status(view)
+        # Kirim pesan utuh (msg) agar detektor bisa membaca data turn di tingkat teratas JSON
+        status = extract_agent_status(msg)
         regions = detect_connected_regions(view)
         
         name = status["name"]
@@ -18,6 +19,7 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         x = status["x"]
         y = status["y"]
         is_alive = status["is_alive"]
+        global_turn = status["global_turn"]
         turn = status["turn"]
         day = status["day"]
         atk = status["atk"]
@@ -26,8 +28,8 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         region_name = status["region_name"]
         terrain = status["terrain"]
         
-        # Pembandingan state menggunakan nama region dan terrain untuk keakuratan
-        current_state = (turn, hp, ep, x, y, kills, region_name, terrain)
+        # Bandingkan menggunakan global_turn agar perubahan turn dari server langsung terdeteksi instan
+        current_state = (global_turn, hp, ep, x, y, kills, region_name, terrain)
         last_printed = getattr(context, "last_state", None)
         
         if last_printed != current_state:
