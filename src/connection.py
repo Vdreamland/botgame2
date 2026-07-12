@@ -161,7 +161,9 @@ async def connect_and_play(bot_name, api_key, entry_type):
                     await log_sender.send_log({"type": "turn", "turn": turn, "status": status, "game_id": game_id})
 
                     view = msg.get("view", {})
-                    self_data = view.get("self", {})
+                    if not isinstance(view, dict):
+                        view = {}
+                    self_data = view.get("self", {}) or {}
 
                     hp = self_data.get("hp", 0)
                     max_hp = self_data.get("maxHp") or self_data.get("max_hp", 100)
