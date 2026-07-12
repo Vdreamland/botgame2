@@ -54,14 +54,14 @@ class GameLogSender:
         detector = AgentInfoDetector(view_data)
         equipped = detector.get_equipped()
         inventory = detector.get_inventory()
-        stats = detector.get_stats()
-        hp = stats.get("hp", 0)
-        max_hp = stats.get("maxHp", 100)
-        ep = stats.get("ep", 0)
-        max_ep = stats.get("maxEp", 10)
-        kill_count = stats.get("killCount", 0)
-        atk = stats.get("atk", 25)
-        defender_def = stats.get("def", 5)
+        
+        hp = detector.get_hp()
+        max_hp = detector.get_max_hp()
+        ep = detector.get_ep()
+        max_ep = detector.get_max_ep()
+        kill_count = detector.get_kills()
+        atk = detector.get_atk()
+        defender_def = detector.get_def()
 
         weapon_item = equipped.get("weapon")
         if isinstance(weapon_item, dict) and weapon_item.get("name"):
