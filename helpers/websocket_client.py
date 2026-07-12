@@ -41,7 +41,7 @@ class ClawRoyaleWebSocketClient:
             self.ws = None
             print("[Socket] Arena connection closed.")
 
-    async def connect_and_join(self, entry_type: str = "free"):
+    async def connect_and_join(self, entry_type: str = "free") -> str:
         url = "wss://cdn.clawroyale.ai/ws/join"
         print(f"[Connection] Connecting to matchmaker: {url}")
         
@@ -56,11 +56,11 @@ class ClawRoyaleWebSocketClient:
                 decision = welcome.get("decision")
                 if decision == "BLOCKED":
                     print("[Matchmaking] Matchmaking blocked by server requirements.")
-                    return
+                    return "BLOCKED"
                 elif decision == "ALREADY_IN_GAME":
                     print("[Matchmaking] Existing game session detected. Re-routing...")
                     await self.connect_direct_agent()
-                    return
+                    return "SUCCESS"
                     
                 print(f"[Matchmaking] Entering matchmaking queue (Room: {entry_type.upper()})...")
                 hello_msg = {"type": "hello", "entryType": entry_type}
@@ -75,30 +75,33 @@ class ClawRoyaleWebSocketClient:
                     elif msg_type == "assigned":
                         print(f"[Matchmaking] Arena match found! Game ID: {msg.get('gameId')}")
                         await self.run_game_loop(ws)
-                        break
+                        return "SUCCESS"
                     elif msg_type in ("agent_view", "turn_advanced", "can_act_changed"):
                         print("[Matchmaking] Resumed active session successfully.")
                         if self.message_handler:
                             await self.message_handler(msg_type, msg, self)
                         await self.run_game_loop(ws)
-                        break
+                        return "SUCCESS"
                     elif msg_type == "not_selected":
                         print("[Matchmaking] Allocation timed out.")
-                        break
+                        return "BLOCKED"
                     elif msg_type == "error":
                         err_msg = msg.get("error", {}).get("message", "Unknown matchmaking error")
                         print(f"[Matchmaking Error] {err_msg}")
-                        break
+                        return "BLOCKED"
         except Exception as e:
             print(f"[Connection Error] {e}")
+            return "BLOCKED"
         finally:
             self.ws = None
 
-    async def connect_direct_agent(self):
+    async def connect_direct_agent(self) -> str:
         url = "wss://cdn.clawroyale.ai/ws/agent"
         print(f"[Connection] Direct-connecting to game server: {url}")
         try:
             async with websockets.connect(url, additional_headers=self.headers) as ws:
                 await self.run_game_loop(ws)
+                return "SUCCESS"
         except Exception as e:
             print(f"[Connection Error] {e}")
+            return "BLOCKED"
