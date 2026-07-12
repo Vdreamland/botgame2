@@ -2,6 +2,14 @@ import json
 from typing import Dict, Any
 from ai.detector import extract_agent_status, detect_connected_regions, detect_region_items
 
+async def _handle_agent_death(msg: Dict[str, Any], view: Dict[str, Any], context: Any, source: str):
+    print(f"[Alert] Agent has died (Detected via {source}). Connection closing...")
+    game_id = msg.get("gameId") or view.get("gameId") or view.get("game", {}).get("gameId")
+    if game_id and hasattr(context, "dead_games") and context.dead_games is not None:
+        context.dead_games.add(game_id)
+    if context.ws:
+        await context.ws.close()
+
 async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
     if msg_type in ("agent_view", "turn_advanced"):
         view = msg.get("view") or msg.get("agentView") or msg.get("agent_view") or msg.get("data") or {}
