@@ -1,3 +1,5 @@
+from src.helper.game_helper import resolve_equipped
+
 def is_action_safe(view_data, action, agent_info, enemy_detector):
     view = view_data
     self_data = view.get("self", {}) or {}
@@ -82,13 +84,14 @@ def is_action_safe(view_data, action, agent_info, enemy_detector):
                 if has_dest_guardian:
                     return False
 
-                equipped = agent_info.get_equipped()
-                eq_weapon = equipped.get("weapon")
+                inventory = agent_info.get_inventory()
+                resolved = resolve_equipped(view_data, inventory)
+                eq_weapon_name = resolved.get("weapon_name")
 
                 if not has_local_threat:
                     if len(dest_agents) >= 2:
                         return False
-                    if not eq_weapon and dest_agents:
+                    if not eq_weapon_name and dest_agents:
                         return False
                     if hp <= 50 and dest_agents:
                         return False

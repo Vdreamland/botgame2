@@ -52,9 +52,8 @@ class GameLogSender:
         from ai.detector.facility_detector import FacilityDetector
 
         detector = AgentInfoDetector(view_data)
-        equipped = detector.get_equipped()
         inventory = detector.get_inventory()
-        
+ 
         hp = detector.get_hp()
         max_hp = detector.get_max_hp()
         ep = detector.get_ep()
@@ -63,17 +62,10 @@ class GameLogSender:
         atk = detector.get_atk()
         defender_def = detector.get_def()
 
-        weapon_item = equipped.get("weapon")
-        if isinstance(weapon_item, dict) and weapon_item.get("name"):
-            weapon_name = weapon_item.get("name")
-        else:
-            weapon_name = str(weapon_item) if weapon_item else "None"
-
-        armor_item = equipped.get("armor")
-        if isinstance(armor_item, dict) and armor_item.get("name"):
-            armor_name = armor_item.get("name")
-        else:
-            armor_name = str(armor_item) if armor_item else "None"
+        from src.helper.game_helper import resolve_equipped
+        resolved = resolve_equipped(view_data, inventory)
+        weapon_name = resolved.get("weapon_name") or "None"
+        armor_name = resolved.get("armor_name") or "None"
 
         current_region = view_data.get("currentRegion", {}) or {}
         current_region_name = current_region.get("name", "Unknown")
@@ -128,7 +120,7 @@ class GameLogSender:
                 f_type = fac.get("type")
                 f_status = fac.get("status")
                 f_name = fac.get("name", f_type)
-                
+ 
                 visible_regs_raw = view_data.get("visibleRegions", []) or []
                 regions_map = {}
                 for r in visible_regs_raw:
@@ -136,7 +128,7 @@ class GameLogSender:
                         regions_map[r.get("id")] = r.get("name")
                 regions_map[current_region.get("id")] = current_region.get("name")
                 reg_name = regions_map.get(f_region, "Unknown")
-                
+ 
                 status_suffix = " [Already Used]" if f_status == "Used" else ""
                 fac_payload[reg_name] = f_name + status_suffix
             await self.send_log({"type": "facilities_info", "facilities": fac_payload})
@@ -163,44 +155,44 @@ class GameLogSender:
                             arm = enemy.get("armor", "None")
                             formatted_enemies.append(f"{enemy.get('name')} [Agent] (HP {enemy.get('hp')}/{enemy.get('maxHp')} / EP {enemy.get('ep')}/10, ATK: {enemy.get('atk')}, DEF: {enemy.get('def')}, Weapon: {weap}, Armour: {arm})")
                         elif e_type == "monster":
-                            formatted_enemies.append(f"{enemy.get('name')} [Monster] (HP {enemy.get('hp')}/{enemy.get('maxHp')}', ATK: {enemy.get('atk')}, DEF: {enemy.get('def')})")
+                            formatted_enemies.append(f"{enemy.get('name')} [Monster] (HP {enemy.get('hp')}/{enemy.get('maxHp')}, ATK: {enemy.get('atk')}, DEF: {enemy.get('def')})")
                         elif e_type == "guardian":
                             formatted_enemies.append(f"{enemy.get('name')} [Guardian] (HP {enemy.get('hp')}/150, ATK: {enemy.get('atk')}, DEF: {enemy.get('def')}, Weapon: None, Armour: None)")
                     enemy_payload[r_name] = formatted_enemies
             await self.send_log({"type": "enemies_info", "enemies": enemy_payload})
 
-        move_list = []
-        battle_list = []
-        action_list = []
-        for log_entry in recent_logs:
-            log_str = ""
-            if isinstance(log_entry, dict):
-                log_str = log_entry.get("message", "")
-            else:
-                log_str = str(log_entry)
-            
-            if not log_str:
-                continue
-            
-            log_clean = log_str
-            log_lower = log_str.lower()
-            
-            if "move" in log_lower:
-                if log_clean not in move_list:
-                    move_list.append(log_clean)
-            elif any(k in log_lower for k in ["attack", "kill", "damage", "defeat", "slay", "slain", "lost", "hp", "deathzone", "deadzone", "shrank", "hurt"]):
-                if log_clean not in battle_list:
-                    battle_list.append(log_clean)
-            else:
-                if log_clean not in action_list:
-                    action_list.append(log_clean)
+            move_list = []
+            battle_list = []
+            action_list = []
+            for log_entry in recent_logs:
+                log_str = ""
+                if isinstance(log_entry, dict):
+                    log_str = log_entry.get("message", "")
+                else:
+                    log_str = str(log_entry)
+ 
+                if not log_str:
+                    continue
+ 
+                log_clean = log_str
+                log_lower = log_str.lower()
+ 
+                if "move" in log_lower:
+                    if log_clean not in move_list:
+                        move_list.append(log_clean)
+                elif any(k in log_lower for k in ["attack", "kill", "damage", "defeat", "slay", "slain", "lost", "hp", "deathzone", "deadzone", "shrank", "hurt"]):
+                    if log_clean not in battle_list:
+                        battle_list.append(log_clean)
+                else:
+                    if log_clean not in action_list:
+                        action_list.append(log_clean)
 
-        battle_str = " / ".join(battle_list) if battle_list else "None"
-        action_str = " / ".join(action_list) if action_list else "None"
-        move_str = " / ".join(move_list) if move_list else "None"
+            battle_str = " / ".join(battle_list) if battle_list else "None"
+            action_str = " / ".join(action_list) if action_list else "None"
+            move_str = " / ".join(move_list) if move_list else "None"
 
-        await self.send_log({"type": "detail", "message": ""})
-        await self.send_log({"type": "detail", "message": "All Events Log :"})
-        await self.send_log({"type": "detail", "message": f"Battle : {battle_str}"})
-        await self.send_log({"type": "detail", "message": f"Action: {action_str}"})
-        await self.send_log({"type": "detail", "message": f"Move : {move_str}"})
+            await self.send_log({"type": "detail", "message": ""})
+            await self.send_log({"type": "detail", "message": "All Events Log :"})
+            await self.send_log({"type": "detail", "message": f"Battle : {battle_str}"})
+            await self.send_log({"type": "detail", "message": f"Action: {action_str}"})
+            await self.send_log({"type": "detail", "message": f"Move : {move_str}"})

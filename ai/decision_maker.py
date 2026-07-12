@@ -3,6 +3,7 @@ import ai.priority as priority
 import ai.strategy as strategy
 from ai.strategy.pre_action_safety import is_action_safe
 from ai.tactics_handler import chase_committed_target, hunt_vulnerable_target, roam_and_rest
+from src.helper.game_helper import resolve_equipped
 
 MELEE_RANKS = {
     "knife": 1,
@@ -51,6 +52,10 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
     if current_region_id:
         region_names[current_region_id] = current_region.get("name")
 
+    inventory = agent_info.get_inventory()
+    resolved = resolve_equipped(view_data, inventory)
+    eq_weapon_name = resolved.get("weapon_name")
+
     survival = priority.get_survival_decision(view_data, agent_info, enemy_detector, deadzone_detector)
     if survival and survival.get("is_danger"):
         reason = survival.get("reason")
@@ -74,7 +79,6 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
 
             rec_dec = priority.get_recovery_decision(view_data, agent_info)
             if rec_dec and rec_dec.get("action") == "use":
-                inventory = agent_info.get_inventory()
                 item_name = "consumable"
                 for it in inventory:
                     if isinstance(it, dict) and it.get("id") == rec_dec.get("item_id"):
@@ -87,7 +91,6 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
         else:
             rec_dec = priority.get_recovery_decision(view_data, agent_info)
             if rec_dec and rec_dec.get("action") == "use":
-                inventory = agent_info.get_inventory()
                 item_name = "consumable"
                 for it in inventory:
                     if isinstance(it, dict) and it.get("id") == rec_dec.get("item_id"):
@@ -110,7 +113,6 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
     if equip_dec:
         act = equip_dec.get("action")
         item_id = equip_dec.get("item_id")
-        inventory = agent_info.get_inventory()
         item_name = "item"
         for it in inventory:
             if isinstance(it, dict) and it.get("id") == item_id:
@@ -169,7 +171,6 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
     if rec_dec:
         act = rec_dec.get("action")
         item_id = rec_dec.get("item_id")
-        inventory = agent_info.get_inventory()
         item_name = "consumable"
         for it in inventory:
             if isinstance(it, dict) and it.get("id") == item_id:

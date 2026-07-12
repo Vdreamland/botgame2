@@ -1,4 +1,4 @@
-from src.helper.game_helper import normalize_item_name, get_region_distances
+from src.helper.game_helper import normalize_item_name, get_region_distances, resolve_equipped
 
 WEAPON_RANGES = {
     "fist": 0,
@@ -14,10 +14,10 @@ WEAPON_RANGES = {
 def get_target_decision(view_data, agent_info, enemy_detector):
     view = view_data
     current_region_id = view.get("currentRegion", {}).get("id")
-    equipped = agent_info.get_equipped()
-    eq_weapon = equipped.get("weapon")
-
-    eq_weapon_name = eq_weapon.get("name") if isinstance(eq_weapon, dict) else eq_weapon
+    
+    inventory = agent_info.get_inventory()
+    resolved = resolve_equipped(view_data, inventory)
+    eq_weapon_name = resolved.get("weapon_name")
     eq_weapon_norm = normalize_item_name(eq_weapon_name)
     weapon_range = WEAPON_RANGES.get(eq_weapon_norm, 1)
 
@@ -85,7 +85,7 @@ def get_target_decision(view_data, agent_info, enemy_detector):
         elif t_type == "agent":
             if t_hp < 30:
                 score += 300
-            if not eq_weapon:
+            if not eq_weapon_name:
                 score -= 800
             score -= t_hp
             if t_dist > 1:
