@@ -8,7 +8,9 @@
     ├── helper/                       
     │   ├── __init__.py 
     │   ├── game_helper.py         
-    │   ├── actions_helper.py         
+    │   ├── actions_helper.py    
+    ├── handshake_handler.py
+    ├── game_loop_handler.py
     ├── config.py
     ├── connection.py        
     ├── websocket.py
@@ -41,7 +43,8 @@
     │   │   ├── movement_strategy.py
     │   │   ├── pre_action_safety.py
     │   │   └── ruin_exploration_strategy.py
-    │   ├── memory.py              
+    │   ├── memory.py 
+    │   ├── tactics_handler.py  
     │   └── decision_maker.py              
 ├── web/                           
 │   ├── index.html                 
@@ -52,6 +55,7 @@
 ai/
 decision_maker.py https://github.com/Vdreamland/botgame2/blob/master/ai/decision_maker.py
 memory.py https://github.com/Vdreamland/botgame2/blob/master/ai/memory.py
+tactics_handler.py https://github.com/Vdreamland/botgame2/blob/master/ai/tactics_handler.py
 
 ai/strategy/
 __init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/strategy/__init__.py
@@ -90,6 +94,8 @@ __init__.py  https://github.com/Vdreamland/botgame2/blob/master/src/__init__.py
 config.py https://github.com/Vdreamland/botgame2/blob/master/src/config.py
 connection.py https://github.com/Vdreamland/botgame2/blob/master/src/connection.py
 websocket.py https://github.com/Vdreamland/botgame2/blob/master/src/websocket.py
+handshake_handler.py https://github.com/Vdreamland/botgame2/blob/master/src/handshake_handler.py
+game_loop_handler.py https://github.com/Vdreamland/botgame2/blob/master/src/game_loop_handler.py
 
 src/helper/
 __init__.py https://github.com/Vdreamland/botgame2/blob/master/src/helper/game_helper.py

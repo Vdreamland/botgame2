@@ -23,6 +23,20 @@ def get_target_decision(view_data, agent_info, enemy_detector):
 
     region_distances = get_region_distances(view_data)
 
+    self_data = view.get("self", {}) or {}
+    agent_ep = self_data.get("ep", 0)
+
+    available_actions = view.get("availableActions", {}) or {}
+    attack_action = available_actions.get("attack", {}) or {}
+    attack_cost = attack_action.get("cost")
+    if attack_cost is None:
+        from src.helper.game_helper import WEAPONS
+        weapon_data = WEAPONS.get(eq_weapon_norm, {})
+        attack_cost = weapon_data.get("ep", 2)
+
+    if agent_ep < attack_cost:
+        return None
+
     combat_targets = []
 
     for agent in enemy_detector.get_alive_agents():

@@ -59,35 +59,28 @@ class ZoneDetector:
         if not start_id:
             return {}
 
+        distances = self.get_region_distances()
+        dead_detector = DeadZoneDetector(self.view_data)
+
         regions_by_id = {start_id: self.current_region}
         for r in self.visible_regions:
             r_id = r.get("id")
             if r_id:
                 regions_by_id[r_id] = r
 
-        dead_detector = DeadZoneDetector(self.view_data)
-        queue = [(start_id, 0)]
-        visited = {start_id}
         layers = {}
-
-        while queue:
-            curr_id, dist = queue.pop(0)
-            if curr_id != start_id:
-                if dist not in layers:
-                    layers[dist] = []
-                reg_data = regions_by_id[curr_id]
+        for r_id, dist in distances.items():
+            if r_id == start_id:
+                continue
+            if dist not in layers:
+                layers[dist] = []
+            reg_data = regions_by_id.get(r_id)
+            if reg_data:
                 r_name = reg_data.get("name", "Unknown")
                 status = dead_detector.get_region_status(reg_data)
                 r_display = f"{r_name} [{status}]"
                 if r_display not in layers[dist]:
                     layers[dist].append(r_display)
-
-            curr_reg = regions_by_id.get(curr_id, {})
-            conns = curr_reg.get("connections") or curr_reg.get("links") or []
-            for neighbor_id in conns:
-                if neighbor_id in regions_by_id and neighbor_id not in visited:
-                    visited.add(neighbor_id)
-                    queue.append((neighbor_id, dist + 1))
 
         for dist in layers:
             layers[dist].sort()
