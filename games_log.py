@@ -29,14 +29,28 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         last_printed = getattr(context, "last_state", None)
         
         if last_printed != current_state:
-            print(f"\nTurn {turn} {name}")
-            print(f"HP: {hp} | EP: {ep} | ATK: {atk} | DEF: {defense} | KILL: {kills}")
+            print(f"\n--- [DAY {day} TURN {turn}] ---")
+            print(f"Agent: {name} | HP: {hp} | EP: {ep} | ATK: {atk} | DEF: {defense} | KILL: {kills}")
             print(f"Location: ({x}, {y}) ({terrain})")
             
-            print("\nRegion Detector :")
+            # Kode warna ANSI untuk konsol/terminal
+            color_green = "\033[92m"
+            color_red = "\033[91m"
+            color_reset = "\033[0m"
+            
+            # Format horizontal: nama [safezone] / nama [deadzone]
+            region_strings = []
             for r in regions:
-                print(f"- {r['name']}")
-                
+                is_dead = r.get("is_death_zone", False)
+                if is_dead:
+                    zone_label = f"{color_red}[deadzone]{color_reset}"
+                else:
+                    zone_label = f"{color_green}[safezone]{color_reset}"
+                region_strings.append(f"{r['name']} {zone_label}")
+            
+            joined_regions = " / ".join(region_strings)
+            print(f"Region detector : {joined_regions}")
+            
             context.last_state = current_state
 
         last_hp = getattr(context, "last_hp", None)

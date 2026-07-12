@@ -12,7 +12,7 @@ def detect_connected_regions(view: Dict[str, Any]) -> List[Dict[str, Any]]:
     for region in connected:
         if isinstance(region, dict):
             region_id = region.get("id") or "unknown_id"
-            region_name = region.get("name") or f"Region ({region_id[:8]})"
+            region_name = region.get("name") or region_id[:8]
             terrain = region.get("terrain") or "unknown"
             is_death_zone = region.get("isDeathZone") if region.get("isDeathZone") is not None else region.get("is_death_zone", False)
             seen_ids.add(region_id)
@@ -27,7 +27,7 @@ def detect_connected_regions(view: Dict[str, Any]) -> List[Dict[str, Any]]:
             seen_ids.add(region)
             detected_list.append({
                 "id": region,
-                "name": f"Adjacent Region ({region[:8]})",
+                "name": region[:8],
                 "terrain": "unknown",
                 "is_death_zone": False,
                 "is_visible": False
@@ -38,7 +38,7 @@ def detect_connected_regions(view: Dict[str, Any]) -> List[Dict[str, Any]]:
         if region_id not in seen_ids:
             detected_list.append({
                 "id": region_id,
-                "name": f"Connected Region ({region_id[:8]})",
+                "name": region_id[:8],
                 "terrain": "unknown",
                 "is_death_zone": False,
                 "is_visible": False
