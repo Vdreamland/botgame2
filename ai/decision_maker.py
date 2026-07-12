@@ -53,35 +53,58 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
 
     survival = priority.get_survival_decision(view_data, agent_info, enemy_detector, deadzone_detector)
     if survival and survival.get("is_danger"):
-        rec_dec = priority.get_recovery_decision(view_data, agent_info)
-        if rec_dec and rec_dec.get("action") == "use":
-            inventory = agent_info.get_inventory()
-            item_name = "consumable"
-            for it in inventory:
-                if isinstance(it, dict) and it.get("id") == rec_dec.get("item_id"):
-                    item_name = it.get("name")
-                    break
-            thought = f"HP critical under danger! Using recovery: {item_name}"
-            action = actions_helper.use_item(rec_dec.get("item_id"), thought)
-            if is_action_safe(view, action, agent_info, enemy_detector):
-                return action
-
+        reason = survival.get("reason")
         connections = current_region.get("connections") or current_region.get("links") or []
-        safe_escape_region = None
+        safe_escape_regions = []
         for r_id in connections:
             r_data = next((r for r in visible_regions if r.get("id") == r_id), None)
             if r_data:
                 is_death = r_data.get("isDeathZone") or r_data.get("isDeadZone") or False
                 if not is_death:
-                    safe_escape_region = r_id
-                    break
+                    safe_escape_regions.append(r_id)
 
-        if safe_escape_region:
-            dest_name = region_names.get(safe_escape_region, "Unknown")
-            thought = f"Danger detected! Escaping immediately to {dest_name}"
-            action = actions_helper.move_to(safe_escape_region, thought)
-            if is_action_safe(view, action, agent_info, enemy_detector):
-                return action
+        if reason == "deadzone":
+            if safe_escape_regions:
+                dest_id = safe_escape_regions[0]
+                dest_name = region_names.get(dest_id, "Unknown")
+                thought = f"Deadzone escape to {dest_name}"
+                action = actions_helper.move_to(dest_id, thought)
+                if is_action_safe(view, action, agent_info, enemy_detector):
+                    return action
+
+            rec_dec = priority.get_recovery_decision(view_data, agent_info)
+            if rec_dec and rec_dec.get("action") == "use":
+                inventory = agent_info.get_inventory()
+                item_name = "consumable"
+                for it in inventory:
+                    if isinstance(it, dict) and it.get("id") == rec_dec.get("item_id"):
+                        item_name = it.get("name")
+                        break
+                thought = f"Deadzone trapped recovery: {item_name}"
+                action = actions_helper.use_item(rec_dec.get("item_id"), thought)
+                if is_action_safe(view, action, agent_info, enemy_detector):
+                    return action
+        else:
+            rec_dec = priority.get_recovery_decision(view_data, agent_info)
+            if rec_dec and rec_dec.get("action") == "use":
+                inventory = agent_info.get_inventory()
+                item_name = "consumable"
+                for it in inventory:
+                    if isinstance(it, dict) and it.get("id") == rec_dec.get("item_id"):
+                        item_name = it.get("name")
+                        break
+                thought = f"Threat recovery: {item_name}"
+                action = actions_helper.use_item(rec_dec.get("item_id"), thought)
+                if is_action_safe(view, action, agent_info, enemy_detector):
+                    return action
+
+            if safe_escape_regions:
+                dest_id = safe_escape_regions[0]
+                dest_name = region_names.get(dest_id, "Unknown")
+                thought = f"Threat escape to {dest_name}"
+                action = actions_helper.move_to(dest_id, thought)
+                if is_action_safe(view, action, agent_info, enemy_detector):
+                    return action
 
     equip_dec = priority.get_equipment_decision(view_data, agent_info, enemy_detector)
     if equip_dec:
@@ -95,12 +118,28 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
                 break
         action = None
         if act == "equip":
-            thought = f"Equipping better weapon/armor: {item_name}"
+            thought = f"Equip: {item_name}"
             action = actions_helper.equip_item(item_id, thought)
         elif act == "drop":
-            thought = f"Dropping redundant equipment: {item_name}"
+            thought = f"Drop redundant: {item_name}"
             action = actions_helper.drop_item(item_id, thought)
         if action and is_action_safe(view, action, agent_info, enemy_detector):
+            return action
+
+    target_dec = priority.get_target_decision(view_data, agent_info, enemy_detector)
+    if target_dec:
+        target_id = target_dec.get("target_id")
+        target_type = target_dec.get("target_type")
+        enemies = enemy_detector.get_alive_agents() + enemy_detector.get_alive_monsters()
+        target_name = "Enemy"
+        for e in enemies:
+            if isinstance(e, dict) and e.get("id") == target_id:
+                target_name = e.get("name")
+                break
+        thought = f"Attack {target_name} ({target_type})"
+        action = actions_helper.attack_target(target_id, target_type, thought)
+        if is_action_safe(view, action, agent_info, enemy_detector):
+            memory.set_target(target_id)
             return action
 
     loot_dec = priority.get_loot_decision(view_data, agent_info, ground_detector)
@@ -115,13 +154,13 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
                 if isinstance(it, dict) and it.get("id") == item_id:
                     item_name = it.get("name")
                     break
-            thought = f"Looting {item_name} from ground"
+            thought = f"Loot {item_name}"
             action = actions_helper.pickup_item(item_id, thought)
         elif act == "move_to_loot":
             r_id = loot_dec.get("region_id")
             item_name = loot_dec.get("item_name")
             dest_name = region_names.get(r_id, "Unknown")
-            thought = f"Moving to adjacent region {dest_name} to loot {item_name}"
+            thought = f"Move to {dest_name} for {item_name}"
             action = actions_helper.move_to(r_id, thought)
         if action and is_action_safe(view, action, agent_info, enemy_detector):
             return action
@@ -138,35 +177,13 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
                 break
         action = None
         if act == "use":
-            thought = f"Activating recovery: {item_name}"
+            thought = f"Recovery use: {item_name}"
             action = actions_helper.use_item(item_id, thought)
         elif act == "drop":
-            thought = f"Dropping excess consumable: {item_name}"
+            thought = f"Recovery drop excess: {item_name}"
             action = actions_helper.drop_item(item_id, thought)
         if action and is_action_safe(view, action, agent_info, enemy_detector):
             return action
-
-    target_dec = priority.get_target_decision(view_data, agent_info, enemy_detector)
-    if target_dec:
-        target_id = target_dec.get("target_id")
-        target_type = target_dec.get("target_type")
-        enemies = enemy_detector.get_alive_agents() + enemy_detector.get_alive_monsters()
-        target_name = "Enemy"
-        for e in enemies:
-            if isinstance(e, dict) and e.get("id") == target_id:
-                target_name = e.get("name")
-                break
-        thought = f"Attacking {target_name} ({target_type})"
-        action = actions_helper.attack_target(target_id, target_type, thought)
-        if is_action_safe(view, action, agent_info, enemy_detector):
-            memory.set_target(target_id)
-            return action
-
-    chase_action = chase_committed_target(
-        view_data, agent_info, enemy_detector, memory, ep, current_region_id, visible_regions, region_names
-    )
-    if chase_action:
-        return chase_action
 
     hunt_action = hunt_vulnerable_target(
         view_data, agent_info, enemy_detector, ep, current_region_id, visible_regions, region_names
@@ -174,12 +191,18 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
     if hunt_action:
         return hunt_action
 
+    chase_action = chase_committed_target(
+        view_data, agent_info, enemy_detector, memory, ep, current_region_id, visible_regions, region_names
+    )
+    if chase_action:
+        return chase_action
+
     interact_dec = priority.get_interact_decision(view_data, agent_info)
     if interact_dec:
         act_type = interact_dec.get("action")
         action = None
         if act_type == "explore":
-            thought = f"Exploring ruin at {region_names.get(current_region_id, 'current region')}"
+            thought = f"Explore ruin"
             action = actions_helper.explore_ruin(thought)
         elif act_type == "interact":
             fac_id = interact_dec.get("interactable_id")
@@ -189,7 +212,7 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
                 if isinstance(fac, dict) and fac.get("id") == fac_id:
                     fac_type = fac.get("type")
                     break
-            thought = f"Interacting with {fac_type}"
+            thought = f"Interact {fac_type}"
             action = actions_helper.interact_facility(fac_id, thought)
         if action and is_action_safe(view, action, agent_info, enemy_detector):
             return action
@@ -200,7 +223,7 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
         if step:
             dest_name = region_names.get(step, "Unknown")
             target_name = region_names.get(best_ruin_id, "Unknown")
-            thought = f"Navigating to ruin: {target_name}. Moving to {dest_name}"
+            thought = f"Navigate ruin {target_name} via {dest_name}"
             action = actions_helper.move_to(step, thought)
             if is_action_safe(view, action, agent_info, enemy_detector):
                 return action

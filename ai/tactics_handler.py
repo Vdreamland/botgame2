@@ -23,7 +23,7 @@ def chase_committed_target(view_data, agent_info, enemy_detector, memory, ep, cu
                     step = strategy.get_next_step(view_data, target_zone)
                     if step:
                         dest_name = region_names.get(step, "Unknown")
-                        thought = f"Chasing target! Moving to {dest_name}"
+                        thought = f"Chasing target via {dest_name}"
                         action = actions_helper.move_to(step, thought)
                         if is_action_safe(view_data, action, agent_info, enemy_detector):
                             return action
@@ -84,7 +84,7 @@ def roam_and_rest(view_data, agent_info, enemy_detector, memory, current_region_
     best_roam_id = None
     for r_id in connections:
         dest_name = region_names.get(r_id, "Unknown")
-        thought = f"Exploring new region: {dest_name}"
+        thought = f"Exploring {dest_name}"
         action = actions_helper.move_to(r_id, thought)
         if is_action_safe(view_data, action, agent_info, enemy_detector):
             if not memory.is_region_visited(r_id):
@@ -95,9 +95,9 @@ def roam_and_rest(view_data, agent_info, enemy_detector, memory, current_region_
 
     if best_roam_id:
         dest_name = region_names.get(best_roam_id, "Unknown")
-        thought = f"Exploring new region: {dest_name}"
+        thought = f"Exploring {dest_name}"
         memory.add_visited_region(best_roam_id)
         return actions_helper.move_to(best_roam_id, thought)
 
-    thought = "No urgent tactical actions. Resting to recover EP"
+    thought = "Resting"
     return actions_helper.rest(thought)
