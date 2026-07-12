@@ -34,6 +34,9 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         
         if not is_alive:
             print("[Alert] Agent has died. Connection closing...")
+            game_id = msg.get("gameId") or view.get("gameId") or game_state.get("gameId")
+            if game_id and hasattr(context, "dead_games") and context.dead_games is not None:
+                context.dead_games.add(game_id)
             if context.ws:
                 await context.ws.close()
 

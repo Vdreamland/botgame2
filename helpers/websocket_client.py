@@ -4,7 +4,7 @@ import websockets
 from typing import Dict, Any, Callable, Optional, Awaitable
 
 class ClawRoyaleWebSocketClient:
-    def __init__(self, api_key: str, version: str, auth_type: str = "mr-auth", message_handler: Optional[Callable[[str, Dict[str, Any], Any], Awaitable[None]]] = None):
+    def __init__(self, api_key: str, version: str, auth_type: str = "mr-auth", message_handler: Optional[Callable[[str, Dict[str, Any], Any], Awaitable[None]]] = None, dead_games: Optional[set] = None):
         self.api_key = api_key
         self.version = version
         self.auth_type = auth_type
@@ -12,6 +12,7 @@ class ClawRoyaleWebSocketClient:
         self.agent_id = None
         self.agent_name = None
         self.message_handler = message_handler
+        self.dead_games = dead_games if dead_games is not None else set()
         self.ws = None
 
     def _build_headers(self) -> Dict[str, str]:
