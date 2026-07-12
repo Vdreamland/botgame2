@@ -228,11 +228,15 @@ class GameLogSender:
             
             log_clean = log_str
             log_lower = log_str.lower()
+
+            is_related = (self.bot_name.lower() in log_lower) or any(env in log_lower for env in ["death zone", "death_zone", "dead zone", "dead_zone"])
+            if not is_related:
+                continue
             
             if "move" in log_lower:
                 if log_clean not in move_list:
                     move_list.append(log_clean)
-            elif any(k in log_lower for k in ["attack", "kill", "damage", "defeat", "slay", "slain", "lost", "hp", "deathzone", "deadzone", "shrank", "hurt"]):
+            elif any(k in log_lower for k in ["attack", "kill", "damage", "defeat", "slay", "slain", "lost", "hp", "shrank", "hurt"]):
                 if log_clean not in battle_list:
                     battle_list.append(log_clean)
             else:
