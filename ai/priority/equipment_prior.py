@@ -98,7 +98,7 @@ def resolve_equipped(view_data, inventory):
         "armor_id": eq_armor_id
     }
 
-def get_equipment_decision(view_data, agent_info):
+def get_equipment_decision(view_data, agent_info, enemy_detector=None):
     inventory = agent_info.get_inventory()
     resolved = resolve_equipped(view_data, inventory)
 
@@ -106,6 +106,28 @@ def get_equipment_decision(view_data, agent_info):
     eq_armor_name = resolved.get("armor_name")
     eq_weapon_id = resolved.get("weapon_id")
     eq_armor_id = resolved.get("armor_id")
+
+    has_local_enemy = False
+    has_ranged_enemy = False
+
+    if enemy_detector:
+        current_region_id = view_data.get("currentRegion", {}).get("id")
+        enemies = enemy_detector.get_alive_agents() + enemy_detector.get_alive_monsters()
+        for e in enemies:
+            e_zone = e.get("zone") or e.get("regionId") or e.get("region")
+            if e_zone == current_region_id:
+                e_name = e.get("name", "").lower()
+                e_type = e.get("type", "").lower()
+                if "guardian" not in e_name and "guardian" not in e_type:
+                    has_local_enemy = True
+                    break
+        if not has_local_enemy:
+            for e in enemies:
+                e_name = e.get("name", "").lower()
+                e_type = e.get("type", "").lower()
+                if "guardian" not in e_name and "guardian" not in e_type:
+                    has_ranged_enemy = True
+                    break
 
     owned_melee = []
     owned_ranged = []
@@ -167,28 +189,48 @@ def get_equipment_decision(view_data, agent_info):
             return {"action": "equip", "item_id": best_armor.get("id")}
 
     eq_weapon_norm = normalize_item_name(eq_weapon_name)
-    if eq_weapon_norm in MELEE_RANKS:
-        if best_melee:
+
+    if has_local_enemy:
+        m_rank = MELEE_RANKS.get(normalize_item_name(best_melee.get("name")), 0) if best_melee else 0
+        r_rank = RANGED_RANKS.get(normalize_item_name(best_ranged.get("name")), 0) if best_ranged else 0
+        if m_rank > r_rank and best_melee:
             best_melee_norm = normalize_item_name(best_melee.get("name"))
             if eq_weapon_norm != best_melee_norm:
                 return {"action": "equip", "item_id": best_melee.get("id")}
-    elif eq_weapon_norm in RANGED_RANKS:
+        elif best_ranged:
+            best_ranged_norm = normalize_item_name(best_ranged.get("name"))
+            if eq_weapon_norm != best_ranged_norm:
+                return {"action": "equip", "item_id": best_ranged.get("id")}
+        elif best_melee:
+            best_melee_norm = normalize_item_name(best_melee.get("name"))
+            if eq_weapon_norm != best_melee_norm:
+                return {"action": "equip", "item_id": best_melee.get("id")}
+
+    elif has_ranged_enemy:
         if best_ranged:
             best_ranged_norm = normalize_item_name(best_ranged.get("name"))
             if eq_weapon_norm != best_ranged_norm:
                 return {"action": "equip", "item_id": best_ranged.get("id")}
+        elif best_melee:
+            best_melee_norm = normalize_item_name(best_melee.get("name"))
+            if eq_weapon_norm != best_melee_norm:
+                return {"action": "equip", "item_id": best_melee.get("id")}
+
     else:
         if best_melee and best_ranged:
             m_rank = MELEE_RANKS.get(normalize_item_name(best_melee.get("name")), 0)
             r_rank = RANGED_RANKS.get(normalize_item_name(best_ranged.get("name")), 0)
             if m_rank >= r_rank:
-                return {"action": "equip", "item_id": best_melee.get("id")}
+                best_weapon = best_melee
             else:
-                return {"action": "equip", "item_id": best_ranged.get("id")}
-        elif best_melee:
-            return {"action": "equip", "item_id": best_melee.get("id")}
-        elif best_ranged:
-            return {"action": "equip", "item_id": best_ranged.get("id")}
+                best_weapon = best_ranged
+        else:
+            best_weapon = best_melee or best_ranged
+
+        if best_weapon:
+            best_weapon_norm = normalize_item_name(best_weapon.get("name"))
+            if eq_weapon_norm != best_weapon_norm:
+                return {"action": "equip", "item_id": best_weapon.get("id")}
 
     for item in inventory:
         if not isinstance(item, dict):

@@ -4,25 +4,6 @@ import ai.priority as priority
 import ai.strategy as strategy
 from ai.strategy.pre_action_safety import is_action_safe
 
-MELEE_RANKS = {
-    "knife": 1,
-    "dagger": 2,
-    "sword": 3,
-    "katana": 4
-}
-
-RANGED_RANKS = {
-    "bow": 1,
-    "pistol": 2,
-    "sniper": 3
-}
-
-ARMOR_RANKS = {
-    "leather": 1,
-    "chainmail": 2,
-    "plate": 3
-}
-
 def normalize_item_name(name):
     if not name:
         return ""
@@ -82,7 +63,7 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
             if is_action_safe(view, action, agent_info, enemy_detector):
                 return action
 
-    equip_dec = priority.get_equipment_decision(view_data, agent_info)
+    equip_dec = priority.get_equipment_decision(view_data, agent_info, enemy_detector)
     if equip_dec:
         act = equip_dec.get("action")
         item_id = equip_dec.get("item_id")
@@ -261,12 +242,10 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
                 memory.add_visited_region(r_id)
                 return action
             if best_roam_id is None:
-                best_roam_id = action
+                best_roam_id = r_id
 
     if best_roam_id:
-        dest_id = best_roam_id.get("data", {}).get("regionId")
-        memory.add_visited_region(dest_id)
-        return best_roam_id
-
-    thought = "No urgent tactical actions. Resting to recover EP"
-    return actions_helper.rest(thought)
+        dest_name = region_names.get(best_roam_id, "Unknown")
+        thought = f"Exploring new region: {dest_name}"
+        memory.add_visited_region(best_roam_id)
+        return actions_helper.move_to(best_roam_id, thought)
