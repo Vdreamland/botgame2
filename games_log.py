@@ -39,8 +39,10 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         weather = status["weather"]
         vision = status["vision"]
         num_links = status["num_links"]
+        ruin = status["ruin"]
         
-        current_state = (global_turn, hp, ep, x, y, kills, region_name, terrain, is_death_zone, weather, vision, num_links)
+        # Masukkan status ruin ke dalam state pembanding agar perubahan gauge otomatis mencetak log baru
+        current_state = (global_turn, hp, ep, x, y, kills, region_name, terrain, is_death_zone, weather, vision, num_links, str(ruin))
         last_printed = getattr(context, "last_state", None)
         
         if last_printed != current_state:
@@ -49,14 +51,17 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
             
             current_zone_label = f" {color_red}[deadzone]{color_reset}" if is_death_zone else ""
             
-            # Format kapitalisasi untuk visualisasi bersih
-            terrain_cap = terrain.capitalize() if terrain else "Unknown"
-            weather_cap = weather.capitalize() if weather else "Unknown"
-            
             print(f"\n--- [DAY {day} TURN {turn}] ---")
             print(f"Agent: {name} | HP: {hp} | EP: {ep} | ATK: {atk} | DEF: {defense} | KILL: {kills}")
-            # Format baru yang menyatukan lokasi, terrain, cuaca, vision, dan links
-            print(f"Location: {region_name}{current_zone_label} | Terrain : {terrain_cap} | Weather : {weather_cap} | Vision {vision} | Link {num_links}")
+            
+            # Jika berdiri di atas Candi/Ruin, beralih ke Ruin Mode visualisasi
+            if ruin:
+                status_val = ruin["status"].capitalize() if isinstance(ruin["status"], str) else ruin["status"]
+                print(f"Location: {region_name}{current_zone_label} | Status : {status_val} | Gauge : {ruin['gauge']} / {ruin['max_gauge']} | Explorer : {ruin['explorer']}")
+            else:
+                terrain_cap = terrain.capitalize() if terrain else "Unknown"
+                weather_cap = weather.capitalize() if weather else "Unknown"
+                print(f"Location: {region_name}{current_zone_label} | Terrain : {terrain_cap} | Weather : {weather_cap} | Vision {vision} | Link {num_links}")
             
             region_strings = []
             for r in regions:

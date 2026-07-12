@@ -49,13 +49,24 @@ def extract_agent_status(msg: Dict[str, Any]) -> Dict[str, Any]:
     weather = game_state.get("weather", "clear")
     num_links = len(region_data.get("connections") or [])
     
-    # Ambil nilai Vision murni dari terrain petak saat ini untuk disesuaikan dengan Web UI
+    # Ambil nilai Vision murni dari terrain petak saat ini
     terrain_lower = terrain.lower()
     facility_lower = (region_data.get("facility") or "").lower()
     if facility_lower == "cave" or terrain_lower == "cave":
         vision = -2
     else:
         vision = TERRAIN_VISION_MODS.get(terrain_lower, 0)
+        
+    # SOT: Ambil status candi/ruin (jika saat ini berpijak di petak ruins)
+    ruin_raw = region_data.get("ruin")
+    ruin = None
+    if isinstance(ruin_raw, dict):
+        ruin = {
+            "status": ruin_raw.get("status") or "Available",
+            "gauge": ruin_raw.get("gauge", 0),
+            "max_gauge": ruin_raw.get("maxGauge") or ruin_raw.get("max_gauge") or 3,
+            "explorer": ruin_raw.get("explorerName") or ruin_raw.get("explorer") or "—"
+        }
     
     return {
         "name": name,
@@ -76,5 +87,6 @@ def extract_agent_status(msg: Dict[str, Any]) -> Dict[str, Any]:
         "is_death_zone": is_death_zone,
         "weather": weather,
         "vision": vision,
-        "num_links": num_links
+        "num_links": num_links,
+        "ruin": ruin
     }
