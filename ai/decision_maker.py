@@ -64,7 +64,7 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
     loot_dec = priority.get_loot_decision(view_data, agent_info, ground_detector)
     if loot_dec:
         item_id = loot_dec.get("item_id")
-        ground_items = ground_detector.detect_ground_items()
+        ground_items = ground_detector.visible_items
         item_name = "item"
         for it in ground_items:
             if isinstance(it, dict) and it.get("id") == item_id:
