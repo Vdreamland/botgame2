@@ -1,6 +1,13 @@
 import json
 from typing import Dict, Any
-from ai.detector import extract_agent_status, detect_connected_regions
+
+async def _handle_agent_death(msg: Dict[str, Any], view: Dict[str, Any], context: Any, source: str):
+    print(f"[Alert] Agent has died (Detected via {source}). Connection closing...")
+    game_id = msg.get("gameId") or view.get("gameId") or view.get("game", {}).get("gameId")
+    if game_id and hasattr(context, "dead_games") and context.dead_games is not None:
+        context.dead_games.add(game_id)
+    if context.ws:
+        await context.ws.close()
 
 async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
     if msg_type in ("agent_view", "turn_advanced"):
@@ -27,7 +34,6 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         region_name = status["region_name"]
         is_death_zone = status["is_death_zone"]
         
-        # Terrain sengaja tidak dimasukkan ke dalam log cetakan konsol
         terrain = status["terrain"]
         current_state = (global_turn, hp, ep, x, y, kills, region_name, terrain, is_death_zone)
         last_printed = getattr(context, "last_state", None)
@@ -36,14 +42,12 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
             color_red = "\033[91m"
             color_reset = "\033[0m"
             
-            # Label hanya dicetak jika saat ini berdiri di atas petak deadzone
             current_zone_label = f" {color_red}[deadzone]{color_reset}" if is_death_zone else ""
             
             print(f"\n--- [DAY {day} TURN {turn}] ---")
             print(f"Agent: {name} | HP: {hp} | EP: {ep} | ATK: {atk} | DEF: {defense} | KILL: {kills}")
             print(f"Location: ({x}, {y}) {region_name}{current_zone_label}")
             
-            # Format horizontal wilayah tetangga (hanya cetak label jika deadzone)
             region_strings = []
             for r in regions:
                 is_dead = r.get("is_death_zone", False)
@@ -68,12 +72,7 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         context.last_hp = hp
         
         if not is_alive:
-            print("[Alert] Agent has died. Connection closing...")
-            game_id = msg.get("gameId") or view.get("gameId") or view.get("game", {}).get("gameId")
-            if game_id and hasattr(context, "dead_games") and context.dead_games is not None:
-                context.dead_games.add(game_id)
-            if context.ws:
-                await context.ws.close()
+            await _handle_agent_death(msg, view, context, "state view")
 
     elif msg_type == "can_act_changed":
         can_act = msg.get("canAct", False)
@@ -98,9 +97,4 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
                 name_lower = context.agent_name.lower()
                 if name_lower in lower_msg:
                     if "killed" in lower_msg or "died" in lower_msg or "eliminated" in lower_msg:
-                        print("[Alert] Agent has died (Detected via world log). Connection closing...")
-                        game_id = msg.get("gameId") or log_data.get("gameId")
-                        if game_id and hasattr(context, "dead_games") and context.dead_games is not None:
-                            context.dead_games.add(game_id)
-                        if context.ws:
-                            await context.ws.close()
+                        await _handle_agent_death(msg, {}, context, "world log")
