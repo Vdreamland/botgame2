@@ -28,32 +28,29 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         terrain = status["terrain"]
         is_death_zone = status["is_death_zone"]
         
-        # Simpan status deadzone saat ini ke dalam state pembanding
         current_state = (global_turn, hp, ep, x, y, kills, region_name, terrain, is_death_zone)
         last_printed = getattr(context, "last_state", None)
         
         if last_printed != current_state:
-            # Kode warna ANSI
-            color_green = "\033[92m"
             color_red = "\033[91m"
             color_reset = "\033[0m"
             
-            # Label warna untuk petak berdiri saat ini
-            current_zone_label = f"{color_red}[deadzone]{color_reset}" if is_death_zone else f"{color_green}[safezone]{color_reset}"
+            # Label hanya dicetak jika saat ini berdiri di atas petak deadzone
+            current_zone_label = f" {color_red}[deadzone]{color_reset}" if is_death_zone else ""
             
             print(f"\n--- [DAY {day} TURN {turn}] ---")
             print(f"Agent: {name} | HP: {hp} | EP: {ep} | ATK: {atk} | DEF: {defense} | KILL: {kills}")
-            print(f"Location: ({x}, {y}) {region_name} ({terrain}) {current_zone_label}")
+            print(f"Location: ({x}, {y}) {region_name} ({terrain}){current_zone_label}")
             
-            # Format horizontal wilayah tetangga
+            # Format horizontal wilayah tetangga (hanya cetak label jika deadzone)
             region_strings = []
             for r in regions:
                 is_dead = r.get("is_death_zone", False)
                 if is_dead:
-                    zone_label = f"{color_red}[deadzone]{color_reset}"
+                    zone_label = f" {color_red}[deadzone]{color_reset}"
                 else:
-                    zone_label = f"{color_green}[safezone]{color_reset}"
-                region_strings.append(f"{r['name']} {zone_label}")
+                    zone_label = ""
+                region_strings.append(f"{r['name']}{zone_label}")
             
             joined_regions = " / ".join(region_strings)
             print(f"Region detector : {joined_regions}")
