@@ -73,14 +73,16 @@ async def connect_and_play(bot_name, api_key, entry_type):
 
             expect_immediate_frame = (decision == "ALREADY_IN_GAME")
             accumulated_events = []
-            last_view = None
-            last_turn = None
+            pending_messages = []
 
             while True:
                 try:
-                    current_timeout = 5.0 if expect_immediate_frame else 120.0
-                    msg = await asyncio.wait_for(client.recv(), timeout=current_timeout)
-                    expect_immediate_frame = False
+                    if pending_messages:
+                        msg = pending_messages.pop(0)
+                    else:
+                        current_timeout = 5.0 if expect_immediate_frame else 120.0
+                        msg = await asyncio.wait_for(client.recv(), timeout=current_timeout)
+                        expect_immediate_frame = False
                 except asyncio.TimeoutError:
                     if expect_immediate_frame:
                         log_warning(bot_name, "No immediate frames on ALREADY_IN_GAME. Post-death delay likely. Retrying shortly...")
@@ -100,8 +102,6 @@ async def connect_and_play(bot_name, api_key, entry_type):
                     
                     if event_msg:
                         accumulated_events.append(event_msg)
-                        if last_view is not None:
-                            await log_sender.send_agent_info(last_view, last_turn, accumulated_events)
                         
                     log_entry_type = log_data.get("type")
                     if log_entry_type == "death":
@@ -160,12 +160,36 @@ async def connect_and_play(bot_name, api_key, entry_type):
 
                     log_info(bot_name, f"Processing Turn {turn} (HP: {hp}/{max_hp}, EP: {ep}, Status: {status})")
 
-                    last_view = view
-                    last_turn = turn
-                    accumulated_events = []
+                    await asyncio.sleep(0.05)
+
+                    while True:
+                        try:
+                            next_raw = await asyncio.wait_for(client.recv(), timeout=0.01)
+                            if not next_raw:
+                                continue
+                            next_type = next_raw.get("type")
+                            if next_type == "log":
+                                log_data = next_raw.get("log") or {}
+                                event_msg = log_data.get("message")
+                                if event_msg:
+                                    accumulated_events.append(event_msg)
+                                log_entry_type = log_data.get("type")
+                                if log_entry_type == "death":
+                                    details = log_data.get("details", {})
+                                    target_name = details.get("targetName", "")
+                                    if target_name.lower() == bot_name.lower():
+                                        pending_messages.append(next_raw)
+                                        break
+                            else:
+                                pending_messages.append(next_raw)
+                                break
+                        except asyncio.TimeoutError:
+                            break
 
                     recent_logs = view.get("recentLogs", []) or []
-                    all_logs = list(recent_logs)
+                    all_logs = list(recent_logs) + accumulated_events
+                    accumulated_events = []
+
                     await log_sender.send_agent_info(view, turn, all_logs)
 
                     if recent_logs:
