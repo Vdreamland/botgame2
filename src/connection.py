@@ -4,6 +4,13 @@ from src.websocket import GameWebSocket
 from src.log.log_connections import log_info, log_warning, log_error
 from src.log.logs_games import GameLogSender
 
+from ai.detector.agent_info import AgentInfoDetector
+from ai.detector.enemy_info import EnemyInfoDetector
+from ai.detector.deadzone_detector import DeadZoneDetector
+from ai.detector.ground_item_detector import GroundItemDetector
+from ai.memory import AgentMemory
+from ai.decision_maker import get_decision
+
 async def connect_and_play(bot_name, api_key, entry_type):
     if not api_key:
         log_error(bot_name, "API key is empty. Skipping connection.")
@@ -74,6 +81,12 @@ async def connect_and_play(bot_name, api_key, entry_type):
             expect_immediate_frame = (decision == "ALREADY_IN_GAME")
             accumulated_events = []
             pending_messages = []
+
+            agent_info = AgentInfoDetector(bot_name)
+            enemy_detector = EnemyInfoDetector(bot_name)
+            deadzone_detector = DeadZoneDetector(bot_name)
+            ground_detector = GroundItemDetector(bot_name)
+            memory = AgentMemory(bot_name)
 
             while True:
                 try:
@@ -201,6 +214,21 @@ async def connect_and_play(bot_name, api_key, entry_type):
                                 log_msg = str(log_entry)
                             if log_msg and bot_name.lower() in log_msg.lower():
                                 log_info(bot_name, f"Event: {log_msg}")
+
+                    if status == "playing" and is_alive:
+                        action = get_decision(view, agent_info, enemy_detector, deadzone_detector, ground_detector, memory)
+                        if action:
+                            thought = action.get("thought")
+                            if thought:
+                                log_info(bot_name, f"AI Thought: {thought}")
+                                await log_sender.send_log({"type": "detail", "message": f"AI Thought -> {thought}"})
+                            
+                            action_payload = {
+                                "type": action.get("type", "action"),
+                                "action": action.get("action"),
+                                "data": action.get("data")
+                            }
+                            await client.send(action_payload)
 
                     if not is_alive:
                         log_info(bot_name, f"Death detected on Turn {turn}! HP: {hp}, isAlive: {self_data.get('isAlive')}. Exiting game loop...")
