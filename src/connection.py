@@ -57,11 +57,11 @@ async def connect_and_play(bot_name, api_key, entry_type):
                         codes.append(m.get("code"))
                     else:
                         codes.append(str(m))
-                        
+                
                 if "ACTIVE_FREE_GAME_EXISTS" in codes:
                     log_warning(bot_name, "Previous session still active on server. Waiting 10 seconds...")
                     await asyncio.sleep(10.0)
-                return
+                    return
 
             if decision == "PAID_ONLY":
                 log_error(bot_name, "Free entry not permitted (PAID_ONLY).")
@@ -111,25 +111,28 @@ async def connect_and_play(bot_name, api_key, entry_type):
                     game_id = active_game_id
 
                 if msg_type == "log":
-                    log_data = msg.get("log") or {}
-                    event_msg = log_data.get("message")
-                    
-                    if event_msg:
-                        accumulated_events.append(event_msg)
+                    log_data = msg.get("log")
+                    if isinstance(log_data, dict):
+                        event_msg = log_data.get("message")
                         
-                    log_entry_type = log_data.get("type")
-                    if log_entry_type == "death":
-                        details = log_data.get("details", {})
-                        target_name = details.get("targetName", "")
+                        if event_msg:
+                            accumulated_events.append(event_msg)
                         
-                        if target_name.lower() == bot_name.lower():
-                            log_info(bot_name, f"Death detected via global log: {event_msg}")
-                            await log_sender.send_log({"type": "detail", "message": f"Fatal Event : {event_msg}"})
-                            await log_sender.send_log({"type": "detail", "message": "=== AGENT ELIMINATED / DIED ==="})
-                            await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": False})
-                            log_info(bot_name, "Waiting 15 seconds for server to clear slot...")
-                            await asyncio.sleep(15.0)
-                            break
+                        log_entry_type = log_data.get("type")
+                        if log_entry_type == "death":
+                            details = log_data.get("details", {})
+                            target_name = details.get("targetName", "")
+                            
+                            if target_name.lower() == bot_name.lower():
+                                log_info(bot_name, f"Death detected via global log: {event_msg}")
+                                await log_sender.send_log({"type": "detail", "message": f"Fatal Event : {event_msg}"})
+                                await log_sender.send_log({"type": "detail", "message": "=== AGENT ELIMINATED / DIED ==="})
+                                await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": False})
+                                log_info(bot_name, "Waiting 15 seconds for server to clear slot...")
+                                await asyncio.sleep(15.0)
+                                break
+                    elif isinstance(log_data, str):
+                        accumulated_events.append(log_data)
                     continue
 
                 elif msg_type == "queued":
@@ -190,17 +193,26 @@ async def connect_and_play(bot_name, api_key, entry_type):
                                 continue
                             next_type = next_raw.get("type")
                             if next_type == "log":
-                                log_data = next_raw.get("log") or {}
-                                event_msg = log_data.get("message")
-                                if event_msg:
-                                    accumulated_events.append(event_msg)
-                                log_entry_type = log_data.get("type")
-                                if log_entry_type == "death":
-                                    details = log_data.get("details", {})
-                                    target_name = details.get("targetName", "")
-                                    if target_name.lower() == bot_name.lower():
+                                log_data = next_raw.get("log")
+                                if isinstance(log_data, dict):
+                                    event_msg = log_data.get("message")
+                                    if event_msg:
+                                        accumulated_events.append(event_msg)
+                                    log_entry_type = log_data.get("type")
+                                    if log_entry_type == "death":
+                                        details = log_data.get("details", {})
+                                        target_name = details.get("targetName", "")
+                                        if target_name.lower() == bot_name.lower():
+                                            pending_messages.append(next_raw)
+                                            break
+                                    else:
                                         pending_messages.append(next_raw)
                                         break
+                                else:
+                                    if isinstance(log_data, str):
+                                        accumulated_events.append(log_data)
+                                    pending_messages.append(next_raw)
+                                    break
                             else:
                                 pending_messages.append(next_raw)
                                 break
@@ -249,11 +261,11 @@ async def connect_and_play(bot_name, api_key, entry_type):
                             await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": False})
                             has_logged_death = True
 
-                    if status == "finished":
-                        log_info(bot_name, f"Game status finished on Turn {turn}. Exiting game loop...")
-                        await log_sender.send_log({"type": "finished", "status": status})
-                        await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
-                        break
+                        if status == "finished":
+                            log_info(bot_name, f"Game status finished on Turn {turn}. Exiting game loop...")
+                            await log_sender.send_log({"type": "finished", "status": status})
+                            await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
+                            break
 
                 elif msg_type == "waiting":
                     has_logged_gameplay = False

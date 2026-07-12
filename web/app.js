@@ -351,7 +351,7 @@ document.getElementById("copy-logs-btn").onclick = () => {
   const turnBlocks = sortedTurns.map((t) => {
     let block = `Turn ${t.turn}`;
     if (t.logs && t.logs.length > 0) {
-      const filteredLogs = t.logs.filter((line) => !line.includes("---"));
+      const filteredLogs = t.logs.filter((line) => !line.includes("--–"));
       if (filteredLogs.length > 0) {
         block += "\n" + filteredLogs.join("\n");
       }
