@@ -84,7 +84,7 @@ class GameLogSender:
         terrain_type = current_region.get("terrain", "Plains")
         weather = view_data.get("weather", "Clear")
         vision = detector.get_vision()
-        links_count = len(detector.get_links())
+        links_count = detector.get_links_count()
 
         recent_logs = logs_list if logs_list is not None else (view_data.get("recentLogs") or [])
 
