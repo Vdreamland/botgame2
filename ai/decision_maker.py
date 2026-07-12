@@ -94,7 +94,7 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
     if target_dec:
         target_id = target_dec.get("target_id")
         target_type = target_dec.get("target_type")
-        enemies = enemy_detector.detect_enemies(view_data)
+        enemies = enemy_detector.get_alive_agents() + enemy_detector.get_alive_monsters()
         target_name = "Enemy"
         for e in enemies:
             if isinstance(e, dict) and e.get("id") == target_id:
@@ -106,12 +106,12 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
 
     committed_id = memory.get_target()
     if committed_id:
-        enemies = enemy_detector.detect_enemies(view_data)
+        enemies = enemy_detector.get_alive_agents() + enemy_detector.get_alive_monsters()
         target_info = next((e for e in enemies if e.get("id") == committed_id), None)
         if not target_info or target_info.get("hp", 0) <= 0:
             memory.clear_target()
         else:
-            target_zone = target_info.get("zone")
+            target_zone = target_info.get("zone") or target_info.get("regionId") or target_info.get("region")
             if target_zone != current_region_id:
                 if ep >= 3:
                     target_reg = next((r for r in visible_regions if r.get("id") == target_zone), None)
