@@ -116,40 +116,20 @@ def get_loot_decision(view_data, agent_info, ground_detector):
     owned_melee = []
     owned_ranged = []
     owned_armors = []
-    seen_ids = set()
     has_binoculars = False
     hp_item_count = 0
     ep_item_count = 0
 
-    if eq_weapon_id:
-        w_name = normalize_item_name(eq_weapon_name)
-        if w_name in MELEE_RANKS:
-            owned_melee.append(equipped.get("weapon") if "equipped" in locals() else {})
-            seen_ids.add(eq_weapon_id)
-        elif w_name in RANGED_RANKS:
-            owned_ranged.append(equipped.get("weapon") if "equipped" in locals() else {})
-            seen_ids.add(eq_weapon_id)
-
-    if eq_armor_id:
-        owned_armors.append(equipped.get("armor") if "equipped" in locals() else {})
-        seen_ids.add(eq_armor_id)
-
     for item in inventory:
         if not isinstance(item, dict):
-            continue
-        i_id = item.get("id")
-        if i_id in seen_ids:
             continue
         i_name = normalize_item_name(item.get("name"))
         if i_name in MELEE_RANKS:
             owned_melee.append(item)
-            seen_ids.add(i_id)
         elif i_name in RANGED_RANKS:
             owned_ranged.append(item)
-            seen_ids.add(i_id)
         elif i_name in ARMOR_RANKS:
             owned_armors.append(item)
-            seen_ids.add(i_id)
         elif i_name == "binoculars":
             has_binoculars = True
         elif i_name in ("bandage", "medkit"):
