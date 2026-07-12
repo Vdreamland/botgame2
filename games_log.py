@@ -1,5 +1,6 @@
 import json
 from typing import Dict, Any
+from ai.detector import extract_agent_status, detect_connected_regions
 
 async def _handle_agent_death(msg: Dict[str, Any], view: Dict[str, Any], context: Any, source: str):
     print(f"[Alert] Agent has died (Detected via {source}). Connection closing...")
