@@ -178,7 +178,7 @@ async def connect_and_play(bot_name, api_key, entry_type):
                                 continue
                             next_type = next_raw.get("type")
                             if next_type == "log":
-                                log_data = msg.get("log") or {}
+                                log_data = next_raw.get("log") or {}
                                 event_msg = log_data.get("message")
                                 if event_msg:
                                     accumulated_events.append(event_msg)
@@ -211,7 +211,7 @@ async def connect_and_play(bot_name, api_key, entry_type):
                             if log_msg and bot_name.lower() in log_msg.lower():
                                 log_info(bot_name, f"Event: {log_msg}")
 
-                    if status == "playing" and is_alive:
+                    if is_alive and status != "finished":
                         agent_info = AgentInfoDetector(view)
                         enemy_detector = EnemyInfoDetector(view)
                         deadzone_detector = DeadZoneDetector(view)
