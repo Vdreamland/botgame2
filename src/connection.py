@@ -169,7 +169,7 @@ async def connect_and_play(bot_name, api_key, entry_type):
                                 continue
                             next_type = next_raw.get("type")
                             if next_type == "log":
-                                log_data = next_raw.get("log") or {}
+                                log_data = msg.get("log") or {}
                                 event_msg = log_data.get("message")
                                 if event_msg:
                                     accumulated_events.append(event_msg)
