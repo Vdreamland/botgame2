@@ -14,9 +14,10 @@ def get_next_step(view_data, target_id):
     visible_regions = view.get("visibleRegions", []) or []
     regions = {start_id: current_region}
     for r in visible_regions:
-        r_id = r.get("id")
-        if r_id:
-            regions[r_id] = r
+        if isinstance(r, dict):
+            r_id = r.get("id")
+            if r_id:
+                regions[r_id] = r
 
     queue = [(start_id, [start_id])]
     visited = {start_id: 0}

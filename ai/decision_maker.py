@@ -40,6 +40,8 @@ def normalize_item_name(name):
 def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, ground_detector, memory):
     view = view_data
     self_data = view.get("self", {}) or {}
+    if not isinstance(self_data, dict):
+        self_data = {}
     ep = self_data.get("ep", 0)
     hp = self_data.get("hp", 0)
 
@@ -47,7 +49,10 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
     current_region = view.get("currentRegion", {}) or {}
     current_region_id = current_region.get("id")
 
-    region_names = {r.get("id"): r.get("name") for r in visible_regions if r.get("id")}
+    region_names = {}
+    for r in visible_regions:
+        if isinstance(r, dict) and r.get("id"):
+            region_names[r.get("id")] = r.get("name")
     if current_region_id:
         region_names[current_region_id] = current_region.get("name")
 
@@ -69,7 +74,7 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
         connections = current_region.get("connections") or current_region.get("links") or []
         safe_escape_region = None
         for r_id in connections:
-            r_data = next((r for r in visible_regions if r.get("id") == r_id), None)
+            r_data = next((r for r in visible_regions if isinstance(r, dict) and r.get("id") == r_id), None)
             if r_data:
                 is_death = r_data.get("isDeathZone") or r_data.get("isDeadZone") or False
                 if not is_death:
@@ -172,7 +177,7 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
             target_zone = target_info.get("zone") or target_info.get("regionId") or target_info.get("region")
             if target_zone != current_region_id:
                 if ep >= 3:
-                    target_reg = next((r for r in visible_regions if r.get("id") == target_zone), None)
+                    target_reg = next((r for r in visible_regions if isinstance(r, dict) and r.get("id") == target_zone), None)
                     if target_reg:
                         is_death = target_reg.get("isDeathZone") or target_reg.get("isDeadZone") or False
                         if not is_death:
@@ -189,7 +194,7 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
         eq_weapon = equipped.get("weapon")
         if eq_weapon:
             connections = current_region.get("connections") or current_region.get("links") or []
-            regions_map = {r.get("id"): r for r in visible_regions}
+            regions_map = {r.get("id"): r for r in visible_regions if isinstance(r, dict) and r.get("id")}
             best_hunt_region_id = None
             vulnerable_enemy_name = ""
             for agent in enemy_detector.get_alive_agents():

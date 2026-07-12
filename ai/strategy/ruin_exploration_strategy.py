@@ -9,9 +9,10 @@ def get_best_ruin_target(view_data):
     visible_regions = view.get("visibleRegions", []) or []
     regions = {start_id: current_region}
     for r in visible_regions:
-        r_id = r.get("id")
-        if r_id:
-            regions[r_id] = r
+        if isinstance(r, dict):
+            r_id = r.get("id")
+            if r_id:
+                regions[r_id] = r
 
     my_id = view.get("self", {}).get("id")
     candidates = []
