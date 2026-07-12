@@ -41,7 +41,7 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         num_links = status["num_links"]
         ruin = status["ruin"]
         
-        # Masukkan status ruin ke dalam state pembanding agar perubahan gauge otomatis mencetak log baru
+        # Bandingkan seluruh status detail termasuk representasi string ruin agar presisi
         current_state = (global_turn, hp, ep, x, y, kills, region_name, terrain, is_death_zone, weather, vision, num_links, str(ruin))
         last_printed = getattr(context, "last_state", None)
         
@@ -54,7 +54,7 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
             print(f"\n--- [DAY {day} TURN {turn}] ---")
             print(f"Agent: {name} | HP: {hp} | EP: {ep} | ATK: {atk} | DEF: {defense} | KILL: {kills}")
             
-            # Jika berdiri di atas Candi/Ruin, beralih ke Ruin Mode visualisasi
+            # Pengkondisian visual adaptif: beralih ke Ruin Mode jika berada di candi reruntuhan
             if ruin:
                 status_val = ruin["status"].capitalize() if isinstance(ruin["status"], str) else ruin["status"]
                 print(f"Location: {region_name}{current_zone_label} | Status : {status_val} | Gauge : {ruin['gauge']} / {ruin['max_gauge']} | Explorer : {ruin['explorer']}")

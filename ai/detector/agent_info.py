@@ -57,7 +57,7 @@ def extract_agent_status(msg: Dict[str, Any]) -> Dict[str, Any]:
     else:
         vision = TERRAIN_VISION_MODS.get(terrain_lower, 0)
         
-    # SOT: Ambil status candi/ruin (jika saat ini berpijak di petak ruins)
+    # Deteksi status candi/ruin secara aman
     ruin_raw = region_data.get("ruin")
     ruin = None
     if isinstance(ruin_raw, dict):
