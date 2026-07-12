@@ -256,16 +256,11 @@ async def connect_and_play(bot_name, api_key, entry_type):
 
                     if not is_alive:
                         if not has_logged_death:
-                            log_info(bot_name, f"Death detected on Turn {turn}! HP: {hp}, isAlive: {self_data.get('isAlive')}. Exiting game loop passively...")
+                            log_info(bot_name, f"Death detected on Turn {turn}! HP: {hp}, isAlive: {self_data.get('isAlive')}. Exiting game loop...")
                             await log_sender.send_log({"type": "detail", "message": "=== AGENT ELIMINATED / DIED ==="})
                             await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": False})
                             has_logged_death = True
-
-                        if status == "finished":
-                            log_info(bot_name, f"Game status finished on Turn {turn}. Exiting game loop...")
-                            await log_sender.send_log({"type": "finished", "status": status})
-                            await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
-                            break
+                        break
 
                 elif msg_type == "waiting":
                     has_logged_gameplay = False
