@@ -22,6 +22,8 @@ def extract_agent_status(view: Dict[str, Any]) -> Dict[str, Any]:
     defense = player.get("def") or eff_stats.get("def") or player.get("baseDef", 0)
     kills = player.get("kills") if player.get("kills") is not None else player.get("killCount", 0)
     
+    # Mengekstrak nama wilayah (e.g. Bank) dan tipe daratan/fasilitas (e.g. cave)
+    region_name = region_data.get("name", "Unknown") if isinstance(region_data, dict) else "Unknown"
     terrain = region_data.get("terrain", "unknown") if isinstance(region_data, dict) else "unknown"
     
     return {
@@ -37,5 +39,6 @@ def extract_agent_status(view: Dict[str, Any]) -> Dict[str, Any]:
         "atk": atk,
         "def": defense,
         "kill": kills,
+        "region_name": region_name,
         "terrain": terrain
     }

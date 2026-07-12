@@ -23,22 +23,22 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         atk = status["atk"]
         defense = status["def"]
         kills = status["kill"]
+        region_name = status["region_name"]
         terrain = status["terrain"]
         
-        current_state = (turn, hp, ep, x, y, kills, terrain)
+        # Pembandingan state menggunakan nama region dan terrain untuk keakuratan
+        current_state = (turn, hp, ep, x, y, kills, region_name, terrain)
         last_printed = getattr(context, "last_state", None)
         
         if last_printed != current_state:
             print(f"\n--- [DAY {day} TURN {turn}] ---")
             print(f"Agent: {name} | HP: {hp} | EP: {ep} | ATK: {atk} | DEF: {defense} | KILL: {kills}")
-            print(f"Location: ({x}, {y}) ({terrain})")
+            print(f"Location: ({x}, {y}) {region_name} ({terrain})")
             
-            # Kode warna ANSI untuk konsol/terminal
             color_green = "\033[92m"
             color_red = "\033[91m"
             color_reset = "\033[0m"
             
-            # Format horizontal: nama [safezone] / nama [deadzone]
             region_strings = []
             for r in regions:
                 is_dead = r.get("is_death_zone", False)
