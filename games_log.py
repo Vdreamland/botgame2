@@ -1,6 +1,6 @@
 import json
 from typing import Dict, Any
-from ai.detector import extract_agent_status, detect_connected_regions, detect_region_items
+from ai.detector import extract_agent_status, detect_connected_regions, detect_region_items, detect_region_enemies
 
 async def _handle_agent_death(msg: Dict[str, Any], view: Dict[str, Any], context: Any, source: str):
     print(f"[Alert] Agent has died (Detected via {source}). Connection closing...")
@@ -17,6 +17,7 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         status = extract_agent_status(msg)
         regions = detect_connected_regions(view)
         region_items = detect_region_items(view)
+        region_enemies = detect_region_enemies(view)
         
         name = status["name"]
         context.agent_name = name
@@ -41,8 +42,7 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         num_links = status["num_links"]
         ruin = status["ruin"]
         
-        # Bandingkan seluruh status detail termasuk representasi string ruin agar presisi
-        current_state = (global_turn, hp, ep, x, y, kills, region_name, terrain, is_death_zone, weather, vision, num_links, str(ruin))
+        current_state = (global_turn, hp, ep, x, y, kills, region_name, terrain, is_death_zone, weather, vision, num_links, str(ruin), str(region_enemies))
         last_printed = getattr(context, "last_state", None)
         
         if last_printed != current_state:
@@ -54,7 +54,6 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
             print(f"\n--- [DAY {day} TURN {turn}] ---")
             print(f"Agent: {name} | HP: {hp} | EP: {ep} | ATK: {atk} | DEF: {defense} | KILL: {kills}")
             
-            # Pengkondisian visual adaptif: beralih ke Ruin Mode jika berada di candi reruntuhan
             if ruin:
                 status_val = ruin["status"].capitalize() if isinstance(ruin["status"], str) else ruin["status"]
                 print(f"Location: {region_name}{current_zone_label} | Status : {status_val} | Gauge : {ruin['gauge']} / {ruin['max_gauge']} | Explorer : {ruin['explorer']}")
@@ -81,6 +80,14 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
                     print(f"{r_name} > {', '.join(items)}")
             else:
                 print("Region Item detector : none")
+                
+            # Tampilkan Region Enemy detector secara terstruktur dan sejajar
+            if region_enemies:
+                print("Region Enemy detector :")
+                for r_name, enemies in region_enemies.items():
+                    print(f"{r_name} > {', '.join(enemies)}")
+            else:
+                print("Region Enemy detector : none")
             
             context.last_state = current_state
 

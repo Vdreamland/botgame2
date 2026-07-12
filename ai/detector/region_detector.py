@@ -174,3 +174,85 @@ def detect_region_items(view: Dict[str, Any]) -> Dict[str, List[str]]:
             region_contents[region_name] = detected_items
             
     return region_contents
+
+
+def detect_region_enemies(view: Dict[str, Any]) -> Dict[str, List[str]]:
+    current_region = view.get("currentRegion") or view.get("current_region") or {}
+    visible_regions_source = view.get("regions") or view.get("visibleRegions") or view.get("visible_regions") or {}
+    connected_source = view.get("connectedRegions") or view.get("connected_regions") or []
+    
+    regions_map = {}
+    
+    if isinstance(current_region, dict) and current_region.get("id"):
+        regions_map[current_region["id"]] = current_region
+        
+    if isinstance(visible_regions_source, list):
+        for r in visible_regions_source:
+            if isinstance(r, dict) and r.get("id"):
+                regions_map[r["id"]] = r
+    elif isinstance(visible_regions_source, dict):
+        for r_id, r in visible_regions_source.items():
+            if isinstance(r, dict):
+                regions_map[r_id] = r
+                
+    for r in connected_source:
+        if isinstance(r, dict) and r.get("id"):
+            regions_map[r["id"]] = r
+            
+    region_enemies = {}
+    my_id = view.get("self", {}).get("id") or view.get("player", {}).get("id")
+    
+    for r_id, r in regions_map.items():
+        region_name = r.get("name") or f"Region ({r_id[:8]})"
+        
+        # Mencegah duplikasi penamaan candi
+        if region_name in ("S:Relic", "S:Pack") or region_name.startswith("S:"):
+            region_name = f"{region_name} ({r_id[:8]})"
+            
+        enemies = []
+        
+        # 1. Deteksi Player/Agent Lain (Hanya yang masih hidup)
+        agents_list = r.get("agents") or r.get("players") or []
+        for agent in agents_list:
+            if isinstance(agent, dict):
+                agent_id = agent.get("id")
+                # Abaikan bot kita sendiri agar tidak masuk dalam daftar musuh
+                if agent_id == my_id:
+                    continue
+                    
+                agent_name = agent.get("name") or "Player"
+                agent_hp = agent.get("hp")
+                is_alive = agent.get("isAlive") if agent.get("isAlive") is not None else agent.get("is_alive", True)
+                
+                if is_alive:
+                    if agent_hp is not None:
+                        enemies.append(f"{agent_name} [HP {agent_hp}]")
+                    else:
+                        enemies.append(agent_name)
+        
+        # 2. Deteksi Monster & Guardians (Hanya yang masih hidup)
+        monsters_list = r.get("monsters") or []
+        guardians_list = r.get("guardians") or []
+        combined_monsters = list(monsters_list)
+        for g in guardians_list:
+            if g not in combined_monsters:
+                combined_monsters.append(g)
+                
+        for monster in combined_monsters:
+            if isinstance(monster, dict):
+                m_name = monster.get("name") or monster.get("typeId") or "Monster"
+                # Rapikan visualisasi nama monster (e.g. azure_tiger -> Azure Tiger)
+                m_name = m_name.replace("_", " ").title()
+                m_hp = monster.get("hp")
+                is_alive = monster.get("isAlive") if monster.get("isAlive") is not None else monster.get("is_alive", True)
+                
+                if is_alive:
+                    if m_hp is not None:
+                        enemies.append(f"{m_name} [HP {m_hp}]")
+                    else:
+                        enemies.append(m_name)
+                        
+        if enemies:
+            region_enemies[region_name] = enemies
+            
+    return region_enemies
