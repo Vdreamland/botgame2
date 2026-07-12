@@ -8,15 +8,15 @@
     ├── agent_memory.py
     └── websocket_join.py
 
-
-
+/botgame2/
+requirements.txt https://github.com/Vdreamland/botgame2/blob/master/requirements.txt
 
 botgame2/helpers/
-__init__.py
-api_client.py
-game_math.py
-agent_memory.py
-websocket_join.py
+__init__.py https://github.com/Vdreamland/botgame2/blob/master/helpers/__init__.py
+api_client.py https://github.com/Vdreamland/botgame2/blob/master/helpers/api_client.py
+game_math.py https://github.com/Vdreamland/botgame2/blob/master/helpers/game_math.py
+agent_memory.py https://github.com/Vdreamland/botgame2/blob/master/helpers/agent_memory.py
+websocket_join.py https://github.com/Vdreamland/botgame2/blob/master/helpers/websocket_join.py
 
 
 
