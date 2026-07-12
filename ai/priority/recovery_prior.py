@@ -1,7 +1,4 @@
-def normalize_item_name(name):
-    if not name:
-        return ""
-    return name.lower().replace(" ", "_")
+from src.helper.game_helper import normalize_item_name
 
 def get_recovery_decision(view_data, agent_info):
     view = view_data

@@ -1,5 +1,6 @@
 import asyncio
 from src.helper import actions_helper
+from src.helper.game_helper import normalize_item_name, get_region_distances
 import ai.priority as priority
 import ai.strategy as strategy
 from ai.strategy.pre_action_safety import is_action_safe
@@ -23,20 +24,6 @@ ARMOR_RANKS = {
     "plate": 3
 }
 
-def normalize_item_name(name):
-    if not name:
-        return ""
-    norm = name.lower().replace(" ", "_")
-    if "sniper" in norm:
-        return "sniper"
-    if "plate" in norm:
-        return "plate"
-    if "chainmail" in norm:
-        return "chainmail"
-    if "leather" in norm:
-        return "leather"
-    return norm
-
 def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, ground_detector, memory):
     view = view_data
     self_data = view.get("self", {}) or {}
@@ -53,6 +40,19 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
 
     survival = priority.get_survival_decision(view_data, agent_info, enemy_detector, deadzone_detector)
     if survival and survival.get("is_danger"):
+        rec_dec = priority.get_recovery_decision(view_data, agent_info)
+        if rec_dec and rec_dec.get("action") == "use":
+            inventory = agent_info.get_inventory()
+            item_name = "consumable"
+            for it in inventory:
+                if isinstance(it, dict) and it.get("id") == rec_dec.get("item_id"):
+                    item_name = it.get("name")
+                    break
+            thought = f"HP critical under danger! Using recovery: {item_name}"
+            action = actions_helper.use_item(rec_dec.get("item_id"), thought)
+            if is_action_safe(view, action, agent_info, enemy_detector):
+                return action
+
         connections = current_region.get("connections") or current_region.get("links") or []
         safe_escape_region = None
         for r_id in connections:
@@ -60,36 +60,8 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
             if r_data:
                 is_death = r_data.get("isDeathZone") or r_data.get("isDeadZone") or False
                 if not is_death:
-                    monsters = r_data.get("monsters", []) or []
-                    agents = r_data.get("agents", []) or []
-                    has_guardian = False
-                    for m in monsters:
-                        m_type = m.get("type", "").lower() or m.get("name", "").lower()
-                        if "guardian" in m_type:
-                            has_guardian = True
-                            break
-                    for a in agents:
-                        if "guardian" in a.get("name", "").lower():
-                            has_guardian = True
-                            break
-                    if not has_guardian:
-                        safe_escape_region = r_id
-                        break
-
-        inventory = agent_info.get_inventory()
-        has_medkit = False
-        medkit_id = None
-        for item in inventory:
-            if isinstance(item, dict) and normalize_item_name(item.get("name")) == "medkit":
-                has_medkit = True
-                medkit_id = item.get("id")
-                break
-
-        if has_medkit and (not safe_escape_region or hp <= 50):
-            thought = "HP critical under danger! Using Medkit to recover safely"
-            action = actions_helper.use_item(medkit_id, thought)
-            if is_action_safe(view, action, agent_info, enemy_detector):
-                return action
+                    safe_escape_region = r_id
+                    break
 
         if safe_escape_region:
             dest_name = region_names.get(safe_escape_region, "Unknown")
@@ -284,7 +256,7 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
         thought = f"Exploring new region: {dest_name}"
         action = actions_helper.move_to(best_roam_id, thought)
         if is_action_safe(view, action, agent_info, enemy_detector):
-            memory.add_visited_region(best_roam_id)
+            memory.add_visited_region(dest_id)
             return action
 
     thought = "No urgent tactical actions. Resting to recover EP"

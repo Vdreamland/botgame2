@@ -1,3 +1,5 @@
+from src.helper.game_helper import normalize_item_name, get_region_distances
+
 WEAPON_RANGES = {
     "fist": 0,
     "knife": 0,
@@ -8,41 +10,6 @@ WEAPON_RANGES = {
     "pistol": 1,
     "sniper": 2
 }
-
-def normalize_item_name(name):
-    if not name:
-        return ""
-    norm = name.lower().replace(" ", "_")
-    if "sniper" in norm:
-        return "sniper"
-    return norm
-
-def get_region_distances(view_data):
-    view = view_data
-    current_region = view.get("currentRegion", {}) or {}
-    start_id = current_region.get("id")
-    if not start_id:
-        return {}
-
-    visible_regions = view.get("visibleRegions", []) or []
-    regions = {start_id: current_region}
-    for r in visible_regions:
-        r_id = r.get("id")
-        if r_id:
-            regions[r_id] = r
-
-    queue = [(start_id, 0)]
-    visited = {start_id: 0}
-
-    while queue:
-        curr_id, d = queue.pop(0)
-        curr_reg = regions.get(curr_id, {})
-        conns = curr_reg.get("connections") or curr_reg.get("links") or []
-        for neighbor_id in conns:
-            if neighbor_id in regions and neighbor_id not in visited:
-                visited[neighbor_id] = d + 1
-                queue.append((neighbor_id, d + 1))
-    return visited
 
 def get_target_decision(view_data, agent_info, enemy_detector):
     view = view_data
