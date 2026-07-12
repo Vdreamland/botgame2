@@ -35,36 +35,6 @@ def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         if not is_alive:
             print("[Alert] Agent has died. Connection closing...")
 
-    elif msg_type == "action_result":
-        success = msg.get("success", True)
-        action = msg.get("action", "unknown")
-        if success:
-            print(f"[Action] Success: Executed '{action}'")
-        else:
-            err_msg = msg.get("error", {}).get("message", "Unknown error")
-            print(f"[Action] Failed: Executed '{action}' - Error: {err_msg}")
-
-    elif msg_type == "item_picked":
-        agent_id = msg.get("agentId")
-        if agent_id == context.agent_id:
-            item = msg.get("item", {})
-            item_name = item.get("name", "an item")
-            print(f"[Activity] You picked up: {item_name}")
-
-    elif msg_type == "agent_equipped":
-        agent_id = msg.get("agentId")
-        if agent_id == context.agent_id:
-            item_name = msg.get("name", "an item")
-            print(f"[Activity] You equipped: {item_name}")
-
-    elif msg_type == "ruin_state_changed":
-        occupied_by = msg.get("occupiedBy")
-        cleared_by = msg.get("clearedBy")
-        if occupied_by == context.agent_id or cleared_by == context.agent_id:
-            gauge = msg.get("gauge", 0)
-            max_gauge = msg.get("maxGauge", 3)
-            print(f"[Ruin] Your exploration gauge is now {gauge}/{max_gauge}")
-
     elif msg_type == "error":
         err_msg = msg.get("error", {}).get("message", json.dumps(msg))
         print(f"[Server Error] {err_msg}")
@@ -74,6 +44,7 @@ def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         message = log_data.get("message", "")
         agent_id = msg.get("agentId") or log_data.get("agentId")
         
+        # Saringan ketat: hanya mencetak jika terkait dengan agent_id Anda ATAU menyebut nama bot Anda
         if (agent_id == context.agent_id) or (context.agent_name and context.agent_name in message):
             if message:
                 print(f"[World Log] {message}")
