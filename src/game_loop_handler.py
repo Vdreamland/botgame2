@@ -1,99 +1,208 @@
 import asyncio
 from src.log.log_connections import log_info, log_warning, log_error
-from src.log.logs_games import GameLogSender
-from ai.memory import AgentMemory
 from ai.detector.agent_info import AgentInfoDetector
 from ai.detector.enemy_info import EnemyInfoDetector
-from ai.detector.zone_detector import ZoneDetector
 from ai.detector.deadzone_detector import DeadZoneDetector
 from ai.detector.ground_item_detector import GroundItemDetector
-from ai.detector.facility_detector import FacilityDetector
+from ai.memory import AgentMemory
 from ai.decision_maker import get_decision
 
-async def run_game_loop(ws, bot_name, initial_state):
-    state = initial_state
-    memory = AgentMemory()
-    log_sender = GameLogSender(bot_name)
+async def run_game_loop(client, bot_name, entry_type, log_sender, decision, credits, game_id, is_alive):
+    has_logged_queue = False
+    has_logged_wait = False
+    has_logged_gameplay = False
+
     game_id = None
     agent_id = None
+    in_gameplay = False
 
-    try:
-        while True:
-            msg = await ws.recv()
-            if not msg:
+    expect_immediate_frame = (decision == "ALREADY_IN_GAME")
+    accumulated_events = []
+    pending_messages = []
+    last_logged_turn = -1
+    has_logged_death = False
+
+    memory = AgentMemory(bot_name)
+
+    while True:
+        try:
+            if pending_messages:
+                msg = pending_messages.pop(0)
+            else:
+                current_timeout = 5.0 if expect_immediate_frame else 120.0
+                msg = await asyncio.wait_for(client.recv(), timeout=current_timeout)
+                expect_immediate_frame = False
+        except asyncio.TimeoutError:
+            if expect_immediate_frame:
+                log_warning(bot_name, "No immediate frames on ALREADY_IN_GAME. Post-death delay likely. Retrying shortly...")
+            else:
+                log_warning(bot_name, "Connection inactive for 120 seconds. Reconnecting...")
+            break
+
+        if not isinstance(msg, dict):
+            continue
+
+        msg_type = msg.get("type")
+
+        active_game_id = msg.get("gameId")
+        if active_game_id:
+            game_id = active_game_id
+
+        if msg_type == "log":
+            log_data = msg.get("log") or {}
+            event_msg = log_data.get("message")
+            
+            if event_msg:
+                accumulated_events.append(event_msg)
+                
+            log_entry_type = log_data.get("type")
+            if log_entry_type == "death":
+                details = log_data.get("details", {})
+                target_name = details.get("targetName", "")
+                
+                if target_name.lower() == bot_name.lower():
+                    log_info(bot_name, f"Death detected via global log: {event_msg}")
+                    await log_sender.send_log({"type": "detail", "message": f"Fatal Event : {event_msg}"})
+                    await log_sender.send_log({"type": "detail", "message": "=== AGENT ELIMINATED / DIED ==="})
+                    await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": False})
+                    log_info(bot_name, "Waiting 15 seconds for server to clear slot...")
+                    await asyncio.sleep(15.0)
+                    break
+            continue
+
+        elif msg_type == "queued":
+            if not has_logged_queue:
+                log_info(bot_name, "Queue active. Searching for match...")
+                has_logged_queue = True
+            await log_sender.send_log({"type": "status_update", "status": "matchmaking", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
+
+        elif msg_type == "assigned":
+            game_id = msg.get("gameId")
+            agent_id = msg.get("agentId")
+            log_info(bot_name, f"Match found! Room ID: {game_id}")
+            in_gameplay = True
+            is_alive = True
+            has_logged_death = False
+            await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
+
+        elif msg_type == "not_selected":
+            return
+
+        elif msg_type == "error":
+            error_code = msg.get("code")
+            log_error(bot_name, f"Matchmaking error: {error_code}")
+            return
+
+        elif msg_type in ("agent_view", "turn_advanced"):
+            has_logged_wait = False
+            if not has_logged_gameplay:
+                log_info(bot_name, "Ready in game. Active loop entered.")
+                has_logged_gameplay = True
+
+            status = msg.get("status")
+            turn = msg.get("turn")
+            await log_sender.send_log({"type": "turn", "turn": turn, "status": status, "game_id": game_id})
+
+            view = msg.get("view", {})
+            if not isinstance(view, dict):
+                view = {}
+            self_data = view.get("self", {}) or {}
+
+            hp = self_data.get("hp", 0)
+            max_hp = self_data.get("maxHp") or self_data.get("max_hp", 100)
+            ep = self_data.get("ep", 0)
+            is_alive = self_data.get("isAlive", True) and hp > 0
+
+            if turn != last_logged_turn:
+                log_info(bot_name, f"Processing Turn {turn} (HP: {hp}/{max_hp}, EP: {ep}, Status: {status})")
+                last_logged_turn = turn
+
+            await asyncio.sleep(0.05)
+
+            while True:
+                try:
+                    next_raw = await asyncio.wait_for(client.recv(), timeout=0.01)
+                    if not next_raw:
+                        continue
+                    if not isinstance(next_raw, dict):
+                        continue
+                    next_type = next_raw.get("type")
+                    if next_type == "log":
+                        log_data = next_raw.get("log") or {}
+                        event_msg = log_data.get("message")
+                        if event_msg:
+                            accumulated_events.append(event_msg)
+                        log_entry_type = log_data.get("type")
+                        if log_entry_type == "death":
+                            details = log_data.get("details", {})
+                            target_name = details.get("targetName", "")
+                            if target_name.lower() == bot_name.lower():
+                                pending_messages.append(next_raw)
+                                break
+                    else:
+                        pending_messages.append(next_raw)
+                        break
+                except asyncio.TimeoutError:
+                    break
+
+            recent_logs = view.get("recentLogs", []) or []
+            all_logs = list(recent_logs) + accumulated_events
+            accumulated_events = []
+
+            await log_sender.send_agent_info(view, turn, all_logs)
+
+            if recent_logs:
+                for log_entry in recent_logs:
+                    log_msg = ""
+                    if isinstance(log_entry, dict):
+                        log_msg = log_entry.get("message", "")
+                    else:
+                        log_msg = str(log_entry)
+                    if log_msg and bot_name.lower() in log_msg.lower():
+                        log_info(bot_name, f"Event: {log_msg}")
+
+            if is_alive and status != "finished":
+                agent_info = AgentInfoDetector(view)
+                enemy_detector = EnemyInfoDetector(view)
+                deadzone_detector = DeadZoneDetector(view)
+                ground_detector = GroundItemDetector(view)
+
+                action = get_decision(view, agent_info, enemy_detector, deadzone_detector, ground_detector, memory)
+                if action:
+                    thought = action.get("thought")
+                    if thought:
+                        await log_sender.send_log({"type": "detail", "message": f"AI Thought -> {thought}"})
+                    
+                    action_payload = {
+                        "type": action.get("type", "action"),
+                        "action": action.get("action"),
+                        "data": action.get("data")
+                    }
+                    await client.send(action_payload)
+
+            if not is_alive:
+                if not has_logged_death:
+                    log_info(bot_name, f"Death detected on Turn {turn}! HP: {hp}, isAlive: {self_data.get('isAlive')}. Exiting game loop passively...")
+                    await log_sender.send_log({"type": "detail", "message": "=== AGENT ELIMINATED / DIED ==="})
+                    await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": False})
+                    has_logged_death = True
+
+            if status == "finished":
+                log_info(bot_name, f"Game status finished on Turn {turn}. Exiting game loop...")
+                await log_sender.send_log({"type": "finished", "status": status})
+                await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
                 break
 
-            m_type = msg.get("type")
+        elif msg_type == "waiting":
+            has_logged_gameplay = False
+            if not has_logged_wait:
+                log_info(bot_name, "Waiting for other agents...")
+                has_logged_wait = True
+            turn = msg.get("turn")
+            await log_sender.send_log({"type": "waiting", "turn": turn})
 
-            if m_type == "queued":
-                if state != "queued":
-                    log_info(f"[{bot_name}] Joined matchmaking queue. Waiting for slot...")
-                    state = "queued"
-
-            elif m_type == "assigned":
-                game_id = msg.get("gameId")
-                agent_id = msg.get("agentId")
-                log_info(f"[{bot_name}] Matchmaking successful! Assigned Game ID: {game_id}, Agent ID: {agent_id}")
-                state = "playing"
-
-            elif m_type == "not_selected":
-                reason = msg.get("reason", "No slots available")
-                log_warning(f"[{bot_name}] Matchmaking failed: {reason}. Retrying next epoch...")
-                state = "waiting"
-
-            elif m_type == "error":
-                err_msg = msg.get("message", "Unknown backend error")
-                log_error(f"[{bot_name}] Server reported error: {err_msg}")
-                state = "error"
-                break
-
-            elif m_type == "waiting":
-                wait_secs = msg.get("seconds", 5)
-                log_info(f"[{bot_name}] Waiting {wait_secs} seconds for room allocation...")
-
-            elif m_type == "game_ended":
-                res = msg.get("result", {}) or {}
-                winner = res.get("winner", "None")
-                is_win = (winner == agent_id)
-                log_info(f"[{bot_name}] Game {game_id} finished. Winner: {winner}. Win: {is_win}")
-                state = "ended"
-                break
-
-            elif m_type in ["agent_view", "turn_advanced"]:
-                view_data = msg.get("data", {}) or {}
-                self_data = view_data.get("self", {}) or {}
-
-                if self_data.get("isDead", False) or self_data.get("hp", 0) <= 0:
-                    log_warning(f"[{bot_name}] Agent is dead. Awaiting game cleanup...")
-                    continue
-
-                agent_info = AgentInfoDetector(view_data)
-                enemy_detector = EnemyInfoDetector(view_data)
-                zone_detector = ZoneDetector(view_data)
-                deadzone_detector = DeadZoneDetector(view_data)
-                ground_detector = GroundItemDetector(view_data)
-                facility_detector = FacilityDetector(view_data)
-
-                await log_sender.send_agent_info(
-                    agent_info,
-                    enemy_detector,
-                    zone_detector,
-                    deadzone_detector,
-                    ground_detector,
-                    facility_detector
-                )
-
-                decision = get_decision(
-                    view_data,
-                    agent_info,
-                    enemy_detector,
-                    deadzone_detector,
-                    ground_detector,
-                    memory
-                )
-
-                if decision:
-                    await ws.send(decision)
-
-    except Exception as e:
-        log_error(f"[{bot_name}] Exception in gameplay loop: {e}")
+        elif msg_type == "game_ended":
+            log_info(bot_name, "Game ended message received. Exiting game loop...")
+            await log_sender.send_log({"type": "ended"})
+            await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
+            break

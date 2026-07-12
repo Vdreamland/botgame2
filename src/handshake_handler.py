@@ -1,34 +1,43 @@
 import asyncio
 from src.log.log_connections import log_info, log_warning, log_error
 
-async def handle_handshake(ws, bot_name, entry_type):
-    try:
-        welcome = await ws.recv()
-        w_type = welcome.get("type")
-        if w_type == "welcome":
-            decision = welcome.get("decision")
-            if decision == "ALREADY_IN_GAME":
-                log_info(f"[{bot_name}] Already in game session. Bypassing handshake...")
-                return "playing"
-            elif decision == "BLOCKED":
-                penalty_seconds = welcome.get("penaltySeconds", 10)
-                log_warning(f"[{bot_name}] Blocked (active free game exists). Waiting {penalty_seconds}s before exit...")
-                await asyncio.sleep(penalty_seconds)
-                return "blocked"
-            elif decision in ["ASK_ENTRY_TYPE", "FREE_ONLY"]:
-                selected = entry_type
-                if decision == "FREE_ONLY" and entry_type == "paid":
-                    log_warning(f"[{bot_name}] Paid room requested but server restricted to FREE_ONLY. Overriding...")
-                    selected = "free"
-                await ws.send({"type": "hello", "entryType": selected})
-                log_info(f"[{bot_name}] Sent hello with entryType: {selected}")
-                return "matchmaking"
+async def handle_handshake(client, bot_name, entry_type, log_sender, credits, game_id, is_alive):
+    welcome = await asyncio.wait_for(client.recv(), timeout=15.0)
+    decision = welcome.get("decision")
+
+    credits = welcome.get("account", {}).get("credits", 0)
+    log_info(bot_name, f"WELCOME Handshake -> Decision: {decision}, Credits: {credits}")
+
+    if decision == "ALREADY_IN_GAME":
+        await log_sender.send_log({"type": "status_update", "status": "playing", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
+    elif decision in ("ASK_ENTRY_TYPE", "FREE_ONLY"):
+        await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
+
+    if decision == "BLOCKED":
+        missing = welcome.get("readiness", {}).get("freeRoom", {}).get("missing", [])
+        log_error(bot_name, f"Readiness BLOCKED. Reasons: {missing}")
+        
+        codes = []
+        for m in missing:
+            if isinstance(m, dict):
+                codes.append(m.get("code"))
             else:
-                log_error(f"[{bot_name}] Unknown welcome decision: {decision}")
-                return "error"
-        else:
-            log_error(f"[{bot_name}] Expected welcome frame, got: {w_type}")
-            return "error"
-    except Exception as e:
-        log_error(f"[{bot_name}] Exception during handshake: {e}")
-        return "error"
+                codes.append(str(m))
+                
+        if "ACTIVE_FREE_GAME_EXISTS" in codes:
+            log_warning(bot_name, "Previous session still active on server. Waiting 10 seconds...")
+            await asyncio.sleep(10.0)
+        return "blocked", credits
+
+    if decision == "PAID_ONLY":
+        log_error(bot_name, "Free entry not permitted (PAID_ONLY).")
+        return "blocked", credits
+
+    if decision in ("ASK_ENTRY_TYPE", "FREE_ONLY"):
+        hello_msg = {
+            "type": "hello",
+            "entryType": entry_type
+        }
+        await client.send(hello_msg)
+
+    return decision, credits
