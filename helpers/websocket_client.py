@@ -21,7 +21,7 @@ class ClawRoyaleWebSocketClient:
         return headers
 
     async def run_game_loop(self, ws):
-        print("Connected to game socket. Awaiting server state updates...")
+        print("[Socket] Successfully connected to live arena stream.")
         async for message_raw in ws:
             msg = json.loads(message_raw)
             msg_type = msg.get("type")
@@ -30,11 +30,34 @@ class ClawRoyaleWebSocketClient:
                 view = msg.get("view") or msg.get("agentView") or msg.get("agent_view") or msg.get("data") or {}
                 self._handle_agent_view(view)
             elif msg_type == "action_result":
-                print(f"[Action Result] {json.dumps(msg)}")
+                success = msg.get("success", True)
+                action = msg.get("action", "unknown")
+                if success:
+                    print(f"[Action] Success: Executed '{action}'")
+                else:
+                    err_msg = msg.get("error", {}).get("message", "Unknown error")
+                    print(f"[Action] Failed: Executed '{action}' - Error: {err_msg}")
+            elif msg_type == "item_picked":
+                agent_id = msg.get("agentId", "")[:8]
+                item = msg.get("item", {})
+                item_name = item.get("name", "an item")
+                print(f"[Activity] Agent {agent_id} picked up: {item_name}")
+            elif msg_type == "agent_equipped":
+                agent_id = msg.get("agentId", "")[:8]
+                item_name = msg.get("name", "an item")
+                print(f"[Activity] Agent {agent_id} equipped: {item_name}")
+            elif msg_type == "ruin_state_changed":
+                gauge = msg.get("gauge", 0)
+                max_gauge = msg.get("maxGauge", 3)
+                print(f"[Ruin] Exploration gauge changed to {gauge}/{max_gauge}")
             elif msg_type == "error":
-                print(f"[Server Error] {json.dumps(msg)}")
-            else:
-                print(f"[Server Push] Type: {msg_type} - content: {message_raw[:200]}")
+                err_msg = msg.get("error", {}).get("message", message_raw)
+                print(f"[Server Error] {err_msg}")
+            elif msg_type == "log":
+                log_data = msg.get("log", {})
+                message = log_data.get("message")
+                if message:
+                    print(f"[World Log] {message}")
 
     def _handle_agent_view(self, view: Dict[str, Any]):
         player = view.get("self") or view.get("player") or {}
@@ -63,28 +86,29 @@ class ClawRoyaleWebSocketClient:
             print(f"Inventory: {items_list}")
         
         if not is_alive:
-            print("Agent is dead. Game session terminated.")
+            print("[Alert] Agent has died. Connection closing...")
 
     async def connect_and_join(self, entry_type: str = "free"):
         url = "wss://cdn.clawroyale.ai/ws/join"
-        print(f"Connecting to unified matchmaker: {url}")
+        print(f"[Connection] Connecting to matchmaker: {url}")
         
         async with websockets.connect(url, additional_headers=self.headers) as ws:
             welcome_raw = await ws.recv()
             welcome = json.loads(welcome_raw)
-            print(f"Welcome Frame: {json.dumps(welcome)}")
+            
+            print(f"[Matchmaking] Handshake completed successfully. Server Time: {welcome.get('serverTime')}")
             
             decision = welcome.get("decision")
             if decision == "BLOCKED":
-                print("Matchmaking blocked by server readiness constraints.")
+                print("[Matchmaking] Matchmaking blocked by server requirements.")
                 return
             elif decision == "ALREADY_IN_GAME":
-                print("Active session found. Redirecting to direct agent socket...")
+                print("[Matchmaking] Existing game session detected. Re-routing...")
                 await self.connect_direct_agent()
                 return
                 
+            print(f"[Matchmaking] Entering matchmaking queue (Room: {entry_type.upper()})...")
             hello_msg = {"type": "hello", "entryType": entry_type}
-            print(f"Sending hello handshaking: {json.dumps(hello_msg)}")
             await ws.send(json.dumps(hello_msg))
             
             async for message_raw in ws:
@@ -92,27 +116,28 @@ class ClawRoyaleWebSocketClient:
                 msg_type = msg.get("type")
                 
                 if msg_type == "queued":
-                    print(f"Matchmaking Status: {json.dumps(msg)}")
+                    print("[Matchmaking] Waiting in matchmaking lobby...")
                 elif msg_type == "assigned":
-                    print(f"Match Assigned! Game ID: {msg.get('gameId')}. Promoting socket...")
+                    print(f"[Matchmaking] Arena match found! Game ID: {msg.get('gameId')}")
                     await self.run_game_loop(ws)
                     break
                 elif msg_type in ("agent_view", "turn_advanced", "can_act_changed"):
-                    print("Socket immediately promoted (Active session resumed). Transitioning...")
+                    print("[Matchmaking] Resumed active session successfully.")
                     if msg_type in ("agent_view", "turn_advanced"):
                         view = msg.get("view") or msg.get("agentView") or {}
                         self._handle_agent_view(view)
                     await self.run_game_loop(ws)
                     break
                 elif msg_type == "not_selected":
-                    print("Matchmaker allocation timed out.")
+                    print("[Matchmaking] Allocation timed out.")
                     break
                 elif msg_type == "error":
-                    print(f"Handshake failed: {json.dumps(msg)}")
+                    err_msg = msg.get("error", {}).get("message", "Unknown matchmaking error")
+                    print(f"[Matchmaking Error] {err_msg}")
                     break
 
     async def connect_direct_agent(self):
         url = "wss://cdn.clawroyale.ai/ws/agent"
-        print(f"Connecting directly to active agent session: {url}")
+        print(f"[Connection] Direct-connecting to game server: {url}")
         async with websockets.connect(url, additional_headers=self.headers) as ws:
             await self.run_game_loop(ws)
