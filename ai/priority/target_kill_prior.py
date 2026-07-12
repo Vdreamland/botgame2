@@ -1,12 +1,12 @@
 WEAPON_RANGES = {
-    "fist": 1,
-    "knife": 1,
-    "dagger": 1,
-    "sword": 1,
-    "katana": 1,
-    "bow": 2,
-    "pistol": 2,
-    "sniper": 3
+    "fist": 0,
+    "knife": 0,
+    "dagger": 0,
+    "sword": 0,
+    "katana": 0,
+    "bow": 1,
+    "pistol": 1,
+    "sniper": 2
 }
 
 def normalize_item_name(name):
