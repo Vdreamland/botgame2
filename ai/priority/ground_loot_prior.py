@@ -19,6 +19,20 @@ ARMOR_RANKS = {
     "plate": 3
 }
 
+def normalize_item_name(name):
+    if not name:
+        return ""
+    norm = name.lower().replace(" ", "_")
+    if "sniper" in norm:
+        return "sniper"
+    if "plate" in norm:
+        return "plate"
+    if "chainmail" in norm:
+        return "chainmail"
+    if "leather" in norm:
+        return "leather"
+    return norm
+
 def get_loot_decision(view_data, agent_info, ground_detector):
     equipped = agent_info.get_equipped()
     inventory = agent_info.get_inventory()
@@ -35,7 +49,7 @@ def get_loot_decision(view_data, agent_info, ground_detector):
     ep_item_count = 0
 
     if eq_weapon and isinstance(eq_weapon, dict):
-        w_name = eq_weapon.get("name")
+        w_name = normalize_item_name(eq_weapon.get("name"))
         if w_name in MELEE_RANKS:
             owned_melee.append(eq_weapon)
         elif w_name in RANGED_RANKS:
@@ -47,7 +61,7 @@ def get_loot_decision(view_data, agent_info, ground_detector):
     for item in inventory:
         if not isinstance(item, dict):
             continue
-        i_name = item.get("name")
+        i_name = normalize_item_name(item.get("name"))
         if i_name in MELEE_RANKS:
             owned_melee.append(item)
         elif i_name in RANGED_RANKS:
@@ -61,20 +75,20 @@ def get_loot_decision(view_data, agent_info, ground_detector):
         elif i_name in ("emergency_food", "energy_drink"):
             ep_item_count += 1
 
-    melee_ranks = sorted([MELEE_RANKS.get(w.get("name"), 0) for w in owned_melee], reverse=True)
-    ranged_ranks = sorted([RANGED_RANKS.get(w.get("name"), 0) for w in owned_ranged], reverse=True)
-    armor_ranks = sorted([ARMOR_RANKS.get(a.get("name"), 0) for a in owned_armors], reverse=True)
+    melee_ranks = sorted([MELEE_RANKS.get(normalize_item_name(w.get("name")), 0) for w in owned_melee], reverse=True)
+    ranged_ranks = sorted([RANGED_RANKS.get(normalize_item_name(w.get("name")), 0) for w in owned_ranged], reverse=True)
+    armor_ranks = sorted([ARMOR_RANKS.get(normalize_item_name(a.get("name")), 0) for a in owned_armors], reverse=True)
 
     for item in ground_items:
         if not isinstance(item, dict):
             continue
-        if item.get("name") == "sMoltz":
+        if normalize_item_name(item.get("name")) == "smoltz":
             return {"action": "pickup", "item_id": item.get("id")}
 
     for item in ground_items:
         if not isinstance(item, dict):
             continue
-        i_name = item.get("name")
+        i_name = normalize_item_name(item.get("name"))
         i_id = item.get("id")
 
         if i_name in MELEE_RANKS:
@@ -108,7 +122,7 @@ def get_loot_decision(view_data, agent_info, ground_detector):
         for item in ground_items:
             if not isinstance(item, dict):
                 continue
-            i_name = item.get("name")
+            i_name = normalize_item_name(item.get("name"))
             i_id = item.get("id")
 
             if i_name == "binoculars":

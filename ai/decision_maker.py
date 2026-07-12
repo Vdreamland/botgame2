@@ -3,6 +3,20 @@ from src.helper import actions_helper
 import ai.priority as priority
 import ai.strategy as strategy
 
+def normalize_item_name(name):
+    if not name:
+        return ""
+    norm = name.lower().replace(" ", "_")
+    if "sniper" in norm:
+        return "sniper"
+    if "plate" in norm:
+        return "plate"
+    if "chainmail" in norm:
+        return "chainmail"
+    if "leather" in norm:
+        return "leather"
+    return norm
+
 def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, ground_detector, memory):
     view = view_data.get("view", {}) or {}
     self_data = view.get("self", {}) or {}

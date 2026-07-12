@@ -1,3 +1,8 @@
+def normalize_item_name(name):
+    if not name:
+        return ""
+    return name.lower().replace(" ", "_")
+
 def get_recovery_decision(view_data, agent_info):
     view = view_data.get("view", {}) or {}
     self_data = view.get("self", {}) or {}
@@ -16,7 +21,7 @@ def get_recovery_decision(view_data, agent_info):
     for item in inventory:
         if not isinstance(item, dict):
             continue
-        name = item.get("name", "")
+        name = normalize_item_name(item.get("name", ""))
         item_id = item.get("id")
 
         if name == "medkit":
