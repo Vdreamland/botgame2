@@ -107,29 +107,14 @@ def detect_region_items(view: Dict[str, Any]) -> Dict[str, List[str]]:
     
     for r_id, r in regions_map.items():
         region_name = r.get("name") or f"Region ({r_id[:8]})"
+        
+        # Mencegah duplikasi nama candi (S:Relic / S:Pack) agar tidak saling menimpa
+        if region_name in ("S:Relic", "S:Pack") or region_name.startswith("S:"):
+            region_name = f"{region_name} ({r_id[:8]})"
+            
         item_counts = {}
         
-        # SOT Baru: Deteksi fasilitas interactable dari array "interactables"
-        interactables = r.get("interactables") or []
-        if isinstance(interactables, list):
-            for interactable in interactables:
-                if isinstance(interactable, dict):
-                    f_name = (interactable.get("facility") or 
-                              interactable.get("type") or 
-                              interactable.get("typeId") or 
-                              interactable.get("name"))
-                    is_used = (interactable.get("isUsed") 
-                               if interactable.get("isUsed") is not None 
-                               else interactable.get("is_used", False))
-                    
-                    if f_name:
-                        facility_clean = f_name.replace("_", " ").strip()
-                        # Tambahkan penanda penjelas jika fasilitas sekali pakai sudah digunakan
-                        if is_used:
-                            facility_clean = f"{facility_clean} (used)"
-                        item_counts[facility_clean] = item_counts.get(facility_clean, 0) + 1
-        
-        # Failsafe: Deteksi fasilitas dari kunci datar cadangan (r.facility / r.facilities)
+        # Jenis 2: Deteksi Fasilitas Petak
         facility_raw = r.get("facility") or r.get("facilities") or r.get("facilityType") or r.get("facility_type")
         facility_list = []
         if isinstance(facility_raw, list):
@@ -146,11 +131,30 @@ def detect_region_items(view: Dict[str, Any]) -> Dict[str, List[str]]:
                 
             if f_name:
                 facility_clean = f_name.replace("_", " ").strip()
-                # Hindari duplikasi jika sudah terdeteksi di array "interactables" sebelumnya
-                if facility_clean not in item_counts and f"{facility_clean} (used)" not in item_counts:
-                    item_counts[facility_clean] = item_counts.get(facility_clean, 0) + 1
+                item_counts[facility_clean] = item_counts.get(facility_clean, 0) + 1
+                
+        # Deteksi fasilitas dari array "interactables"
+        interactables = r.get("interactables") or []
+        if isinstance(interactables, list):
+            for interactable in interactables:
+                if isinstance(interactable, dict):
+                    f_name = (interactable.get("facility") or 
+                              interactable.get("type") or 
+                              interactable.get("typeId") or 
+                              interactable.get("name"))
+                    is_used = (interactable.get("isUsed") 
+                               if interactable.get("isUsed") is not None 
+                               else interactable.get("is_used", False))
+                    
+                    if f_name:
+                        facility_clean = f_name.replace("_", " ").strip()
+                        if is_used:
+                            facility_clean = f"{facility_clean} (used)"
+                        # Hindari duplikasi jika sudah terdaftar
+                        if facility_clean not in item_counts:
+                            item_counts[facility_clean] = item_counts.get(facility_clean, 0) + 1
             
-        # Deteksi Jenis 1: Item Fisik (Weapon, Armor, Recovery, Binoculars/Utility)
+        # Jenis 1: Deteksi Item Fisik
         items_list = r.get("items") or []
         for item in items_list:
             if isinstance(item, dict):
@@ -158,7 +162,7 @@ def detect_region_items(view: Dict[str, Any]) -> Dict[str, List[str]]:
                 item_name = item_name.strip()
                 item_counts[item_name] = item_counts.get(item_name, 0) + 1
                 
-        # Konversi hasil hitungan ke format penamaan terkelompok, misal: Bandage [3]
+        # Konversi hasil hitungan ke format penamaan terkelompok
         detected_items = []
         for name, count in item_counts.items():
             if count > 1:
