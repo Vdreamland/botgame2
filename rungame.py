@@ -1,7 +1,18 @@
 import asyncio
+import sys
 from helpers import AppConfig, ClawRoyaleAPIClient
 from helpers.websocket_client import ClawRoyaleWebSocketClient
 from games_log import handle_game_message
+
+# Mengaktifkan dukungan warna ANSI di Windows PowerShell dan CMD secara otomatis
+if sys.platform == "win32":
+    import ctypes
+    try:
+        kernel32 = ctypes.windll.kernel32
+        # Mengaktifkan Virtual Terminal Processing (Mode Mode 7)
+        kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+    except Exception:
+        pass
 
 async def main():
     config = AppConfig()
@@ -30,7 +41,6 @@ async def main():
             profile_data = profile.get("data", {}) if "data" in profile else profile
             active_games = profile_data.get("currentGames", [])
             
-            # Jika sedang menunggu game lama selesai, cek statusnya secara senyap
             if wait_for_game_id:
                 is_still_running = False
                 for game in active_games:
@@ -38,7 +48,6 @@ async def main():
                         is_still_running = True
                         break
                 if is_still_running:
-                    # Tunggu senyap selama 10 detik tanpa mencetak log inisialisasi apa pun
                     await asyncio.sleep(10)
                     continue
                 else:
@@ -56,7 +65,6 @@ async def main():
                     is_already_in_game = True
                     break
             
-            # Tampilkan log awal koneksi murni
             print(f"Initializing bot instance: {bot.name} (Index: {bot.index})")
             print("Retrieving dynamic authoritative game version...")
             print(f"Dynamic game version: {current_version}")
@@ -78,7 +86,6 @@ async def main():
                 print(f"No active session. Entering matchmaking queue: {bot.room_preference}")
                 result = await ws_client.connect_and_join(entry_type=bot.room_preference)
                 
-                # Jika matchmaking diblokir karena ada game aktif lain yang belum selesai
                 if result == "BLOCKED":
                     for game in active_games:
                         if game.get("gameStatus") != "finished":
