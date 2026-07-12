@@ -4,12 +4,12 @@ from src.websocket import GameWebSocket
 from src.log.log_connections import log_info, log_warning, log_error
 from src.log.logs_games import GameLogSender
 
-from ai.detector.agent_info import AgentInfoDetector
-from ai.detector.enemy_info import EnemyInfoDetector
-from ai.detector.deadzone_detector import DeadZoneDetector
-from ai.detector.ground_item_detector import GroundItemDetector
-from ai.memory import AgentMemory
-from ai.decision_maker import get_decision
+from src.ai.detector.agent_info import AgentInfoDetector
+from src.ai.detector.enemy_info import EnemyInfoDetector
+from src.ai.detector.deadzone_detector import DeadZoneDetector
+from src.ai.detector.ground_item_detector import GroundItemDetector
+from src.ai.memory import AgentMemory
+from src.ai.decision_maker import get_decision
 
 async def connect_and_play(bot_name, api_key, entry_type):
     if not api_key:

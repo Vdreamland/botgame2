@@ -102,7 +102,7 @@ decision_maker.py https://github.com/Vdreamland/botgame/blob/master/src/ai/strat
 navigation_strategy.py https://github.com/Vdreamland/botgame/blob/master/src/ai/strategy/navigation_strategy.py
 ruin_exploration_strategy.py https://github.com/Vdreamland/botgame/blob/master/src/ai/strategy/ruin_exploration_strategy.py
 whisper_sabotage.py https://github.com/Vdreamland/botgame/blob/master/src/ai/strategy/whisper_sabotage.py
-
+pre_action_safety.py https://github.com/Vdreamland/botgame/blob/master/src/ai/strategy/pre_action_safety.py
 
 
 ai/strategy/priority/

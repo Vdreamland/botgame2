@@ -37,10 +37,17 @@ def normalize_item_name(name):
 
 def resolve_equipped(view_data, inventory):
     self_data = view_data.get("self", {}) or {}
-    equipped_dict = self_data.get("equipped", {}) or {}
-    
-    eq_weapon_raw = equipped_dict.get("weapon") if isinstance(equipped_dict, dict) else self_data.get("equippedWeapon")
-    eq_armor_raw = equipped_dict.get("armor") if isinstance(equipped_dict, dict) else self_data.get("equippedArmor")
+    equipped_dict = self_data.get("equipped")
+
+    eq_weapon_raw = None
+    eq_armor_raw = None
+
+    if isinstance(equipped_dict, dict):
+        eq_weapon_raw = equipped_dict.get("weapon")
+        eq_armor_raw = equipped_dict.get("armor")
+    else:
+        eq_weapon_raw = self_data.get("equippedWeapon")
+        eq_armor_raw = self_data.get("equippedArmor")
 
     eq_weapon_name = ""
     eq_armor_name = ""

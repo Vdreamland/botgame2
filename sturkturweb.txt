@@ -39,6 +39,7 @@
     │   ├── strategy/              
     │   │   ├── __init__.py        
     │   │   ├── movement_strategy.py
+    │   │   ├── pre_action_safety.py
     │   │   └── ruin_exploration_strategy.py
     │   ├── memory.py              
     │   └── decision_maker.py              
@@ -56,7 +57,7 @@ ai/strategy/
 __init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/strategy/__init__.py
 movement_strategy.py https://github.com/Vdreamland/botgame2/blob/master/ai/strategy/movement_strategy.py
 ruin_exploration_strategy.py https://github.com/Vdreamland/botgame2/blob/master/ai/strategy/ruin_exploration_strategy.py
-
+pre_action_safety.py https://github.com/Vdreamland/botgame2/blob/master/ai/strategy/pre_action_safety.py
 
 ai/priority/
 __init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/__init__.py
