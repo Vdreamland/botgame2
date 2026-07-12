@@ -1,8 +1,8 @@
 import asyncio
 from src.helper import actions_helper
-import src.ai.priority as priority
-import src.ai.strategy as strategy
-from src.ai.strategy.pre_action_safety import is_action_safe
+import ai.priority as priority
+import ai.strategy as strategy
+from ai.strategy.pre_action_safety import is_action_safe
 
 def normalize_item_name(name):
     if not name:

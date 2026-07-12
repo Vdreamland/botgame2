@@ -1,46 +1,38 @@
 import asyncio
-from src.config import load_active_accounts
-from src.connection import connect_and_play
-from src.log.log_connections import log_info, log_error
-from web.web_server import start_web_server
+import sys
+import os
 
-async def bot_worker(account):
-    bot_name = account["name"]
-    api_key = account["api_key"]
-    entry_type = account["entry_type"]
-    
+sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
+
+from src.connection import connect_and_play
+from src.config import load_active_accounts
+from web.web_server import start_server
+
+async def bot_worker(bot_name, api_key, entry_type):
     while True:
         try:
             await connect_and_play(bot_name, api_key, entry_type)
         except Exception as e:
-            log_error(bot_name, f"Worker exception occurred: {e}")
-            
-        log_info(bot_name, "Session finished. Checking for next match in 5 seconds...")
+            print(f"Error in bot worker {bot_name}: {e}")
         await asyncio.sleep(5)
 
 async def main():
-    try:
-        await start_web_server()
-        print("Local web server started at http://localhost:8000")
-    except Exception as e:
-        print(f"Failed to start local web server: {e}")
-
-    try:
-        accounts = load_active_accounts()
-    except Exception as e:
-        print(f"Failed to load accounts configuration: {e}")
-        return
-        
+    asyncio.create_task(start_server())
+    await asyncio.sleep(0.5)
+    
+    accounts = load_active_accounts()
     if not accounts:
-        print("No active accounts found to run.")
+        print("No active accounts found in .env.")
         return
         
     print(f"Starting {len(accounts)} bot(s)...")
-    tasks = [asyncio.create_task(bot_worker(acc)) for acc in accounts]
+    tasks = []
+    for acc in accounts:
+        tasks.append(bot_worker(acc["name"], acc["api_key"], acc["entry_type"]))
     await asyncio.gather(*tasks)
 
 if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("Multi-bot manager manually terminated.")
+        print("\nMulti-bot manager manually terminated.")
