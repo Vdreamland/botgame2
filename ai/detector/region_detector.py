@@ -99,7 +99,6 @@ def detect_region_items(view: Dict[str, Any]) -> Dict[str, List[str]]:
             if isinstance(r, dict):
                 regions_map[r_id] = r
                 
-    # Perbaikan Indentasi: Dikeluarkan dari cakupan elif agar selalu tereksekusi penuh
     for r in connected_source:
         if isinstance(r, dict) and r.get("id"):
             regions_map[r["id"]] = r
@@ -108,20 +107,31 @@ def detect_region_items(view: Dict[str, Any]) -> Dict[str, List[str]]:
     
     for r_id, r in regions_map.items():
         region_name = r.get("name") or f"Region ({r_id[:8]})"
-        detected_items = []
         
-        # Jenis 2: Deteksi Fasilitas Petak (Watchtower, Supply Cache, Cave, Ruin, dll)
+        # Menggunakan kamus untuk menghitung jumlah barang unik secara DRY
+        item_counts = {}
+        
+        # Deteksi Jenis 2: Fasilitas (Watchtower, Supply Cache, Cave, Ruin, dll)
         facility = r.get("facility")
         if facility:
             facility_clean = facility.replace("_", " ")
-            detected_items.append(facility_clean)
+            item_counts[facility_clean] = item_counts.get(facility_clean, 0) + 1
             
-        # Jenis 1: Deteksi Item Fisik (Weapon, Armor, Recovery, Binoculars/Utility)
+        # Deteksi Jenis 1: Item Fisik (Weapon, Armor, Recovery, Binoculars/Utility)
         items_list = r.get("items") or []
         for item in items_list:
             if isinstance(item, dict):
                 item_name = item.get("name") or item.get("typeId") or "item"
-                detected_items.append(item_name)
+                item_name = item_name.strip()
+                item_counts[item_name] = item_counts.get(item_name, 0) + 1
+                
+        # Konversi hasil hitungan ke format penamaan terkelompok, misal: Bandage [3]
+        detected_items = []
+        for name, count in item_counts.items():
+            if count > 1:
+                detected_items.append(f"{name} [{count}]")
+            else:
+                detected_items.append(name)
                 
         if detected_items:
             region_contents[region_name] = detected_items
