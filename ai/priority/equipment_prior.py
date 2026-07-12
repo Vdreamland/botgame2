@@ -33,9 +33,31 @@ def normalize_item_name(name):
         return "leather"
     return norm
 
+def resolve_equipped(view_data, inventory):
+    self_data = view_data.get("self", {}) or {}
+    eq_weapon_name = self_data.get("equippedWeapon")
+    eq_armor_name = self_data.get("equippedArmor")
+
+    eq_weapon = None
+    eq_armor = None
+
+    if eq_weapon_name:
+        for item in inventory:
+            if isinstance(item, dict) and item.get("name") == eq_weapon_name:
+                eq_weapon = item
+                break
+
+    if eq_armor_name:
+        for item in inventory:
+            if isinstance(item, dict) and item.get("name") == eq_armor_name:
+                eq_armor = item
+                break
+
+    return {"weapon": eq_weapon, "armor": eq_armor}
+
 def get_equipment_decision(view_data, agent_info):
-    equipped = agent_info.get_equipped()
     inventory = agent_info.get_inventory()
+    equipped = resolve_equipped(view_data, inventory)
 
     eq_weapon = equipped.get("weapon")
     eq_armor = equipped.get("armor")
@@ -43,27 +65,37 @@ def get_equipment_decision(view_data, agent_info):
     owned_melee = []
     owned_ranged = []
     owned_armors = []
+    seen_ids = set()
 
     if eq_weapon and isinstance(eq_weapon, dict):
         w_name = normalize_item_name(eq_weapon.get("name"))
         if w_name in MELEE_RANKS:
             owned_melee.append(eq_weapon)
+            seen_ids.add(eq_weapon.get("id"))
         elif w_name in RANGED_RANKS:
             owned_ranged.append(eq_weapon)
+            seen_ids.add(eq_weapon.get("id"))
 
     if eq_armor and isinstance(eq_armor, dict):
         owned_armors.append(eq_armor)
+        seen_ids.add(eq_armor.get("id"))
 
     for item in inventory:
         if not isinstance(item, dict):
             continue
+        i_id = item.get("id")
+        if i_id in seen_ids:
+            continue
         i_name = normalize_item_name(item.get("name"))
         if i_name in MELEE_RANKS:
             owned_melee.append(item)
+            seen_ids.add(i_id)
         elif i_name in RANGED_RANKS:
             owned_ranged.append(item)
+            seen_ids.add(i_id)
         elif i_name in ARMOR_RANKS:
             owned_armors.append(item)
+            seen_ids.add(i_id)
 
     owned_melee.sort(key=lambda w: MELEE_RANKS.get(normalize_item_name(w.get("name")), 0), reverse=True)
     owned_ranged.sort(key=lambda w: RANGED_RANKS.get(normalize_item_name(w.get("name")), 0), reverse=True)
