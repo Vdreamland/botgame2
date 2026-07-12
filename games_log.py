@@ -43,12 +43,15 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
             color_red = "\033[91m"
             color_reset = "\033[0m"
             
+            # Label hanya dicetak jika saat ini berdiri di atas petak deadzone
             current_zone_label = f" {color_red}[deadzone]{color_reset}" if is_death_zone else ""
             
             print(f"\n--- [DAY {day} TURN {turn}] ---")
             print(f"Agent: {name} | HP: {hp} | EP: {ep} | ATK: {atk} | DEF: {defense} | KILL: {kills}")
-            print(f"Location: ({x}, {y}) {region_name}{current_zone_label}")
+            # Koordinat angka (x, y) dihapus sepenuhnya dari baris lokasi
+            print(f"Location: {region_name}{current_zone_label}")
             
+            # Format horizontal wilayah tetangga (hanya cetak label jika deadzone)
             region_strings = []
             for r in regions:
                 is_dead = r.get("is_death_zone", False)
