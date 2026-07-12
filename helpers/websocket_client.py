@@ -26,8 +26,8 @@ class ClawRoyaleWebSocketClient:
             msg = json.loads(message_raw)
             msg_type = msg.get("type")
             
-            if msg_type == "agent_view":
-                view = msg.get("agentView") or msg.get("agent_view") or msg.get("data") or {}
+            if msg_type in ("agent_view", "turn_advanced"):
+                view = msg.get("view") or msg.get("agentView") or msg.get("agent_view") or msg.get("data") or {}
                 self._handle_agent_view(view)
             elif msg_type == "action_result":
                 print(f"[Action Result] {json.dumps(msg)}")

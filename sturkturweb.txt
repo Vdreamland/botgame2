@@ -26,6 +26,11 @@ config.py https://github.com/Vdreamland/botgame2/blob/master/helpers/config.py
 
 
 
+
+
+
+
+
 /botgame2
 ├── .env
 ├── accounts.json
