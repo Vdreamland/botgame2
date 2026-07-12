@@ -25,9 +25,10 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         defense = status["def"]
         kills = status["kill"]
         region_name = status["region_name"]
-        terrain = status["terrain"]
         is_death_zone = status["is_death_zone"]
         
+        # Terrain sengaja tidak dimasukkan ke dalam log cetakan konsol
+        terrain = status["terrain"]
         current_state = (global_turn, hp, ep, x, y, kills, region_name, terrain, is_death_zone)
         last_printed = getattr(context, "last_state", None)
         
@@ -40,7 +41,7 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
             
             print(f"\n--- [DAY {day} TURN {turn}] ---")
             print(f"Agent: {name} | HP: {hp} | EP: {ep} | ATK: {atk} | DEF: {defense} | KILL: {kills}")
-            print(f"Location: ({x}, {y}) {region_name} ({terrain}){current_zone_label}")
+            print(f"Location: ({x}, {y}) {region_name}{current_zone_label}")
             
             # Format horizontal wilayah tetangga (hanya cetak label jika deadzone)
             region_strings = []
