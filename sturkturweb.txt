@@ -1,15 +1,20 @@
 /botgame2
+├── rungame.py
+├── .env
 ├── requirements.txt
 ├── download_references.py
-└── helpers/
+└── helpers/                               # Folder pendukung (tidak diubah-ubah lagi)
     ├── __init__.py
+    ├── config.py
     ├── api_client.py
     ├── game_math.py
     ├── agent_memory.py
-    └── websocket_join.py
+    └── websocket_client.py
 
 /botgame2/
 requirements.txt https://github.com/Vdreamland/botgame2/blob/master/requirements.txt
+rungame.py https://github.com/Vdreamland/botgame2/blob/master/rungame.py
+.env https://github.com/Vdreamland/botgame2/blob/master/.env
 
 botgame2/helpers/
 __init__.py https://github.com/Vdreamland/botgame2/blob/master/helpers/__init__.py
@@ -17,7 +22,7 @@ api_client.py https://github.com/Vdreamland/botgame2/blob/master/helpers/api_cli
 game_math.py https://github.com/Vdreamland/botgame2/blob/master/helpers/game_math.py
 agent_memory.py https://github.com/Vdreamland/botgame2/blob/master/helpers/agent_memory.py
 websocket_join.py https://github.com/Vdreamland/botgame2/blob/master/helpers/websocket_join.py
-
+config.py https://github.com/Vdreamland/botgame2/blob/master/helpers/config.py
 
 
 
