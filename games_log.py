@@ -6,7 +6,6 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
     if msg_type in ("agent_view", "turn_advanced"):
         view = msg.get("view") or msg.get("agentView") or msg.get("agent_view") or msg.get("data") or {}
         
-        # Panggil detektor modular untuk mengekstrak statistik bersih
         status = extract_agent_status(view)
         
         name = status["name"]
@@ -45,7 +44,7 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         
         if not is_alive:
             print("[Alert] Agent has died. Connection closing...")
-            game_id = msg.get("gameId") or view.get("gameId") or game_state.get("gameId") if 'game_state' in locals() else msg.get("gameId")
+            game_id = msg.get("gameId") or view.get("gameId") or view.get("game", {}).get("gameId")
             if game_id and hasattr(context, "dead_games") and context.dead_games is not None:
                 context.dead_games.add(game_id)
             if context.ws:
