@@ -100,6 +100,9 @@ async def connect_and_play(bot_name, api_key, entry_type):
                         log_warning(bot_name, "Connection inactive for 120 seconds. Reconnecting...")
                     break
 
+                if not isinstance(msg, dict):
+                    continue
+
                 msg_type = msg.get("type")
 
                 active_game_id = msg.get("gameId")
@@ -180,6 +183,8 @@ async def connect_and_play(bot_name, api_key, entry_type):
                         try:
                             next_raw = await asyncio.wait_for(client.recv(), timeout=0.01)
                             if not next_raw:
+                                continue
+                            if not isinstance(next_raw, dict):
                                 continue
                             next_type = next_raw.get("type")
                             if next_type == "log":
