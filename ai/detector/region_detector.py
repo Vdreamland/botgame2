@@ -107,17 +107,21 @@ def detect_region_items(view: Dict[str, Any]) -> Dict[str, List[str]]:
     
     for r_id, r in regions_map.items():
         region_name = r.get("name") or f"Region ({r_id[:8]})"
-        
-        # Menggunakan kamus untuk menghitung jumlah barang unik secara DRY
         item_counts = {}
         
-        # Deteksi Jenis 2: Fasilitas (Watchtower, Supply Cache, Cave, Ruin, dll)
-        facility = r.get("facility")
+        # Jenis 2: Deteksi Fasilitas Petak (Dibuat toleran terhadap tipe data string maupun dict)
+        facility_data = r.get("facility")
+        facility = None
+        if isinstance(facility_data, str):
+            facility = facility_data
+        elif isinstance(facility_data, dict):
+            facility = facility_data.get("name") or facility_data.get("type") or facility_data.get("typeId")
+            
         if facility:
             facility_clean = facility.replace("_", " ")
             item_counts[facility_clean] = item_counts.get(facility_clean, 0) + 1
             
-        # Deteksi Jenis 1: Item Fisik (Weapon, Armor, Recovery, Binoculars/Utility)
+        # Jenis 1: Deteksi Item Fisik (Weapon, Armor, Recovery, Binoculars/Utility)
         items_list = r.get("items") or []
         for item in items_list:
             if isinstance(item, dict):
