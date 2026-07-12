@@ -108,60 +108,66 @@ class GameLogSender:
         }
         await self.send_log({"type": "agent_info", "agent": agent_payload, "turn": turn})
 
-        zone_detector = ZoneDetector(view_data)
-        zones_by_layer = zone_detector.detect_zones()
-        zone_payload = {}
-        for layer, regions_list in zones_by_layer.items():
-            zone_payload[str(layer)] = [r.get("name") for r in regions_list if r.get("name")]
-        await self.send_log({"type": "zones_info", "zones": zone_payload})
+        if hp <= 0:
+            await self.send_log({"type": "zones_info", "zones": {}})
+            await self.send_log({"type": "facilities_info", "facilities": {}})
+            await self.send_log({"type": "ground_info", "ground": {}})
+            await self.send_log({"type": "enemies_info", "enemies": {}})
+        else:
+            zone_detector = ZoneDetector(view_data)
+            zones_by_layer = zone_detector.detect_zones()
+            zone_payload = {}
+            for layer, regions_list in zones_by_layer.items():
+                zone_payload[str(layer)] = [r.get("name") for r in regions_list if r.get("name")]
+            await self.send_log({"type": "zones_info", "zones": zone_payload})
 
-        facility_detector = FacilityDetector(view_data)
-        fac_payload = {}
-        for fac in facility_detector.visible_facilities:
-            f_region = fac.get("regionId")
-            f_type = fac.get("type")
-            f_status = fac.get("status")
-            f_name = fac.get("name", f_type)
-            
-            visible_regs_raw = view_data.get("visibleRegions", []) or []
-            regions_map = {}
-            for r in visible_regs_raw:
-                if isinstance(r, dict):
-                    regions_map[r.get("id")] = r.get("name")
-            regions_map[current_region.get("id")] = current_region.get("name")
-            reg_name = regions_map.get(f_region, "Unknown")
-            
-            status_suffix = " [Already Used]" if f_status == "Used" else ""
-            fac_payload[reg_name] = f_name + status_suffix
-        await self.send_log({"type": "facilities_info", "facilities": fac_payload})
+            facility_detector = FacilityDetector(view_data)
+            fac_payload = {}
+            for fac in facility_detector.visible_facilities:
+                f_region = fac.get("regionId")
+                f_type = fac.get("type")
+                f_status = fac.get("status")
+                f_name = fac.get("name", f_type)
+                
+                visible_regs_raw = view_data.get("visibleRegions", []) or []
+                regions_map = {}
+                for r in visible_regs_raw:
+                    if isinstance(r, dict):
+                        regions_map[r.get("id")] = r.get("name")
+                regions_map[current_region.get("id")] = current_region.get("name")
+                reg_name = regions_map.get(f_region, "Unknown")
+                
+                status_suffix = " [Already Used]" if f_status == "Used" else ""
+                fac_payload[reg_name] = f_name + status_suffix
+            await self.send_log({"type": "facilities_info", "facilities": fac_payload})
 
-        region_distances = zone_detector.get_region_distances()
-        ground_detector = GroundItemDetector(view_data)
-        ground_items_by_layer = ground_detector.get_formatted_items_by_layer(region_distances)
-        ground_payload = {}
-        for r_name, items_list in ground_items_by_layer.items():
-            if items_list:
-                ground_payload[r_name] = items_list
-        await self.send_log({"type": "ground_info", "ground": ground_payload})
+            region_distances = zone_detector.get_region_distances()
+            ground_detector = GroundItemDetector(view_data)
+            ground_items_by_layer = ground_detector.get_formatted_items_by_layer(region_distances)
+            ground_payload = {}
+            for r_name, items_list in ground_items_by_layer.items():
+                if items_list:
+                    ground_payload[r_name] = items_list
+            await self.send_log({"type": "ground_info", "ground": ground_payload})
 
-        enemy_detector = EnemyInfoDetector(view_data)
-        enemies_by_layer = enemy_detector.get_enemies_by_layer(region_distances)
-        enemy_payload = {}
-        for r_name, enemies_list in enemies_by_layer.items():
-            if enemies_list:
-                formatted_enemies = []
-                for enemy in enemies_list:
-                    e_type = enemy.get("type", "Unknown")
-                    if e_type == "agent":
-                        weap = enemy.get("weapon", "None")
-                        arm = enemy.get("armor", "None")
-                        formatted_enemies.append(f"{enemy.get('name')} [Agent] (HP {enemy.get('hp')}/{enemy.get('maxHp')} / EP {enemy.get('ep')}/10, ATK: {enemy.get('atk')}, DEF: {enemy.get('def')}, Weapon: {weap}, Armour: {arm})")
-                    elif e_type == "monster":
-                        formatted_enemies.append(f"{enemy.get('name')} [Monster] (HP {enemy.get('hp')}/{enemy.get('maxHp')}, ATK: {enemy.get('atk')}, DEF: {enemy.get('def')})")
-                    elif e_type == "guardian":
-                        formatted_enemies.append(f"{enemy.get('name')} [Guardian] (HP {enemy.get('hp')}/150, ATK: {enemy.get('atk')}, DEF: {enemy.get('def')}, Weapon: None, Armour: None)")
-                enemy_payload[r_name] = formatted_enemies
-        await self.send_log({"type": "enemies_info", "enemies": enemy_payload})
+            enemy_detector = EnemyInfoDetector(view_data)
+            enemies_by_layer = enemy_detector.get_enemies_by_layer(region_distances)
+            enemy_payload = {}
+            for r_name, enemies_list in enemies_by_layer.items():
+                if enemies_list:
+                    formatted_enemies = []
+                    for enemy in enemies_list:
+                        e_type = enemy.get("type", "Unknown")
+                        if e_type == "agent":
+                            weap = enemy.get("weapon", "None")
+                            arm = enemy.get("armor", "None")
+                            formatted_enemies.append(f"{enemy.get('name')} [Agent] (HP {enemy.get('hp')}/{enemy.get('maxHp')} / EP {enemy.get('ep')}/10, ATK: {enemy.get('atk')}, DEF: {enemy.get('def')}, Weapon: {weap}, Armour: {arm})")
+                        elif e_type == "monster":
+                            formatted_enemies.append(f"{enemy.get('name')} [Monster] (HP {enemy.get('hp')}/{enemy.get('maxHp')}', ATK: {enemy.get('atk')}, DEF: {enemy.get('def')})")
+                        elif e_type == "guardian":
+                            formatted_enemies.append(f"{enemy.get('name')} [Guardian] (HP {enemy.get('hp')}/150, ATK: {enemy.get('atk')}, DEF: {enemy.get('def')}, Weapon: None, Armour: None)")
+                    enemy_payload[r_name] = formatted_enemies
+            await self.send_log({"type": "enemies_info", "enemies": enemy_payload})
 
         move_list = []
         battle_list = []
