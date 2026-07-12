@@ -28,8 +28,7 @@ def get_survival_decision(view_data, agent_info, enemy_detector, deadzone_detect
     for agent in local_agents:
         a_name = agent.get("name", "").lower()
         if "guardian" in a_name:
-            if agent.get("alertActive", False):
-                has_guardian = True
+            has_guardian = True
         else:
             has_active_threats = True
             atk = agent.get("atk", 25)
@@ -40,8 +39,7 @@ def get_survival_decision(view_data, agent_info, enemy_detector, deadzone_detect
     for monster in local_monsters:
         m_type = monster.get("type", "").lower() or monster.get("name", "").lower()
         if "guardian" in m_type:
-            if monster.get("alertActive", False):
-                has_guardian = True
+            has_guardian = True
         else:
             has_active_threats = True
             atk = monster.get("atk", 15)

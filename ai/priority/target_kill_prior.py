@@ -1,4 +1,4 @@
-from src.helper.game_helper import normalize_item_name, get_region_distances, resolve_equipped
+from src.helper.game_helper import normalize_item_name, get_region_distances
 
 WEAPON_RANGES = {
     "fist": 0,
@@ -14,28 +14,14 @@ WEAPON_RANGES = {
 def get_target_decision(view_data, agent_info, enemy_detector):
     view = view_data
     current_region_id = view.get("currentRegion", {}).get("id")
-    
-    inventory = agent_info.get_inventory()
-    resolved = resolve_equipped(view_data, inventory)
-    eq_weapon_name = resolved.get("weapon_name")
+    equipped = agent_info.get_equipped()
+    eq_weapon = equipped.get("weapon")
+
+    eq_weapon_name = eq_weapon.get("name") if isinstance(eq_weapon, dict) else eq_weapon
     eq_weapon_norm = normalize_item_name(eq_weapon_name)
     weapon_range = WEAPON_RANGES.get(eq_weapon_norm, 1)
 
     region_distances = get_region_distances(view_data)
-
-    self_data = view.get("self", {}) or {}
-    agent_ep = self_data.get("ep", 0)
-
-    available_actions = view.get("availableActions", {}) or {}
-    attack_action = available_actions.get("attack", {}) or {}
-    attack_cost = attack_action.get("cost")
-    if attack_cost is None:
-        from src.helper.game_helper import WEAPONS
-        weapon_data = WEAPONS.get(eq_weapon_norm, {})
-        attack_cost = weapon_data.get("ep", 2)
-
-    if agent_ep < attack_cost:
-        return None
 
     combat_targets = []
 
@@ -85,7 +71,7 @@ def get_target_decision(view_data, agent_info, enemy_detector):
         elif t_type == "agent":
             if t_hp < 30:
                 score += 300
-            if not eq_weapon_name:
+            if not eq_weapon:
                 score -= 800
             score -= t_hp
             if t_dist > 1:
