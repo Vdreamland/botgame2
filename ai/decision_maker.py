@@ -4,6 +4,25 @@ import ai.priority as priority
 import ai.strategy as strategy
 from ai.strategy.pre_action_safety import is_action_safe
 
+MELEE_RANKS = {
+    "knife": 1,
+    "dagger": 2,
+    "sword": 3,
+    "katana": 4
+}
+
+RANGED_RANKS = {
+    "bow": 1,
+    "pistol": 2,
+    "sniper": 3
+}
+
+ARMOR_RANKS = {
+    "leather": 1,
+    "chainmail": 2,
+    "plate": 3
+}
+
 def normalize_item_name(name):
     if not name:
         return ""
@@ -164,6 +183,42 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
                                 if is_action_safe(view, action, agent_info, enemy_detector):
                                     return action
 
+    if ep >= 3:
+        equipped = agent_info.get_equipped()
+        eq_weapon = equipped.get("weapon")
+        if eq_weapon:
+            connections = current_region.get("connections") or current_region.get("links") or []
+            regions_map = {r.get("id"): r for r in visible_regions}
+            best_hunt_region_id = None
+            vulnerable_enemy_name = ""
+            for agent in enemy_detector.get_alive_agents():
+                t_id = agent.get("id")
+                t_name = agent.get("name")
+                t_hp = agent.get("hp", 0)
+                t_zone = agent.get("zone") or agent.get("regionId") or agent.get("region")
+                if t_zone in connections and t_hp <= 25:
+                    target_reg = regions_map.get(t_zone)
+                    if target_reg:
+                        is_death = target_reg.get("isDeathZone") or target_reg.get("isDeadZone") or False
+                        if not is_death:
+                            monsters = target_reg.get("monsters", []) or []
+                            has_guardian = False
+                            for m in monsters:
+                                m_type = m.get("type", "").lower() or m.get("name", "").lower()
+                                if "guardian" in m_type:
+                                    has_guardian = True
+                                    break
+                            if not has_guardian:
+                                best_hunt_region_id = t_zone
+                                vulnerable_enemy_name = t_name
+                                break
+            if best_hunt_region_id:
+                dest_name = region_names.get(best_hunt_region_id, "Unknown")
+                thought = f"Hunting vulnerable target {vulnerable_enemy_name} in {dest_name}"
+                action = actions_helper.move_to(best_hunt_region_id, thought)
+                if is_action_safe(view, action, agent_info, enemy_detector):
+                    return action
+
     interact_dec = priority.get_interact_decision(view_data, agent_info)
     if interact_dec:
         act_type = interact_dec.get("action")
@@ -198,23 +253,20 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
     connections = current_region.get("connections") or current_region.get("links") or []
     best_roam_id = None
     for r_id in connections:
-        r_data = next((r for r in visible_regions if r.get("id") == r_id), None)
-        if r_data:
-            is_death = r_data.get("isDeathZone") or r_data.get("isDeadZone") or False
-            if not is_death:
-                if not memory.is_region_visited(r_id):
-                    best_roam_id = r_id
-                    break
-                if best_roam_id is None:
-                    best_roam_id = r_id
+        dest_name = region_names.get(r_id, "Unknown")
+        thought = f"Exploring new region: {dest_name}"
+        action = actions_helper.move_to(r_id, thought)
+        if is_action_safe(view, action, agent_info, enemy_detector):
+            if not memory.is_region_visited(r_id):
+                memory.add_visited_region(r_id)
+                return action
+            if best_roam_id is None:
+                best_roam_id = action
 
     if best_roam_id:
-        dest_name = region_names.get(best_roam_id, "Unknown")
-        thought = f"Exploring new region: {dest_name}"
-        action = actions_helper.move_to(best_roam_id, thought)
-        if is_action_safe(view, action, agent_info, enemy_detector):
-            memory.add_visited_region(best_roam_id)
-            return action
+        dest_id = best_roam_id.get("data", {}).get("regionId")
+        memory.add_visited_region(dest_id)
+        return best_roam_id
 
     thought = "No urgent tactical actions. Resting to recover EP"
     return actions_helper.rest(thought)

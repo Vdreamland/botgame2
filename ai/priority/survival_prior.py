@@ -2,6 +2,7 @@ def get_survival_decision(view_data, agent_info, enemy_detector, deadzone_detect
     view = view_data
     self_data = view.get("self", {}) or {}
     hp = self_data.get("hp", 0)
+    my_def = self_data.get("def", 5)
 
     current_region = view.get("currentRegion", {}) or {}
     dead_status = deadzone_detector.get_region_status(current_region)
@@ -22,12 +23,18 @@ def get_survival_decision(view_data, agent_info, enemy_detector, deadzone_detect
 
     has_guardian = False
     has_active_threats = False
+    max_incoming_damage = 0
 
     for agent in local_agents:
-        if "guardian" in agent.get("name", "").lower():
+        a_name = agent.get("name", "").lower()
+        if "guardian" in a_name:
             has_guardian = True
         else:
             has_active_threats = True
+            atk = agent.get("atk", 25)
+            damage = max(1, atk - my_def)
+            if damage > max_incoming_damage:
+                max_incoming_damage = damage
 
     for monster in local_monsters:
         m_type = monster.get("type", "").lower() or monster.get("name", "").lower()
@@ -35,6 +42,10 @@ def get_survival_decision(view_data, agent_info, enemy_detector, deadzone_detect
             has_guardian = True
         else:
             has_active_threats = True
+            atk = monster.get("atk", 15)
+            damage = max(1, atk - my_def)
+            if damage > max_incoming_damage:
+                max_incoming_damage = damage
 
     if is_deadzone:
         return {"is_danger": True, "reason": "deadzone"}
@@ -44,5 +55,8 @@ def get_survival_decision(view_data, agent_info, enemy_detector, deadzone_detect
 
     if hp <= 35 and has_active_threats:
         return {"is_danger": True, "reason": "critical_hp_under_attack"}
+
+    if has_active_threats and max_incoming_damage >= hp:
+        return {"is_danger": True, "reason": "one_shot_threat_detected"}
 
     return {"is_danger": False}
