@@ -30,6 +30,9 @@ def get_loot_decision(view_data, agent_info, ground_detector):
     owned_melee = []
     owned_ranged = []
     owned_armors = []
+    has_binoculars = False
+    hp_item_count = 0
+    ep_item_count = 0
 
     if eq_weapon and isinstance(eq_weapon, dict):
         w_name = eq_weapon.get("name")
@@ -51,10 +54,22 @@ def get_loot_decision(view_data, agent_info, ground_detector):
             owned_ranged.append(item)
         elif i_name in ARMOR_RANKS:
             owned_armors.append(item)
+        elif i_name == "binoculars":
+            has_binoculars = True
+        elif i_name in ("bandage", "medkit"):
+            hp_item_count += 1
+        elif i_name in ("emergency_food", "energy_drink"):
+            ep_item_count += 1
 
     melee_ranks = sorted([MELEE_RANKS.get(w.get("name"), 0) for w in owned_melee], reverse=True)
     ranged_ranks = sorted([RANGED_RANKS.get(w.get("name"), 0) for w in owned_ranged], reverse=True)
     armor_ranks = sorted([ARMOR_RANKS.get(a.get("name"), 0) for a in owned_armors], reverse=True)
+
+    for item in ground_items:
+        if not isinstance(item, dict):
+            continue
+        if item.get("name") == "sMoltz":
+            return {"action": "pickup", "item_id": item.get("id")}
 
     for item in ground_items:
         if not isinstance(item, dict):
@@ -87,6 +102,24 @@ def get_loot_decision(view_data, agent_info, ground_detector):
             else:
                 current_rank = armor_ranks[0]
                 if g_rank > current_rank:
+                    return {"action": "pickup", "item_id": i_id}
+
+    if len(inventory) < 10:
+        for item in ground_items:
+            if not isinstance(item, dict):
+                continue
+            i_name = item.get("name")
+            i_id = item.get("id")
+
+            if i_name == "binoculars":
+                if not has_binoculars:
+                    return {"action": "pickup", "item_id": i_id}
+
+            elif i_name in ("emergency_food", "energy_drink"):
+                return {"action": "pickup", "item_id": i_id}
+
+            elif i_name in ("bandage", "medkit"):
+                if hp_item_count < 3 or ep_item_count > 0:
                     return {"action": "pickup", "item_id": i_id}
 
     return None
