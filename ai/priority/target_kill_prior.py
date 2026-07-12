@@ -1,5 +1,5 @@
 def get_target_decision(view_data, agent_info, enemy_detector):
-    view = view_data.get("view", {}) or {}
+    view = view_data
     current_region_id = view.get("currentRegion", {}).get("id")
     equipped = agent_info.get_equipped()
     eq_weapon = equipped.get("weapon")

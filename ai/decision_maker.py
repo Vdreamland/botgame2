@@ -18,7 +18,7 @@ def normalize_item_name(name):
     return norm
 
 def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, ground_detector, memory):
-    view = view_data.get("view", {}) or {}
+    view = view_data
     self_data = view.get("self", {}) or {}
     ep = self_data.get("ep", 0)
 

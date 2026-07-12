@@ -1,7 +1,7 @@
 import asyncio
 
 def get_next_step(view_data, target_id):
-    view = view_data.get("view", {}) or {}
+    view = view_data
     current_region = view.get("currentRegion", {}) or {}
     start_id = current_region.get("id")
 

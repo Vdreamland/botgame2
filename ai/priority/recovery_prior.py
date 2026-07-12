@@ -4,7 +4,7 @@ def normalize_item_name(name):
     return name.lower().replace(" ", "_")
 
 def get_recovery_decision(view_data, agent_info):
-    view = view_data.get("view", {}) or {}
+    view = view_data
     self_data = view.get("self", {}) or {}
     hp = self_data.get("hp", 0)
     ep = self_data.get("ep", 0)

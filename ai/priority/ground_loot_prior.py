@@ -41,6 +41,8 @@ def get_loot_decision(view_data, agent_info, ground_detector):
     eq_weapon = equipped.get("weapon")
     eq_armor = equipped.get("armor")
 
+    current_region_id = view_data.get("currentRegion", {}).get("id")
+
     owned_melee = []
     owned_ranged = []
     owned_armors = []
@@ -82,11 +84,15 @@ def get_loot_decision(view_data, agent_info, ground_detector):
     for item in ground_items:
         if not isinstance(item, dict):
             continue
+        if item.get("regionId") != current_region_id:
+            continue
         if normalize_item_name(item.get("name")) == "smoltz":
             return {"action": "pickup", "item_id": item.get("id")}
 
     for item in ground_items:
         if not isinstance(item, dict):
+            continue
+        if item.get("regionId") != current_region_id:
             continue
         i_name = normalize_item_name(item.get("name"))
         i_id = item.get("id")
@@ -121,6 +127,8 @@ def get_loot_decision(view_data, agent_info, ground_detector):
     if len(inventory) < 10:
         for item in ground_items:
             if not isinstance(item, dict):
+                continue
+            if item.get("regionId") != current_region_id:
                 continue
             i_name = normalize_item_name(item.get("name"))
             i_id = item.get("id")

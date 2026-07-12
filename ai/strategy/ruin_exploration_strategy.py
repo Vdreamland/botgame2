@@ -1,5 +1,5 @@
 def get_best_ruin_target(view_data):
-    view = view_data.get("view", {}) or {}
+    view = view_data
     current_region = view.get("currentRegion", {}) or {}
     start_id = current_region.get("id")
 

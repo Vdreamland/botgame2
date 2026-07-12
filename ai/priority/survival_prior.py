@@ -1,5 +1,5 @@
 def get_survival_decision(view_data, agent_info, enemy_detector, deadzone_detector):
-    view = view_data.get("view", {}) or {}
+    view = view_data
     self_data = view.get("self", {}) or {}
     hp = self_data.get("hp", 0)
 
