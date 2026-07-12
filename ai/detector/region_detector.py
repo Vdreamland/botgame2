@@ -109,19 +109,48 @@ def detect_region_items(view: Dict[str, Any]) -> Dict[str, List[str]]:
         region_name = r.get("name") or f"Region ({r_id[:8]})"
         item_counts = {}
         
-        # Jenis 2: Deteksi Fasilitas Petak (Dibuat toleran terhadap tipe data string maupun dict)
-        facility_data = r.get("facility")
-        facility = None
-        if isinstance(facility_data, str):
-            facility = facility_data
-        elif isinstance(facility_data, dict):
-            facility = facility_data.get("name") or facility_data.get("type") or facility_data.get("typeId")
+        # SOT Baru: Deteksi fasilitas interactable dari array "interactables"
+        interactables = r.get("interactables") or []
+        if isinstance(interactables, list):
+            for interactable in interactables:
+                if isinstance(interactable, dict):
+                    f_name = (interactable.get("facility") or 
+                              interactable.get("type") or 
+                              interactable.get("typeId") or 
+                              interactable.get("name"))
+                    is_used = (interactable.get("isUsed") 
+                               if interactable.get("isUsed") is not None 
+                               else interactable.get("is_used", False))
+                    
+                    if f_name:
+                        facility_clean = f_name.replace("_", " ").strip()
+                        # Tambahkan penanda penjelas jika fasilitas sekali pakai sudah digunakan
+                        if is_used:
+                            facility_clean = f"{facility_clean} (used)"
+                        item_counts[facility_clean] = item_counts.get(facility_clean, 0) + 1
+        
+        # Failsafe: Deteksi fasilitas dari kunci datar cadangan (r.facility / r.facilities)
+        facility_raw = r.get("facility") or r.get("facilities") or r.get("facilityType") or r.get("facility_type")
+        facility_list = []
+        if isinstance(facility_raw, list):
+            facility_list = facility_raw
+        elif facility_raw:
+            facility_list = [facility_raw]
             
-        if facility:
-            facility_clean = facility.replace("_", " ")
-            item_counts[facility_clean] = item_counts.get(facility_clean, 0) + 1
+        for f_data in facility_list:
+            f_name = None
+            if isinstance(f_data, str):
+                f_name = f_data
+            elif isinstance(f_data, dict):
+                f_name = f_data.get("name") or f_data.get("type") or f_data.get("typeId") or f_data.get("facilityType")
+                
+            if f_name:
+                facility_clean = f_name.replace("_", " ").strip()
+                # Hindari duplikasi jika sudah terdeteksi di array "interactables" sebelumnya
+                if facility_clean not in item_counts and f"{facility_clean} (used)" not in item_counts:
+                    item_counts[facility_clean] = item_counts.get(facility_clean, 0) + 1
             
-        # Jenis 1: Deteksi Item Fisik (Weapon, Armor, Recovery, Binoculars/Utility)
+        # Deteksi Jenis 1: Item Fisik (Weapon, Armor, Recovery, Binoculars/Utility)
         items_list = r.get("items") or []
         for item in items_list:
             if isinstance(item, dict):
