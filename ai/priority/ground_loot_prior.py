@@ -22,7 +22,7 @@ ARMOR_RANKS = {
 def get_loot_decision(view_data, agent_info, ground_detector):
     equipped = agent_info.get_equipped()
     inventory = agent_info.get_inventory()
-    ground_items = ground_detector.detect_ground_items()
+    ground_items = ground_detector.visible_items
 
     eq_weapon = equipped.get("weapon")
     eq_armor = equipped.get("armor")
