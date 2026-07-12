@@ -35,17 +35,29 @@ def normalize_item_name(name):
         return "leather"
     return norm
 
+def get_item_name(item):
+    if not item:
+        return ""
+    if isinstance(item, dict):
+        return item.get("name", "")
+    return str(item)
+
+def get_item_id(item):
+    if isinstance(item, dict):
+        return item.get("id")
+    return None
+
 def get_equipment_decision(view_data, agent_info):
     self_data = view_data.get("self", {}) or {}
     equipped_dict = self_data.get("equipped", {}) or {}
     
-    eq_weapon_dict = equipped_dict.get("weapon") or {} if isinstance(equipped_dict, dict) else {}
-    eq_armor_dict = equipped_dict.get("armor") or {} if isinstance(equipped_dict, dict) else {}
+    eq_weapon_item = equipped_dict.get("weapon") if isinstance(equipped_dict, dict) else None
+    eq_armor_item = equipped_dict.get("armor") if isinstance(equipped_dict, dict) else None
 
-    eq_weapon_name = eq_weapon_dict.get("name") if isinstance(eq_weapon_dict, dict) else None
-    eq_armor_name = eq_armor_dict.get("name") if isinstance(eq_armor_dict, dict) else None
-    eq_weapon_id = eq_weapon_dict.get("id") if isinstance(eq_weapon_dict, dict) else None
-    eq_armor_id = eq_armor_dict.get("id") if isinstance(eq_armor_dict, dict) else None
+    eq_weapon_name = get_item_name(eq_weapon_item)
+    eq_armor_name = get_item_name(eq_armor_item)
+    eq_weapon_id = get_item_id(eq_weapon_item)
+    eq_armor_id = get_item_id(eq_armor_item)
 
     inventory = agent_info.get_inventory()
 
@@ -57,14 +69,14 @@ def get_equipment_decision(view_data, agent_info):
     if eq_weapon_id:
         w_name = normalize_item_name(eq_weapon_name)
         if w_name in MELEE_RANKS:
-            owned_melee.append(eq_weapon_dict)
+            owned_melee.append(eq_weapon_item)
             seen_ids.add(eq_weapon_id)
         elif w_name in RANGED_RANKS:
-            owned_ranged.append(eq_weapon_dict)
+            owned_ranged.append(eq_weapon_item)
             seen_ids.add(eq_weapon_id)
 
     if eq_armor_id:
-        owned_armors.append(eq_armor_dict)
+        owned_armors.append(eq_armor_item)
         seen_ids.add(eq_armor_id)
 
     for item in inventory:
