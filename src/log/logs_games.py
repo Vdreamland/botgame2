@@ -123,7 +123,11 @@ class GameLogSender:
             f_status = fac.get("status")
             f_name = fac.get("name", f_type)
             
-            regions_map = {r.get("id"): r.get("name") for r in view_data.get("visibleRegions", [])}
+            visible_regs_raw = view_data.get("visibleRegions", []) or []
+            regions_map = {}
+            for r in visible_regs_raw:
+                if isinstance(r, dict):
+                    regions_map[r.get("id")] = r.get("name")
             regions_map[current_region.get("id")] = current_region.get("name")
             reg_name = regions_map.get(f_region, "Unknown")
             

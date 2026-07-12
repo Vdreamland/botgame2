@@ -1,6 +1,5 @@
 import asyncio
 from src.helper import actions_helper
-from src.helper.game_helper import normalize_item_name, get_region_distances
 import ai.priority as priority
 import ai.strategy as strategy
 from ai.strategy.pre_action_safety import is_action_safe
@@ -23,6 +22,20 @@ ARMOR_RANKS = {
     "chainmail": 2,
     "plate": 3
 }
+
+def normalize_item_name(name):
+    if not name:
+        return ""
+    norm = name.lower().replace(" ", "_")
+    if "sniper" in norm:
+        return "sniper"
+    if "plate" in norm:
+        return "plate"
+    if "chainmail" in norm:
+        return "chainmail"
+    if "leather" in norm:
+        return "leather"
+    return norm
 
 def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, ground_detector, memory):
     view = view_data
@@ -241,23 +254,21 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
     connections = current_region.get("connections") or current_region.get("links") or []
     best_roam_id = None
     for r_id in connections:
-        r_data = next((r for r in visible_regions if r.get("id") == r_id), None)
-        if r_data:
-            is_death = r_data.get("isDeathZone") or r_data.get("isDeadZone") or False
-            if not is_death:
-                if not memory.is_region_visited(r_id):
-                    best_roam_id = r_id
-                    break
-                if best_roam_id is None:
-                    best_roam_id = r_id
+        dest_name = region_names.get(r_id, "Unknown")
+        thought = f"Exploring new region: {dest_name}"
+        action = actions_helper.move_to(r_id, thought)
+        if is_action_safe(view, action, agent_info, enemy_detector):
+            if not memory.is_region_visited(r_id):
+                memory.add_visited_region(r_id)
+                return action
+            if best_roam_id is None:
+                best_roam_id = r_id
 
     if best_roam_id:
         dest_name = region_names.get(best_roam_id, "Unknown")
         thought = f"Exploring new region: {dest_name}"
-        action = actions_helper.move_to(best_roam_id, thought)
-        if is_action_safe(view, action, agent_info, enemy_detector):
-            memory.add_visited_region(dest_id)
-            return action
+        memory.add_visited_region(best_roam_id)
+        return actions_helper.move_to(best_roam_id, thought)
 
     thought = "No urgent tactical actions. Resting to recover EP"
     return actions_helper.rest(thought)
