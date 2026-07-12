@@ -282,6 +282,22 @@ async def connect_and_play(bot_name, api_key, entry_type):
         else:
             log_error(bot_name, f"Error in connection loop: {e}")
     finally:
-        await log_sender.send_log({"type": "status_update", "status": "lobby", "credits": credits, "game_id": game_id, "entry_type": entry_type, "is_alive": is_alive})
+        try:
+            await asyncio.wait_for(
+                log_sender.send_log({
+                    "type": "status_update",
+                    "status": "lobby",
+                    "credits": credits,
+                    "game_id": game_id,
+                    "entry_type": entry_type,
+                    "is_alive": is_alive
+                }),
+                timeout=2.0
+            )
+        except Exception:
+            pass
         await asyncio.sleep(0.5)
-        await log_sender.close()
+        try:
+            await asyncio.wait_for(log_sender.close(), timeout=2.0)
+        except Exception:
+            pass

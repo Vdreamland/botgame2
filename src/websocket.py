@@ -13,7 +13,10 @@ class GameWebSocket:
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         if self._ws:
-            await self._ws.close()
+            try:
+                await asyncio.wait_for(self._ws.close(), timeout=2.0)
+            except Exception:
+                pass
 
     async def send(self, data):
         await self._ws.send(json.dumps(data))
