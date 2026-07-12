@@ -27,7 +27,7 @@ class ZoneDetector:
         terrain = self.get_terrain().lower()
         weather = self.get_weather().lower()
 
-        from src.helper import TERRAIN_MODS, WEATHER_MODS, UTILITY
+        from src.helper.game_helper import TERRAIN_MODS, WEATHER_MODS, UTILITY
 
         terrain_data = TERRAIN_MODS.get(terrain, {})
         terrain_mod = terrain_data.get("vision", 0)

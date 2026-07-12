@@ -2,8 +2,10 @@ import asyncio
 from src.log.log_connections import log_info, log_warning, log_error
 from ai.detector.agent_info import AgentInfoDetector
 from ai.detector.enemy_info import EnemyInfoDetector
+from ai.detector.zone_detector import ZoneDetector
 from ai.detector.deadzone_detector import DeadZoneDetector
 from ai.detector.ground_item_detector import GroundItemDetector
+from ai.detector.facility_detector import FacilityDetector
 from ai.memory import AgentMemory
 from ai.decision_maker import get_decision
 
