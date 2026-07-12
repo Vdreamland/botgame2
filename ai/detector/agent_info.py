@@ -9,6 +9,7 @@ def extract_agent_status(msg: Dict[str, Any]) -> Dict[str, Any]:
         global_turn = view.get("turn") or 1
         
     player = view.get("self") or view.get("player") or {}
+    game_state = view.get("game") or view.get("gameState") or {}
     region_data = view.get("currentRegion") or view.get("current_region") or {}
     
     eff_stats = player.get("effectiveStats") or {}
@@ -31,10 +32,25 @@ def extract_agent_status(msg: Dict[str, Any]) -> Dict[str, Any]:
     region_name = region_data.get("name", "Unknown") if isinstance(region_data, dict) else "Unknown"
     terrain = region_data.get("terrain", "unknown") if isinstance(region_data, dict) else "unknown"
     
-    # Deteksi status is_death_zone untuk petak berpijak saat ini
     is_death_zone = False
     if isinstance(region_data, dict):
         is_death_zone = region_data.get("isDeathZone") if region_data.get("isDeathZone") is not None else region_data.get("is_death_zone", False)
+    
+    # Ekstraksi data tambahan: cuaca (weather) dan jumlah link
+    weather = game_state.get("weather", "clear")
+    num_links = len(region_data.get("connections") or [])
+    
+    # Deteksi vision dinamis dengan fallback aman kalkulasi game_math
+    vision = player.get("vision") if player.get("vision") is not None else player.get("visionRange")
+    if vision is None:
+        from helpers.game_math import TerrainType, WeatherType, get_vision_mod
+        try:
+            t_enum = TerrainType(terrain.lower())
+            w_enum = WeatherType(weather.lower())
+            vision_mod = get_vision_mod(t_enum, w_enum)
+        except Exception:
+            vision_mod = 0
+        vision = max(0, 2 + vision_mod)
     
     return {
         "name": name,
@@ -52,5 +68,8 @@ def extract_agent_status(msg: Dict[str, Any]) -> Dict[str, Any]:
         "kill": kills,
         "region_name": region_name,
         "terrain": terrain,
-        "is_death_zone": is_death_zone
+        "is_death_zone": is_death_zone,
+        "weather": weather,
+        "vision": vision,
+        "num_links": num_links
     }

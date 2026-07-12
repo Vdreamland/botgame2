@@ -35,9 +35,12 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         kills = status["kill"]
         region_name = status["region_name"]
         is_death_zone = status["is_death_zone"]
-        
         terrain = status["terrain"]
-        current_state = (global_turn, hp, ep, x, y, kills, region_name, terrain, is_death_zone)
+        weather = status["weather"]
+        vision = status["vision"]
+        num_links = status["num_links"]
+        
+        current_state = (global_turn, hp, ep, x, y, kills, region_name, terrain, is_death_zone, weather, vision, num_links)
         last_printed = getattr(context, "last_state", None)
         
         if last_printed != current_state:
@@ -46,9 +49,14 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
             
             current_zone_label = f" {color_red}[deadzone]{color_reset}" if is_death_zone else ""
             
+            # Format kapitalisasi untuk visualisasi bersih
+            terrain_cap = terrain.capitalize() if terrain else "Unknown"
+            weather_cap = weather.capitalize() if weather else "Unknown"
+            
             print(f"\n--- [DAY {day} TURN {turn}] ---")
             print(f"Agent: {name} | HP: {hp} | EP: {ep} | ATK: {atk} | DEF: {defense} | KILL: {kills}")
-            print(f"Location: {region_name}{current_zone_label}")
+            # Format baru yang menyatukan lokasi, terrain, cuaca, vision, dan links
+            print(f"Location: {region_name}{current_zone_label} | Terrain : {terrain_cap} | Weather : {weather_cap} | Vision {vision} | Link {num_links}")
             
             region_strings = []
             for r in regions:
@@ -62,7 +70,6 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
             joined_regions = " / ".join(region_strings)
             print(f"Region detector : {joined_regions}")
             
-            # Tampilkan list region jika ada item, cetak inline ": none" jika kosong
             if region_items:
                 print("Region Item detector :")
                 for r_name, items in region_items.items():
