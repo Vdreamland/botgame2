@@ -3,7 +3,7 @@ def get_recovery_decision(view_data, agent_info):
     self_data = view.get("self", {}) or {}
     hp = self_data.get("hp", 0)
     ep = self_data.get("ep", 0)
-    inventory = agent_info.get_inventory(view_data)
+    inventory = agent_info.get_inventory()
 
     medkit_item = None
     bandage_item = None

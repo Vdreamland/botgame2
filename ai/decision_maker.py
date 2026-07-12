@@ -20,7 +20,7 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
     if survival and survival.get("is_danger"):
         rec_dec = priority.get_recovery_decision(view_data, agent_info)
         if rec_dec and rec_dec.get("action") == "use":
-            inventory = agent_info.get_inventory(view_data)
+            inventory = agent_info.get_inventory()
             item_name = "consumable"
             for it in inventory:
                 if isinstance(it, dict) and it.get("id") == rec_dec.get("item_id"):
@@ -48,7 +48,7 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
     if equip_dec:
         act = equip_dec.get("action")
         item_id = equip_dec.get("item_id")
-        inventory = agent_info.get_inventory(view_data)
+        inventory = agent_info.get_inventory()
         item_name = "item"
         for it in inventory:
             if isinstance(it, dict) and it.get("id") == item_id:
@@ -64,7 +64,7 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
     loot_dec = priority.get_loot_decision(view_data, agent_info, ground_detector)
     if loot_dec:
         item_id = loot_dec.get("item_id")
-        ground_items = ground_detector.detect_ground_items(view_data)
+        ground_items = ground_detector.detect_ground_items()
         item_name = "item"
         for it in ground_items:
             if isinstance(it, dict) and it.get("id") == item_id:
@@ -77,7 +77,7 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
     if rec_dec:
         act = rec_dec.get("action")
         item_id = rec_dec.get("item_id")
-        inventory = agent_info.get_inventory(view_data)
+        inventory = agent_info.get_inventory()
         item_name = "consumable"
         for it in inventory:
             if isinstance(it, dict) and it.get("id") == item_id:
