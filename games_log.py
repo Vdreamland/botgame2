@@ -1,7 +1,7 @@
 import json
 from typing import Dict, Any
 
-def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
+async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
     if msg_type in ("agent_view", "turn_advanced"):
         view = msg.get("view") or msg.get("agentView") or msg.get("agent_view") or msg.get("data") or {}
         
@@ -34,6 +34,8 @@ def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         
         if not is_alive:
             print("[Alert] Agent has died. Connection closing...")
+            if context.ws:
+                await context.ws.close()
 
     elif msg_type == "error":
         err_msg = msg.get("error", {}).get("message", json.dumps(msg))
@@ -44,7 +46,6 @@ def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         message = log_data.get("message", "")
         agent_id = msg.get("agentId") or log_data.get("agentId")
         
-        # Saringan ketat: hanya mencetak jika terkait dengan agent_id Anda ATAU menyebut nama bot Anda
         if (agent_id == context.agent_id) or (context.agent_name and context.agent_name in message):
             if message:
                 print(f"[World Log] {message}")
