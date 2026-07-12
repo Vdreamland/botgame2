@@ -52,6 +52,10 @@ def is_action_safe(view_data, action, agent_info, enemy_detector):
             visible_regions = view.get("visibleRegions", []) or []
             dest_reg = next((r for r in visible_regions if r.get("id") == dest_id), None)
             if dest_reg:
+                is_death = dest_reg.get("isDeathZone") or dest_reg.get("isDeadZone") or False
+                if is_death:
+                    return False
+
                 dest_monsters = dest_reg.get("monsters", []) or []
                 dest_agents = dest_reg.get("agents", []) or []
                 
