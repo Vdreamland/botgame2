@@ -76,12 +76,12 @@ def get_next_step(view_data, target_id):
 
             g_items = r_data.get("groundItems", []) or []
             for item in g_items:
-                name = item.get("name")
-                if name == "sMoltz":
+                name = item.get("name", "").lower()
+                if "smoltz" in name:
                     score += 100
-                elif name in ("sword", "katana", "sniper", "plate"):
+                elif any(k in name for k in ("sword", "katana", "sniper", "plate")):
                     score += 50
-                elif name in ("bandage", "medkit", "energy_drink", "emergency_food"):
+                elif any(k in name for k in ("bandage", "medkit", "energy", "food")):
                     score += 20
 
             interactables = r_data.get("interactables", []) or []
