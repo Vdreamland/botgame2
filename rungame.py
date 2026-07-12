@@ -1,6 +1,7 @@
 import asyncio
 from helpers import AppConfig, ClawRoyaleAPIClient
 from helpers.websocket_client import ClawRoyaleWebSocketClient
+from games_log import handle_game_message
 
 async def main():
     config = AppConfig()
@@ -40,7 +41,12 @@ async def main():
         print(f"Failed to validate account profile: {e}")
         return
         
-    ws_client = ClawRoyaleWebSocketClient(api_key=bot.api_key, version=current_version, auth_type="mr-auth")
+    ws_client = ClawRoyaleWebSocketClient(
+        api_key=bot.api_key, 
+        version=current_version, 
+        auth_type="mr-auth",
+        message_handler=handle_game_message
+    )
     
     if is_already_in_game:
         print("Active game detected. Resuming session...")

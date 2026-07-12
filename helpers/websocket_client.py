@@ -1,14 +1,17 @@
 import asyncio
 import json
 import websockets
-from typing import Dict, Any
+from typing import Dict, Any, Callable, Optional
 
 class ClawRoyaleWebSocketClient:
-    def __init__(self, api_key: str, version: str, auth_type: str = "mr-auth"):
+    def __init__(self, api_key: str, version: str, auth_type: str = "mr-auth", message_handler: Optional[Callable] = None):
         self.api_key = api_key
         self.version = version
         self.auth_type = auth_type
         self.headers = self._build_headers()
+        self.agent_id = None
+        self.agent_name = None
+        self.message_handler = message_handler
 
     def _build_headers(self) -> Dict[str, str]:
         headers = {"X-Version": self.version}
@@ -26,67 +29,8 @@ class ClawRoyaleWebSocketClient:
             msg = json.loads(message_raw)
             msg_type = msg.get("type")
             
-            if msg_type in ("agent_view", "turn_advanced"):
-                view = msg.get("view") or msg.get("agentView") or msg.get("agent_view") or msg.get("data") or {}
-                self._handle_agent_view(view)
-            elif msg_type == "action_result":
-                success = msg.get("success", True)
-                action = msg.get("action", "unknown")
-                if success:
-                    print(f"[Action] Success: Executed '{action}'")
-                else:
-                    err_msg = msg.get("error", {}).get("message", "Unknown error")
-                    print(f"[Action] Failed: Executed '{action}' - Error: {err_msg}")
-            elif msg_type == "item_picked":
-                agent_id = msg.get("agentId", "")[:8]
-                item = msg.get("item", {})
-                item_name = item.get("name", "an item")
-                print(f"[Activity] Agent {agent_id} picked up: {item_name}")
-            elif msg_type == "agent_equipped":
-                agent_id = msg.get("agentId", "")[:8]
-                item_name = msg.get("name", "an item")
-                print(f"[Activity] Agent {agent_id} equipped: {item_name}")
-            elif msg_type == "ruin_state_changed":
-                gauge = msg.get("gauge", 0)
-                max_gauge = msg.get("maxGauge", 3)
-                print(f"[Ruin] Exploration gauge changed to {gauge}/{max_gauge}")
-            elif msg_type == "error":
-                err_msg = msg.get("error", {}).get("message", message_raw)
-                print(f"[Server Error] {err_msg}")
-            elif msg_type == "log":
-                log_data = msg.get("log", {})
-                message = log_data.get("message")
-                if message:
-                    print(f"[World Log] {message}")
-
-    def _handle_agent_view(self, view: Dict[str, Any]):
-        player = view.get("self") or view.get("player") or {}
-        game_state = view.get("game") or view.get("gameState") or {}
-        
-        name = player.get("name", "Unknown")
-        hp = player.get("hp", 0)
-        ep = player.get("ep", 0)
-        x = player.get("x", 0)
-        y = player.get("y", 0)
-        is_alive = player.get("isAlive") if player.get("isAlive") is not None else player.get("is_alive", True)
-        
-        day = game_state.get("day", 1)
-        turn = game_state.get("turn", 1)
-        weather = game_state.get("weather", "clear")
-        
-        region_data = view.get("currentRegion") or view.get("current_region") or {}
-        terrain = region_data.get("terrain", "unknown") if isinstance(region_data, dict) else "unknown"
-        
-        print(f"\n--- [STATE] Day {day} Turn {turn} | Weather: {weather} ---")
-        print(f"Agent: {name} | HP: {hp} | EP: {ep} | Location: ({x}, {y}) | Terrain: {terrain} | Alive: {is_alive}")
-        
-        inventory = player.get("inventory", [])
-        if inventory:
-            items_list = [item.get("name") for item in inventory if item]
-            print(f"Inventory: {items_list}")
-        
-        if not is_alive:
-            print("[Alert] Agent has died. Connection closing...")
+            if self.message_handler:
+                self.message_handler(msg_type, msg, self)
 
     async def connect_and_join(self, entry_type: str = "free"):
         url = "wss://cdn.clawroyale.ai/ws/join"
@@ -123,9 +67,8 @@ class ClawRoyaleWebSocketClient:
                     break
                 elif msg_type in ("agent_view", "turn_advanced", "can_act_changed"):
                     print("[Matchmaking] Resumed active session successfully.")
-                    if msg_type in ("agent_view", "turn_advanced"):
-                        view = msg.get("view") or msg.get("agentView") or {}
-                        self._handle_agent_view(view)
+                    if self.message_handler:
+                        self.message_handler(msg_type, msg, self)
                     await self.run_game_loop(ws)
                     break
                 elif msg_type == "not_selected":

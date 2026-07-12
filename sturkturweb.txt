@@ -15,6 +15,7 @@
 requirements.txt https://github.com/Vdreamland/botgame2/blob/master/requirements.txt
 rungame.py https://github.com/Vdreamland/botgame2/blob/master/rungame.py
 .env https://github.com/Vdreamland/botgame2/blob/master/.env
+games_log.py https://github.com/Vdreamland/botgame2/blob/master/games_log.py
 
 botgame2/helpers/
 __init__.py https://github.com/Vdreamland/botgame2/blob/master/helpers/__init__.py
