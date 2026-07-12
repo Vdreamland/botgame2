@@ -82,10 +82,6 @@ async def connect_and_play(bot_name, api_key, entry_type):
             accumulated_events = []
             pending_messages = []
 
-            agent_info = AgentInfoDetector(bot_name)
-            enemy_detector = EnemyInfoDetector(bot_name)
-            deadzone_detector = DeadZoneDetector(bot_name)
-            ground_detector = GroundItemDetector(bot_name)
             memory = AgentMemory(bot_name)
 
             while True:
@@ -216,6 +212,11 @@ async def connect_and_play(bot_name, api_key, entry_type):
                                 log_info(bot_name, f"Event: {log_msg}")
 
                     if status == "playing" and is_alive:
+                        agent_info = AgentInfoDetector(view)
+                        enemy_detector = EnemyInfoDetector(view)
+                        deadzone_detector = DeadZoneDetector(view)
+                        ground_detector = GroundItemDetector(view)
+
                         action = get_decision(view, agent_info, enemy_detector, deadzone_detector, ground_detector, memory)
                         if action:
                             thought = action.get("thought")
