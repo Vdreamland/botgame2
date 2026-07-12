@@ -1,55 +1,51 @@
 import json
 from typing import Dict, Any
+from ai.detector import extract_agent_status
 
 async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
     if msg_type in ("agent_view", "turn_advanced"):
         view = msg.get("view") or msg.get("agentView") or msg.get("agent_view") or msg.get("data") or {}
         
-        player = view.get("self") or view.get("player") or {}
-        game_state = view.get("game") or view.get("gameState") or {}
+        # Panggil detektor modular untuk mengekstrak statistik bersih
+        status = extract_agent_status(view)
         
-        name = player.get("name", "Unknown")
+        name = status["name"]
         context.agent_name = name
-        context.agent_id = player.get("id")
+        context.agent_id = status["id"]
         
-        hp = player.get("hp", 0)
-        ep = player.get("ep", 0)
-        x = player.get("x", 0)
-        y = player.get("y", 0)
-        is_alive = player.get("isAlive") if player.get("isAlive") is not None else player.get("is_alive", True)
+        hp = status["hp"]
+        ep = status["ep"]
+        x = status["x"]
+        y = status["y"]
+        is_alive = status["is_alive"]
+        turn = status["turn"]
+        day = status["day"]
+        atk = status["atk"]
+        defense = status["def"]
+        kills = status["kill"]
+        terrain = status["terrain"]
         
-        turn = game_state.get("turn", 1)
-        day = game_state.get("day", 1)
+        current_state = (turn, hp, ep, x, y, kills, terrain)
+        last_printed = getattr(context, "last_state", None)
         
-        eff_stats = player.get("effectiveStats") or {}
-        atk = player.get("atk") or eff_stats.get("atk") or player.get("baseAtk", 0)
-        defense = player.get("def") or eff_stats.get("def") or player.get("baseDef", 0)
-        kills = player.get("kills") if player.get("kills") is not None else player.get("killCount", 0)
-        
-        region_data = view.get("currentRegion") or view.get("current_region") or {}
-        terrain = region_data.get("terrain", "unknown") if isinstance(region_data, dict) else "unknown"
-        
-        # Cetak blok Turn utama HANYA ketika nomor turn berubah (Deduplication)
-        last_printed_turn = getattr(context, "last_printed_turn", None)
-        if last_printed_turn != turn:
+        if last_printed != current_state:
             print(f"\n--- [DAY {day} TURN {turn}] ---")
             print(f"Agent: {name} | HP: {hp} | EP: {ep} | ATK: {atk} | DEF: {defense} | KILL: {kills}")
             print(f"Location: ({x}, {y}) ({terrain})")
-            context.last_printed_turn = turn
+            context.last_state = current_state
 
-        # Deteksi perubahan HP untuk dicetak secara inline murni tanpa mengulang blok Turn
         last_hp = getattr(context, "last_hp", None)
         if last_hp is not None and last_hp != hp:
             diff = last_hp - hp
             if diff > 0:
-                print(f"[Status Update] You took {diff} damage! HP is now {hp}/{player.get('maxHp', 100)}")
+                print(f"[Status Update] You took {diff} damage! HP is now {hp}/{view.get('self', {}).get('maxHp', 100)}")
             elif diff < 0:
-                print(f"[Status Update] You healed {abs(diff)} HP! HP is now {hp}/{player.get('maxHp', 100)}")
+                print(f"[Status Update] You healed {abs(diff)} HP! HP is now {hp}/{view.get('self', {}).get('maxHp', 100)}")
         context.last_hp = hp
         
         if not is_alive:
             print("[Alert] Agent has died. Connection closing...")
-            game_id = msg.get("gameId") or view.get("gameId") or game_state.get("gameId")
+            game_id = msg.get("gameId") or view.get("gameId") or game_state.get("gameId") if 'game_state' in locals() else msg.get("gameId")
             if game_id and hasattr(context, "dead_games") and context.dead_games is not None:
                 context.dead_games.add(game_id)
             if context.ws:
