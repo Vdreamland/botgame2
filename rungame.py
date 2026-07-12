@@ -1,38 +1,52 @@
 import asyncio
-import sys
-import os
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
-
-from src.connection import connect_and_play
-from src.config import load_active_accounts
-from web.web_server import start_web_server
-
-async def bot_worker(bot_name, api_key, entry_type):
-    while True:
-        try:
-            await connect_and_play(bot_name, api_key, entry_type)
-        except Exception as e:
-            print(f"Error in bot worker {bot_name}: {e}")
-        await asyncio.sleep(5)
+from helpers import AppConfig, ClawRoyaleAPIClient
+from helpers.websocket_client import ClawRoyaleWebSocketClient
 
 async def main():
-    asyncio.create_task(start_web_server())
-    await asyncio.sleep(0.5)
-    
-    accounts = load_active_accounts()
-    if not accounts:
-        print("No active accounts found in .env.")
+    config = AppConfig()
+    if not config.bots:
+        print("No bot accounts configured in .env. Exiting.")
         return
         
-    print(f"Starting {len(accounts)} bot(s)...")
-    tasks = []
-    for acc in accounts:
-        tasks.append(bot_worker(acc["name"], acc["api_key"], acc["entry_type"]))
-    await asyncio.gather(*tasks)
+    bot = config.bots[0]
+    print(f"Initializing bot instance: {bot.name} (Index: {bot.index})")
+    
+    temp_client = ClawRoyaleAPIClient(api_key=bot.api_key, version="", auth_type="mr-auth")
+    try:
+        print("Retrieving dynamic authoritative game version...")
+        version_info = temp_client.get_version()
+        current_version = version_info.get("version")
+        print(f"Dynamic game version: {current_version}")
+    except Exception as e:
+        print(f"Failed to fetch live version: {e}")
+        return
+
+    api_client = ClawRoyaleAPIClient(api_key=bot.api_key, version=current_version, auth_type="mr-auth")
+    
+    try:
+        print("Validating profile and active status...")
+        profile = api_client.get_profile_me()
+        active_games = profile.get("currentGames", [])
+        
+        is_already_in_game = False
+        for game in active_games:
+            if game.get("isAlive") and game.get("gameStatus") != "finished":
+                is_already_in_game = True
+                break
+                
+        print(f"Profile validated. Active session state: {is_already_in_game}")
+    except Exception as e:
+        print(f"Failed to validate account profile: {e}")
+        return
+        
+    ws_client = ClawRoyaleWebSocketClient(api_key=bot.api_key, version=current_version, auth_type="mr-auth")
+    
+    if is_already_in_game:
+        print("Active game detected. Resuming session...")
+        await ws_client.connect_direct_agent()
+    else:
+        print(f"No active session. Entering matchmaking queue: {bot.room_preference}")
+        await ws_client.connect_and_join(entry_type=bot.room_preference)
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        print("\nMulti-bot manager manually terminated.")
+    asyncio.run(main())
