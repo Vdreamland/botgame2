@@ -57,6 +57,23 @@ def get_next_step(view_data, target_id):
             if is_death:
                 score -= 1000
 
+            monsters = r_data.get("monsters", []) or []
+            agents = r_data.get("agents", []) or []
+
+            has_guardian = False
+            for m in monsters:
+                m_type = m.get("type", "").lower() or m.get("name", "").lower()
+                if "guardian" in m_type:
+                    has_guardian = True
+                    break
+            for a in agents:
+                if "guardian" in a.get("name", "").lower():
+                    has_guardian = True
+                    break
+
+            if has_guardian:
+                score -= 1000
+
             g_items = r_data.get("groundItems", []) or []
             for item in g_items:
                 name = item.get("name")
@@ -74,10 +91,7 @@ def get_next_step(view_data, target_id):
                     if f_type in ("medical_facility", "supply_cache"):
                         score += 30
 
-            monsters = r_data.get("monsters", []) or []
             score += len(monsters) * 15
-
-            agents = r_data.get("agents", []) or []
             score -= len(agents) * 40
 
         if score > best_score:

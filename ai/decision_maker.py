@@ -210,6 +210,26 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
                 if is_death:
                     continue
 
+                monsters = target_reg.get("monsters", []) or []
+                agents = target_reg.get("agents", []) or []
+
+                has_guardian = False
+                for m in monsters:
+                    m_type = m.get("type", "").lower() or m.get("name", "").lower()
+                    if "guardian" in m_type:
+                        has_guardian = True
+                        break
+                for a in agents:
+                    if "guardian" in a.get("name", "").lower():
+                        has_guardian = True
+                        break
+
+                if has_guardian:
+                    continue
+
+                if not eq_weapon and agents:
+                    continue
+
             i_name = normalize_item_name(item.get("name"))
             is_high_value = False
 
@@ -275,16 +295,41 @@ def get_decision(view_data, agent_info, enemy_detector, deadzone_detector, groun
 
     connections = current_region.get("connections") or current_region.get("links") or []
     best_roam_id = None
+    equipped = agent_info.get_equipped()
+    eq_weapon = equipped.get("weapon")
+
     for r_id in connections:
         r_data = next((r for r in visible_regions if r.get("id") == r_id), None)
         if r_data:
             is_death = r_data.get("isDeathZone") or r_data.get("isDeadZone") or False
-            if not is_death:
-                if not memory.is_region_visited(r_id):
-                    best_roam_id = r_id
+            if is_death:
+                continue
+
+            monsters = r_data.get("monsters", []) or []
+            agents = r_data.get("agents", []) or []
+
+            has_guardian = False
+            for m in monsters:
+                m_type = m.get("type", "").lower() or m.get("name", "").lower()
+                if "guardian" in m_type:
+                    has_guardian = True
                     break
-                if best_roam_id is None:
-                    best_roam_id = r_id
+            for a in agents:
+                if "guardian" in a.get("name", "").lower():
+                    has_guardian = True
+                    break
+
+            if has_guardian:
+                continue
+
+            if not eq_weapon and agents:
+                continue
+
+            if not memory.is_region_visited(r_id):
+                best_roam_id = r_id
+                break
+            if best_roam_id is None:
+                best_roam_id = r_id
 
     if best_roam_id:
         dest_name = region_names.get(best_roam_id, "Unknown")
