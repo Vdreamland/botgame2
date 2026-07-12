@@ -62,13 +62,13 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
             joined_regions = " / ".join(region_strings)
             print(f"Region detector : {joined_regions}")
             
-            # Tampilkan Region Item detector secara ringkas sesuai instruksi
-            print("Region Item detector :")
+            # Tampilkan list region jika ada item, cetak inline ": none" jika kosong
             if region_items:
+                print("Region Item detector :")
                 for r_name, items in region_items.items():
                     print(f"{r_name} > {', '.join(items)}")
             else:
-                print("-")
+                print("Region Item detector : none")
             
             context.last_state = current_state
 
