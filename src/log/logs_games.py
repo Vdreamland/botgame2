@@ -213,9 +213,7 @@ class GameLogSender:
                 await self.send_log({"type": "detail", "message": f"Enemies: {', '.join(enemy_details) if enemy_details else 'None'}"})
                 await self.send_log({"type": "detail", "message": "--------------------------------------------------"})
 
-        move_list = []
-        battle_list = []
-        action_list = []
+        combined_events = []
         for log_entry in recent_logs:
             log_str = ""
             if isinstance(log_entry, dict):
@@ -230,25 +228,10 @@ class GameLogSender:
             log_lower = log_str.lower()
 
             is_related = (self.bot_name.lower() in log_lower) or any(env in log_lower for env in ["death zone", "death_zone", "dead zone", "dead_zone"])
-            if not is_related:
-                continue
-            
-            if "move" in log_lower:
-                if log_clean not in move_list:
-                    move_list.append(log_clean)
-            elif any(k in log_lower for k in ["attack", "kill", "damage", "defeat", "slay", "slain", "lost", "hp", "shrank", "hurt"]):
-                if log_clean not in battle_list:
-                    battle_list.append(log_clean)
-            else:
-                if log_clean not in action_list:
-                    action_list.append(log_clean)
+            if is_related and log_clean not in combined_events:
+                combined_events.append(log_clean)
 
-        battle_str = " / ".join(battle_list) if battle_list else "None"
-        action_str = " / ".join(action_list) if action_list else "None"
-        move_str = " / ".join(move_list) if move_list else "None"
+        events_str = " / ".join(combined_events) if combined_events else "None"
 
         await self.send_log({"type": "detail", "message": ""})
-        await self.send_log({"type": "detail", "message": "All Events Log :"})
-        await self.send_log({"type": "detail", "message": f"Battle : {battle_str}"})
-        await self.send_log({"type": "detail", "message": f"Action: {action_str}"})
-        await self.send_log({"type": "detail", "message": f"Move : {move_str}"})
+        await self.send_log({"type": "detail", "message": f"Events: {events_str}"})
