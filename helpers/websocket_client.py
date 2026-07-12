@@ -14,6 +14,7 @@ class ClawRoyaleWebSocketClient:
         self.message_handler = message_handler
         self.dead_games = dead_games if dead_games is not None else set()
         self.ws = None
+        self.last_state = None
 
     def _build_headers(self) -> Dict[str, str]:
         headers = {"X-Version": self.version}

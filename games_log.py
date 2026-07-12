@@ -28,9 +28,15 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         region_data = view.get("currentRegion") or view.get("current_region") or {}
         terrain = region_data.get("terrain", "unknown") if isinstance(region_data, dict) else "unknown"
         
-        print(f"\nTurn {turn} {name}")
-        print(f"HP: {hp} | EP: {ep} | ATK: {atk} | DEF: {defense} | KILL: {kills}")
-        print(f"Location: ({x}, {y}) ({terrain})")
+        # Bandingkan status baru dengan status cetakan terakhir (Deduplication)
+        current_state = (turn, hp, ep, x, y, kills, terrain)
+        last_printed = getattr(context, "last_state", None)
+        
+        if last_printed != current_state:
+            print(f"\nTurn {turn} {name}")
+            print(f"HP: {hp} | EP: {ep} | ATK: {atk} | DEF: {defense} | KILL: {kills}")
+            print(f"Location: ({x}, {y}) ({terrain})")
+            context.last_state = current_state
         
         if not is_alive:
             print("[Alert] Agent has died. Connection closing...")
@@ -52,3 +58,16 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         if (agent_id == context.agent_id) or (context.agent_name and context.agent_name in message):
             if message:
                 print(f"[World Log] {message}")
+                
+            # Deteksi kematian secara aktif via World Log jika data agent_view dihentikan oleh server
+            if context.agent_name:
+                lower_msg = message.lower()
+                name_lower = context.agent_name.lower()
+                if name_lower in lower_msg:
+                    if "killed" in lower_msg or "died" in lower_msg or "eliminated" in lower_msg:
+                        print("[Alert] Agent has died (Detected via world log). Connection closing...")
+                        game_id = msg.get("gameId") or log_data.get("gameId")
+                        if game_id and hasattr(context, "dead_games") and context.dead_games is not None:
+                            context.dead_games.add(game_id)
+                        if context.ws:
+                            await context.ws.close()
