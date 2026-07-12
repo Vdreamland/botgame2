@@ -108,6 +108,15 @@ class GameLogSender:
         }
         await self.send_log({"type": "agent_info", "agent": agent_payload, "turn": turn})
 
+        await self.send_log({"type": "detail", "message": "--------------------------------------------------"})
+        await self.send_log({"type": "detail", "message": f"STATUS: HP {hp}/{max_hp} | EP {ep}/{max_ep} | Atk: {atk} | Def: {defender_def} | Kills: {kill_count}"})
+        await self.send_log({"type": "detail", "message": f"EQUIPMENT: Weapon: {weapon_name} | Armor: {armor_name}"})
+        await self.send_log({"type": "detail", "message": f"LOCATION: {current_region_name} ({zone_status}) | Terrain: {terrain_type} | Weather: {weather} | Vision: {vision} | Links: {links_count}"})
+        await self.send_log({"type": "detail", "message": "--------------------------------------------------"})
+        inv_names = [it.get("name") for it in inventory if isinstance(it, dict) and it.get("name")]
+        await self.send_log({"type": "detail", "message": f"INVENTORY: {', '.join(inv_names) if inv_names else 'Empty'}"})
+        await self.send_log({"type": "detail", "message": "--------------------------------------------------"})
+
         if hp <= 0:
             await self.send_log({"type": "zones_info", "zones": {}})
             await self.send_log({"type": "facilities_info", "facilities": {}})
@@ -124,6 +133,11 @@ class GameLogSender:
                     if (r.get("name") if isinstance(r, dict) else r)
                 ]
             await self.send_log({"type": "zones_info", "zones": zone_payload})
+
+            for layer, regions_list in zones_by_layer.items():
+                regions_str = ", ".join([r.get("name") if isinstance(r, dict) else r for r in regions_list if (r.get("name") if isinstance(r, dict) else r)])
+                await self.send_log({"type": "detail", "message": f"Zones (Layer {layer}): {regions_str if regions_str else 'None'}"})
+            await self.send_log({"type": "detail", "message": "--------------------------------------------------"})
 
             facility_detector = FacilityDetector(view_data)
             fac_payload = {}
@@ -145,6 +159,12 @@ class GameLogSender:
                 fac_payload[reg_name] = f_name + status_suffix
             await self.send_log({"type": "facilities_info", "facilities": fac_payload})
 
+            fac_details = []
+            for reg_name, fac_display in fac_payload.items():
+                fac_details.append(f"{reg_name}: {fac_display}")
+            await self.send_log({"type": "detail", "message": f"Facilities: {', '.join(fac_details) if fac_details else 'None'}"})
+            await self.send_log({"type": "detail", "message": "--------------------------------------------------"})
+
             region_distances = zone_detector.get_region_distances()
             ground_detector = GroundItemDetector(view_data)
             ground_items_by_layer = ground_detector.get_formatted_items_by_layer(region_distances)
@@ -153,6 +173,12 @@ class GameLogSender:
                 if items_list:
                     ground_payload[r_name] = items_list
             await self.send_log({"type": "ground_info", "ground": ground_payload})
+
+            ground_details = []
+            for r_name, items in ground_payload.items():
+                ground_details.append(f"{r_name} ({', '.join(items)})")
+            await self.send_log({"type": "detail", "message": f"Ground Items: {', '.join(ground_details) if ground_details else 'None'}"})
+            await self.send_log({"type": "detail", "message": "--------------------------------------------------"})
 
             enemy_detector = EnemyInfoDetector(view_data)
             enemies_by_layer = enemy_detector.get_enemies_by_layer(region_distances)
@@ -175,6 +201,13 @@ class GameLogSender:
                                 formatted_enemies.append(f"{enemy.get('name')} [Guardian] (HP {enemy.get('hp')}/150, ATK: {enemy.get('atk')}, DEF: {enemy.get('def')}, Weapon: None, Armour: None)")
                     enemy_payload[r_name] = formatted_enemies
             await self.send_log({"type": "enemies_info", "enemies": enemy_payload})
+
+            enemy_details = []
+            for r_name, enemies in enemy_payload.items():
+                for e in enemies:
+                    enemy_details.append(f"{r_name} -> {e}")
+            await self.send_log({"type": "detail", "message": f"Enemies: {', '.join(enemy_details) if enemy_details else 'None'}"})
+            await self.send_log({"type": "detail", "message": "--------------------------------------------------"})
 
             move_list = []
             battle_list = []
