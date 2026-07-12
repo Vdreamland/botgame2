@@ -35,6 +35,18 @@ def normalize_item_name(name):
         return "leather"
     return norm
 
+def get_item_name(item):
+    if not item:
+        return ""
+    if isinstance(item, dict):
+        return item.get("name", "")
+    return str(item)
+
+def get_item_id(item):
+    if isinstance(item, dict):
+        return item.get("id")
+    return None
+
 def resolve_equipped(view_data, inventory):
     self_data = view_data.get("self", {}) or {}
     equipped_dict = self_data.get("equipped")
@@ -104,20 +116,40 @@ def get_loot_decision(view_data, agent_info, ground_detector):
     owned_melee = []
     owned_ranged = []
     owned_armors = []
+    seen_ids = set()
     has_binoculars = False
     hp_item_count = 0
     ep_item_count = 0
 
+    if eq_weapon_id:
+        w_name = normalize_item_name(eq_weapon_name)
+        if w_name in MELEE_RANKS:
+            owned_melee.append(equipped.get("weapon") if "equipped" in locals() else {})
+            seen_ids.add(eq_weapon_id)
+        elif w_name in RANGED_RANKS:
+            owned_ranged.append(equipped.get("weapon") if "equipped" in locals() else {})
+            seen_ids.add(eq_weapon_id)
+
+    if eq_armor_id:
+        owned_armors.append(equipped.get("armor") if "equipped" in locals() else {})
+        seen_ids.add(eq_armor_id)
+
     for item in inventory:
         if not isinstance(item, dict):
+            continue
+        i_id = item.get("id")
+        if i_id in seen_ids:
             continue
         i_name = normalize_item_name(item.get("name"))
         if i_name in MELEE_RANKS:
             owned_melee.append(item)
+            seen_ids.add(i_id)
         elif i_name in RANGED_RANKS:
             owned_ranged.append(item)
+            seen_ids.add(i_id)
         elif i_name in ARMOR_RANKS:
             owned_armors.append(item)
+            seen_ids.add(i_id)
         elif i_name == "binoculars":
             has_binoculars = True
         elif i_name in ("bandage", "medkit"):
@@ -125,9 +157,9 @@ def get_loot_decision(view_data, agent_info, ground_detector):
         elif i_name in ("emergency_food", "energy_drink"):
             ep_item_count += 1
 
-    melee_ranks = sorted([MELEE_RANKS.get(normalize_item_name(w.get("name")), 0) for w in owned_melee], reverse=True)
-    ranged_ranks = sorted([RANGED_RANKS.get(normalize_item_name(w.get("name")), 0) for w in owned_ranged], reverse=True)
-    armor_ranks = sorted([ARMOR_RANKS.get(normalize_item_name(a.get("name")), 0) for a in owned_armors], reverse=True)
+    melee_ranks = sorted([MELEE_RANKS.get(normalize_item_name(w.get("name")), 0) for w in owned_melee if isinstance(w, dict)], reverse=True)
+    ranged_ranks = sorted([RANGED_RANKS.get(normalize_item_name(w.get("name")), 0) for w in owned_ranged if isinstance(w, dict)], reverse=True)
+    armor_ranks = sorted([ARMOR_RANKS.get(normalize_item_name(a.get("name")), 0) for a in owned_armors if isinstance(a, dict)], reverse=True)
 
     for item in ground_items:
         if not isinstance(item, dict):
@@ -144,6 +176,15 @@ def get_loot_decision(view_data, agent_info, ground_detector):
             continue
         i_name = normalize_item_name(item.get("name"))
         i_id = item.get("id")
+
+        if i_name in MELEE_RANKS or i_name in RANGED_RANKS or i_name in ARMOR_RANKS:
+            already_owned = False
+            for w in owned_melee + owned_ranged + owned_armors:
+                if isinstance(w, dict) and normalize_item_name(w.get("name")) == i_name:
+                    already_owned = True
+                    break
+            if already_owned:
+                continue
 
         if i_name in MELEE_RANKS:
             g_rank = MELEE_RANKS.get(i_name, 0)
@@ -208,7 +249,16 @@ def get_loot_decision(view_data, agent_info, ground_detector):
 
         if i_name == "smoltz":
             is_high_value = True
-        elif i_name in MELEE_RANKS:
+        elif i_name in MELEE_RANKS or i_name in RANGED_RANKS or i_name in ARMOR_RANKS:
+            already_owned = False
+            for w in owned_melee + owned_ranged + owned_armors:
+                if isinstance(w, dict) and normalize_item_name(w.get("name")) == i_name:
+                    already_owned = True
+                    break
+            if already_owned:
+                continue
+
+        if i_name in MELEE_RANKS:
             g_rank = MELEE_RANKS.get(i_name, 0)
             if len(melee_ranks) < 2:
                 is_high_value = True

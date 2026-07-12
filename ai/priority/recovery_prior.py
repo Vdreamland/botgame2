@@ -43,8 +43,9 @@ def get_recovery_decision(view_data, agent_info):
         return {"action": "use", "item_id": bandage_item.get("id")}
     if ep <= 6 and drink_item:
         return {"action": "use", "item_id": drink_item.get("id")}
-    if ep <= 8 and food_item:
-        return {"action": "use", "item_id": food_item.get("id")}
+    if food_item:
+        if (hp <= 90 and ep <= 8) or ep <= 2:
+            return {"action": "use", "item_id": food_item.get("id")}
 
     if len(inventory) >= 10 and len(hp_items) >= 3 and len(ep_items) == 0:
         if bandage_item:
