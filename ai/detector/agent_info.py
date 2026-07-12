@@ -1,5 +1,15 @@
 from typing import Dict, Any
 
+# Pemetaan resmi nilai Vision Modifier berdasarkan tipe terrain/fasilitas
+TERRAIN_VISION_MODS = {
+    "plains": 1,
+    "forest": -1,
+    "hills": 2,
+    "ruins": 0,
+    "water": 0,
+    "cave": -2
+}
+
 def extract_agent_status(msg: Dict[str, Any]) -> Dict[str, Any]:
     if "view" in msg:
         view = msg.get("view") or {}
@@ -36,21 +46,16 @@ def extract_agent_status(msg: Dict[str, Any]) -> Dict[str, Any]:
     if isinstance(region_data, dict):
         is_death_zone = region_data.get("isDeathZone") if region_data.get("isDeathZone") is not None else region_data.get("is_death_zone", False)
     
-    # Ekstraksi data tambahan: cuaca (weather) dan jumlah link
     weather = game_state.get("weather", "clear")
     num_links = len(region_data.get("connections") or [])
     
-    # Deteksi vision dinamis dengan fallback aman kalkulasi game_math
-    vision = player.get("vision") if player.get("vision") is not None else player.get("visionRange")
-    if vision is None:
-        from helpers.game_math import TerrainType, WeatherType, get_vision_mod
-        try:
-            t_enum = TerrainType(terrain.lower())
-            w_enum = WeatherType(weather.lower())
-            vision_mod = get_vision_mod(t_enum, w_enum)
-        except Exception:
-            vision_mod = 0
-        vision = max(0, 2 + vision_mod)
+    # Ambil nilai Vision murni dari terrain petak saat ini untuk disesuaikan dengan Web UI
+    terrain_lower = terrain.lower()
+    facility_lower = (region_data.get("facility") or "").lower()
+    if facility_lower == "cave" or terrain_lower == "cave":
+        vision = -2
+    else:
+        vision = TERRAIN_VISION_MODS.get(terrain_lower, 0)
     
     return {
         "name": name,

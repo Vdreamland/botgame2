@@ -99,28 +99,31 @@ def detect_region_items(view: Dict[str, Any]) -> Dict[str, List[str]]:
             if isinstance(r, dict):
                 regions_map[r_id] = r
                 
-        for r in connected_source:
-            if isinstance(r, dict) and r.get("id"):
-                regions_map[r["id"]] = r
-                
-        region_contents = {}
-        
-        for r_id, r in regions_map.items():
-            region_name = r.get("name") or f"Region ({r_id[:8]})"
-            detected_items = []
+    # Perbaikan Indentasi: Dikeluarkan dari cakupan elif agar selalu tereksekusi penuh
+    for r in connected_source:
+        if isinstance(r, dict) and r.get("id"):
+            regions_map[r["id"]] = r
             
-            facility = r.get("facility")
-            if facility:
-                facility_clean = facility.replace("_", " ")
-                detected_items.append(facility_clean)
+    region_contents = {}
+    
+    for r_id, r in regions_map.items():
+        region_name = r.get("name") or f"Region ({r_id[:8]})"
+        detected_items = []
+        
+        # Jenis 2: Deteksi Fasilitas Petak (Watchtower, Supply Cache, Cave, Ruin, dll)
+        facility = r.get("facility")
+        if facility:
+            facility_clean = facility.replace("_", " ")
+            detected_items.append(facility_clean)
+            
+        # Jenis 1: Deteksi Item Fisik (Weapon, Armor, Recovery, Binoculars/Utility)
+        items_list = r.get("items") or []
+        for item in items_list:
+            if isinstance(item, dict):
+                item_name = item.get("name") or item.get("typeId") or "item"
+                detected_items.append(item_name)
                 
-            items_list = r.get("items") or []
-            for item in items_list:
-                if isinstance(item, dict):
-                    item_name = item.get("name") or item.get("typeId") or "item"
-                    detected_items.append(item_name)
-                    
-            if detected_items:
-                region_contents[region_name] = detected_items
-                
-        return region_contents
+        if detected_items:
+            region_contents[region_name] = detected_items
+            
+    return region_contents
