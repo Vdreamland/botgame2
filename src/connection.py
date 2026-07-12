@@ -81,6 +81,7 @@ async def connect_and_play(bot_name, api_key, entry_type):
             expect_immediate_frame = (decision == "ALREADY_IN_GAME")
             accumulated_events = []
             pending_messages = []
+            last_logged_turn = -1
 
             memory = AgentMemory(bot_name)
 
@@ -167,7 +168,9 @@ async def connect_and_play(bot_name, api_key, entry_type):
                     ep = self_data.get("ep", 0)
                     is_alive = self_data.get("isAlive", True) and hp > 0
 
-                    log_info(bot_name, f"Processing Turn {turn} (HP: {hp}/{max_hp}, EP: {ep}, Status: {status})")
+                    if turn != last_logged_turn:
+                        log_info(bot_name, f"Processing Turn {turn} (HP: {hp}/{max_hp}, EP: {ep}, Status: {status})")
+                        last_logged_turn = turn
 
                     await asyncio.sleep(0.05)
 
