@@ -22,7 +22,9 @@ ARMOR_RANKS = {
 def normalize_item_name(name):
     if not name:
         return ""
-    norm = name.lower().replace(" ", "_")
+    if isinstance(name, dict):
+        name = name.get("name", "")
+    norm = str(name).lower().replace(" ", "_")
     if "sniper" in norm:
         return "sniper"
     if "plate" in norm:
@@ -35,39 +37,52 @@ def normalize_item_name(name):
 
 def get_equipment_decision(view_data, agent_info):
     self_data = view_data.get("self", {}) or {}
-    eq_weapon_name = self_data.get("equippedWeapon")
-    eq_armor_name = self_data.get("equippedArmor")
+    equipped_dict = self_data.get("equipped", {}) or {}
+    
+    eq_weapon_dict = equipped_dict.get("weapon") or {} if isinstance(equipped_dict, dict) else {}
+    eq_armor_dict = equipped_dict.get("armor") or {} if isinstance(equipped_dict, dict) else {}
+
+    eq_weapon_name = eq_weapon_dict.get("name") if isinstance(eq_weapon_dict, dict) else None
+    eq_armor_name = eq_armor_dict.get("name") if isinstance(eq_armor_dict, dict) else None
+    eq_weapon_id = eq_weapon_dict.get("id") if isinstance(eq_weapon_dict, dict) else None
+    eq_armor_id = eq_armor_dict.get("id") if isinstance(eq_armor_dict, dict) else None
 
     inventory = agent_info.get_inventory()
-
-    eq_weapon_id = None
-    if eq_weapon_name:
-        for item in inventory:
-            if isinstance(item, dict) and normalize_item_name(item.get("name")) == normalize_item_name(eq_weapon_name):
-                eq_weapon_id = item.get("id")
-                break
-
-    eq_armor_id = None
-    if eq_armor_name:
-        for item in inventory:
-            if isinstance(item, dict) and normalize_item_name(item.get("name")) == normalize_item_name(eq_armor_name):
-                eq_armor_id = item.get("id")
-                break
 
     owned_melee = []
     owned_ranged = []
     owned_armors = []
+    seen_ids = set()
+
+    if eq_weapon_id:
+        w_name = normalize_item_name(eq_weapon_name)
+        if w_name in MELEE_RANKS:
+            owned_melee.append(eq_weapon_dict)
+            seen_ids.add(eq_weapon_id)
+        elif w_name in RANGED_RANKS:
+            owned_ranged.append(eq_weapon_dict)
+            seen_ids.add(eq_weapon_id)
+
+    if eq_armor_id:
+        owned_armors.append(eq_armor_dict)
+        seen_ids.add(eq_armor_id)
 
     for item in inventory:
         if not isinstance(item, dict):
             continue
+        i_id = item.get("id")
+        if i_id in seen_ids:
+            continue
         i_name = normalize_item_name(item.get("name"))
         if i_name in MELEE_RANKS:
             owned_melee.append(item)
+            seen_ids.add(i_id)
         elif i_name in RANGED_RANKS:
             owned_ranged.append(item)
+            seen_ids.add(i_id)
         elif i_name in ARMOR_RANKS:
             owned_armors.append(item)
+            seen_ids.add(i_id)
 
     owned_melee.sort(key=lambda w: MELEE_RANKS.get(normalize_item_name(w.get("name")), 0), reverse=True)
     owned_ranged.sort(key=lambda w: RANGED_RANKS.get(normalize_item_name(w.get("name")), 0), reverse=True)

@@ -22,7 +22,9 @@ ARMOR_RANKS = {
 def normalize_item_name(name):
     if not name:
         return ""
-    norm = name.lower().replace(" ", "_")
+    if isinstance(name, dict):
+        name = name.get("name", "")
+    norm = str(name).lower().replace(" ", "_")
     if "sniper" in norm:
         return "sniper"
     if "plate" in norm:
@@ -33,36 +35,21 @@ def normalize_item_name(name):
         return "leather"
     return norm
 
-def resolve_equipped(view_data, inventory):
-    self_data = view_data.get("self", {}) or {}
-    eq_weapon_name = self_data.get("equippedWeapon")
-    eq_armor_name = self_data.get("equippedArmor")
-
-    eq_weapon = None
-    eq_armor = None
-
-    if eq_weapon_name:
-        for item in inventory:
-            if isinstance(item, dict) and item.get("name") == eq_weapon_name:
-                eq_weapon = item
-                break
-
-    if eq_armor_name:
-        for item in inventory:
-            if isinstance(item, dict) and item.get("name") == eq_armor_name:
-                eq_armor = item
-                break
-
-    return {"weapon": eq_weapon, "armor": eq_armor}
-
 def get_loot_decision(view_data, agent_info, ground_detector):
     view = view_data
-    inventory = agent_info.get_inventory()
-    equipped = resolve_equipped(view_data, inventory)
-    ground_items = ground_detector.visible_items
+    self_data = view_data.get("self", {}) or {}
+    equipped_dict = self_data.get("equipped", {}) or {}
+    
+    eq_weapon_dict = equipped_dict.get("weapon") or {} if isinstance(equipped_dict, dict) else {}
+    eq_armor_dict = equipped_dict.get("armor") or {} if isinstance(equipped_dict, dict) else {}
 
-    eq_weapon = equipped.get("weapon")
-    eq_armor = equipped.get("armor")
+    eq_weapon_name = eq_weapon_dict.get("name") if isinstance(eq_weapon_dict, dict) else None
+    eq_armor_name = eq_armor_dict.get("name") if isinstance(eq_armor_dict, dict) else None
+    eq_weapon_id = eq_weapon_dict.get("id") if isinstance(eq_weapon_dict, dict) else None
+    eq_armor_id = eq_armor_dict.get("id") if isinstance(eq_armor_dict, dict) else None
+
+    inventory = agent_info.get_inventory()
+    ground_items = ground_detector.visible_items
 
     current_region = view.get("currentRegion", {}) or {}
     current_region_id = current_region.get("id")
@@ -75,18 +62,18 @@ def get_loot_decision(view_data, agent_info, ground_detector):
     hp_item_count = 0
     ep_item_count = 0
 
-    if eq_weapon and isinstance(eq_weapon, dict):
-        w_name = normalize_item_name(eq_weapon.get("name"))
+    if eq_weapon_id:
+        w_name = normalize_item_name(eq_weapon_name)
         if w_name in MELEE_RANKS:
-            owned_melee.append(eq_weapon)
-            seen_ids.add(eq_weapon.get("id"))
+            owned_melee.append(eq_weapon_dict)
+            seen_ids.add(eq_weapon_id)
         elif w_name in RANGED_RANKS:
-            owned_ranged.append(eq_weapon)
-            seen_ids.add(eq_weapon.get("id"))
+            owned_ranged.append(eq_weapon_dict)
+            seen_ids.add(eq_weapon_id)
 
-    if eq_armor and isinstance(eq_armor, dict):
-        owned_armors.append(eq_armor)
-        seen_ids.add(eq_armor.get("id"))
+    if eq_armor_id:
+        owned_armors.append(eq_armor_dict)
+        seen_ids.add(eq_armor_id)
 
     for item in inventory:
         if not isinstance(item, dict):
