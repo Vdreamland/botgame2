@@ -1,7 +1,6 @@
 from typing import Dict, Any
 
 def extract_agent_status(msg: Dict[str, Any]) -> Dict[str, Any]:
-    # Mendukung pembacaan baik jika dilempar pesan utuh (msg) atau hanya isi kontainer view
     if "view" in msg:
         view = msg.get("view") or {}
         global_turn = msg.get("turn") or 1
@@ -22,7 +21,6 @@ def extract_agent_status(msg: Dict[str, Any]) -> Dict[str, Any]:
     y = player.get("y", 0)
     is_alive = player.get("isAlive") if player.get("isAlive") is not None else player.get("is_alive", True)
     
-    # Hitung konversi Hari dan Turn Harian (1-4) dari Global Turn server
     day = (global_turn - 1) // 4 + 1
     day_turn = (global_turn - 1) % 4 + 1
     
@@ -32,6 +30,11 @@ def extract_agent_status(msg: Dict[str, Any]) -> Dict[str, Any]:
     
     region_name = region_data.get("name", "Unknown") if isinstance(region_data, dict) else "Unknown"
     terrain = region_data.get("terrain", "unknown") if isinstance(region_data, dict) else "unknown"
+    
+    # Deteksi status is_death_zone untuk petak berpijak saat ini
+    is_death_zone = False
+    if isinstance(region_data, dict):
+        is_death_zone = region_data.get("isDeathZone") if region_data.get("isDeathZone") is not None else region_data.get("is_death_zone", False)
     
     return {
         "name": name,
@@ -48,5 +51,6 @@ def extract_agent_status(msg: Dict[str, Any]) -> Dict[str, Any]:
         "def": defense,
         "kill": kills,
         "region_name": region_name,
-        "terrain": terrain
+        "terrain": terrain,
+        "is_death_zone": is_death_zone
     }

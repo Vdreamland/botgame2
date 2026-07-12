@@ -6,7 +6,6 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
     if msg_type in ("agent_view", "turn_advanced"):
         view = msg.get("view") or msg.get("agentView") or msg.get("agent_view") or msg.get("data") or {}
         
-        # Kirim pesan utuh (msg) agar detektor bisa membaca data turn di tingkat teratas JSON
         status = extract_agent_status(msg)
         regions = detect_connected_regions(view)
         
@@ -27,20 +26,26 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         kills = status["kill"]
         region_name = status["region_name"]
         terrain = status["terrain"]
+        is_death_zone = status["is_death_zone"]
         
-        # Bandingkan menggunakan global_turn agar perubahan turn dari server langsung terdeteksi instan
-        current_state = (global_turn, hp, ep, x, y, kills, region_name, terrain)
+        # Simpan status deadzone saat ini ke dalam state pembanding
+        current_state = (global_turn, hp, ep, x, y, kills, region_name, terrain, is_death_zone)
         last_printed = getattr(context, "last_state", None)
         
         if last_printed != current_state:
-            print(f"\n--- [DAY {day} TURN {turn}] ---")
-            print(f"Agent: {name} | HP: {hp} | EP: {ep} | ATK: {atk} | DEF: {defense} | KILL: {kills}")
-            print(f"Location: ({x}, {y}) {region_name} ({terrain})")
-            
+            # Kode warna ANSI
             color_green = "\033[92m"
             color_red = "\033[91m"
             color_reset = "\033[0m"
             
+            # Label warna untuk petak berdiri saat ini
+            current_zone_label = f"{color_red}[deadzone]{color_reset}" if is_death_zone else f"{color_green}[safezone]{color_reset}"
+            
+            print(f"\n--- [DAY {day} TURN {turn}] ---")
+            print(f"Agent: {name} | HP: {hp} | EP: {ep} | ATK: {atk} | DEF: {defense} | KILL: {kills}")
+            print(f"Location: ({x}, {y}) {region_name} ({terrain}) {current_zone_label}")
+            
+            # Format horizontal wilayah tetangga
             region_strings = []
             for r in regions:
                 is_dead = r.get("is_death_zone", False)
