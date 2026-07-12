@@ -97,6 +97,13 @@ class ClawRoyaleWebSocketClient:
                     print(f"Match Assigned! Game ID: {msg.get('gameId')}. Promoting socket...")
                     await self.run_game_loop(ws)
                     break
+                elif msg_type in ("agent_view", "turn_advanced", "can_act_changed"):
+                    print("Socket immediately promoted (Active session resumed). Transitioning...")
+                    if msg_type in ("agent_view", "turn_advanced"):
+                        view = msg.get("view") or msg.get("agentView") or {}
+                        self._handle_agent_view(view)
+                    await self.run_game_loop(ws)
+                    break
                 elif msg_type == "not_selected":
                     print("Matchmaker allocation timed out.")
                     break

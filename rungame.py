@@ -26,7 +26,8 @@ async def main():
     try:
         print("Validating profile and active status...")
         profile = api_client.get_profile_me()
-        active_games = profile.get("currentGames", [])
+        profile_data = profile.get("data", {}) if "data" in profile else profile
+        active_games = profile_data.get("currentGames", [])
         
         is_already_in_game = False
         for game in active_games:
