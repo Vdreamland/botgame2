@@ -1,14 +1,6 @@
 import json
 from typing import Dict, Any
-
-TERRAIN_VISION_MODS = {
-    "plains": 1,
-    "forest": -1,
-    "hills": 2,
-    "ruins": 0,
-    "water": 0,
-    "cave": -2
-}
+from helpers.game_math import get_vision_mod
 
 def extract_agent_status(msg: Dict[str, Any]) -> Dict[str, Any]:
     if not isinstance(msg, dict):
@@ -44,15 +36,7 @@ def extract_agent_status(msg: Dict[str, Any]) -> Dict[str, Any]:
     terrain = current_region.get("terrain", "unknown")
     weather = current_region.get("weather", "clear")
     
-    terrain_mod = TERRAIN_VISION_MODS.get(terrain.lower(), 0)
-    weather_mod = 0
-    if weather.lower() == "rain":
-        weather_mod = -1
-    elif weather.lower() == "fog":
-        weather_mod = -2
-    elif weather.lower() == "storm":
-        weather_mod = -3
-    vision_mod = terrain_mod + weather_mod
+    vision_mod = get_vision_mod(terrain, weather)
     
     num_links = len(current_region.get("connections", []))
     ruin = current_region.get("ruins")
