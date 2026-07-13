@@ -40,7 +40,7 @@
         "isAlive": true,
         "isDiscovered": false,
         "kills": 0,
-        "survivalTime": 5,
+        "survivalTime": 11,
         "joinedAt": "2026-07-13T02:45:11.941781091Z",
         "lastActionAt": "0001-01-01T00:00:00Z",
         "alertGauge": 0,
@@ -107,177 +107,60 @@
     },
     "visibleRegions": [
         {
-            "id": "950d4231-ced0-4f39-a3ef-680cc94812a9",
-            "name": "Downtown",
-            "description": "",
-            "terrain": "forest",
-            "connections": [
-                "f8a2619a-7bc2-4c1a-abb3-e0f0b50d265b",
-                "9d42f447-23fa-4573-9a1f-782e61a910c2",
-                "3321b0a0-099f-4645-b5d7-ddd01a66ac4c",
-                "3e815793-45a9-479a-98db-baf2f2ce5214",
-                "c114c060-74dd-4d7b-9139-556069c8b140",
-                "e1e5a05f-f132-4d41-941f-4cd1c8939ee3"
-            ],
-            "visionModifier": 0,
-            "isDeathZone": false,
-            "weather": "clear",
-            "interactables": [
-                {
-                    "id": "950d4231-ced0-4f39-a3ef-680cc94812a9:facility:0",
-                    "type": "supply_cache",
-                    "name": "Supply Cache",
-                    "description": "Contains random supplies. One use only.",
-                    "isUsed": false
-                }
-            ],
-            "position": {
-                "x": 772.8203232,
-                "y": 2076.8
-            },
-            "hexCoords": {
-                "q": -9,
-                "r": 8
-            }
-        },
-        {
-            "id": "d3091e01-2899-4cb2-bb1a-4a8e7fe88f7f",
-            "name": "Garage",
-            "description": "",
-            "terrain": "forest",
-            "connections": [
-                "0b4c9fca-f4f6-4974-ac33-82325075ea54",
-                "f8a2619a-7bc2-4c1a-abb3-e0f0b50d265b",
-                "e1e5a05f-f132-4d41-941f-4cd1c8939ee3"
-            ],
-            "visionModifier": 0,
-            "isDeathZone": false,
-            "weather": "clear",
-            "interactables": [
-                {
-                    "id": "d3091e01-2899-4cb2-bb1a-4a8e7fe88f7f:facility:0",
-                    "type": "supply_cache",
-                    "name": "Supply Cache",
-                    "description": "Contains random supplies. One use only.",
-                    "isUsed": false
-                }
-            ],
-            "position": {
-                "x": 980.6664201599999,
-                "y": 2176.4
-            },
-            "hexCoords": {
-                "q": -8,
-                "r": 9
-            }
-        },
-        {
-            "id": "e1fbb259-a7ad-455e-9824-9b3b55da9029",
-            "name": "Meadow",
-            "description": "",
-            "terrain": "forest",
-            "connections": [
-                "f776b434-c535-4902-a24e-51038ff3984c",
-                "dff14af4-4a75-4c81-87ac-86ef88b2406d",
-                "98616759-545c-4a06-acfc-742fdc54a170",
-                "1cdd19eb-98ad-4396-9c80-47cb86f90d41",
-                "0935b622-b129-431d-9861-4e49f1c6d226",
-                "c9ee6620-9c9d-4ead-9e91-ba5cdda89360"
-            ],
-            "visionModifier": 0,
-            "isDeathZone": false,
-            "weather": "clear",
-            "interactables": [],
-            "position": {
-                "x": 1049.94845248,
-                "y": 1678.4
-            },
-            "hexCoords": {
-                "q": -5,
-                "r": 4
-            }
-        },
-        {
-            "id": "3fa790b1-0b0b-49a9-aaab-759f9e87cda2",
-            "name": "Cave",
-            "description": "",
-            "terrain": "forest",
-            "connections": [
-                "b46108fb-7d5d-4fe6-b835-b812fde46c99",
-                "22c2d083-3d2f-4cb1-b114-cde8b4cfaf8d",
-                "60c96573-3b9e-4f8c-8e88-2f74391c435e",
-                "dc463bcb-71c8-4fcd-af49-1163aba1d793",
-                "a2c8154c-4bc1-441b-9060-02322fcf5714",
-                "3321b0a0-099f-4645-b5d7-ddd01a66ac4c"
-            ],
-            "visionModifier": 0,
-            "isDeathZone": false,
-            "weather": "clear",
-            "interactables": [
-                {
-                    "id": "3fa790b1-0b0b-49a9-aaab-759f9e87cda2:facility:0",
-                    "type": "supply_cache",
-                    "name": "Supply Cache",
-                    "description": "Contains random supplies. One use only.",
-                    "isUsed": false
-                }
-            ],
-            "position": {
-                "x": 634.2562585599999,
-                "y": 1877.6
-            },
-            "hexCoords": {
-                "q": -9,
-                "r": 6
-            }
-        },
-        {
-            "id": "3e815793-45a9-479a-98db-baf2f2ce5214",
-            "name": "Camp",
+            "id": "22c2d083-3d2f-4cb1-b114-cde8b4cfaf8d",
+            "name": "Windmill",
             "description": "",
             "terrain": "plains",
             "connections": [
-                "950d4231-ced0-4f39-a3ef-680cc94812a9",
-                "3321b0a0-099f-4645-b5d7-ddd01a66ac4c",
-                "a2c8154c-4bc1-441b-9060-02322fcf5714",
-                "0db875c8-607b-4c93-b292-e5cc9ca29370",
-                "c114c060-74dd-4d7b-9139-556069c8b140"
+                "ffa3e252-446e-45ab-9592-89d2d4714d25",
+                "fb52fce3-8943-4c9b-96f5-03565c811ce7",
+                "90a6ca91-16fd-48d5-b767-bf3357b8935a",
+                "60c96573-3b9e-4f8c-8e88-2f74391c435e",
+                "3fa790b1-0b0b-49a9-aaab-759f9e87cda2",
+                "b46108fb-7d5d-4fe6-b835-b812fde46c99"
             ],
             "visionModifier": 1,
             "isDeathZone": false,
             "weather": "clear",
             "interactables": [],
             "position": {
-                "x": 634.2562585599999,
-                "y": 2076.8
+                "x": 703.53829088,
+                "y": 1778
             },
             "hexCoords": {
-                "q": -10,
-                "r": 8
+                "q": -8,
+                "r": 5
             }
         },
         {
-            "id": "111a8521-48b5-4ce4-92ae-4aab3fffc8b6",
-            "name": "Windmill",
+            "id": "c114c060-74dd-4d7b-9139-556069c8b140",
+            "name": "Garage",
             "description": "",
-            "terrain": "forest",
+            "terrain": "cave",
             "connections": [
-                "9d9eba45-5e3a-4e72-b8d0-d4abe95394f9",
-                "8b15255c-503e-4046-85dc-42b13b004175",
-                "d086c847-2531-4255-95af-c453fa8af64d",
-                "925fbac4-3264-4cc7-b218-78e07f221e8b"
+                "e1e5a05f-f132-4d41-941f-4cd1c8939ee3",
+                "950d4231-ced0-4f39-a3ef-680cc94812a9",
+                "3e815793-45a9-479a-98db-baf2f2ce5214"
             ],
             "visionModifier": 0,
             "isDeathZone": false,
             "weather": "clear",
-            "interactables": [],
+            "interactables": [
+                {
+                    "id": "c114c060-74dd-4d7b-9139-556069c8b140:facility:0",
+                    "type": "supply_cache",
+                    "name": "Supply Cache",
+                    "description": "",
+                    "isUsed": false
+                }
+            ],
             "position": {
-                "x": 1257.7945494399999,
-                "y": 1977.1999999999998
+                "x": 703.53829088,
+                "y": 2176.4
             },
             "hexCoords": {
-                "q": -5,
-                "r": 7
+                "q": -10,
+                "r": 9
             }
         },
         {
@@ -327,20 +210,6 @@
             "isDeathZone": false,
             "weather": "clear",
             "interactables": [],
-            "items": [
-                {
-                    "id": "0ec3e18e-fd14-4029-a50c-2e21b97d7dca:4000",
-                    "typeId": "knife",
-                    "name": "Dagger",
-                    "description": "Low-tier melee weapon",
-                    "category": "weapon",
-                    "stackable": false,
-                    "quantity": 1,
-                    "grade": "low",
-                    "atkBonus": 16,
-                    "epCost": 1
-                }
-            ],
             "position": {
                 "x": 980.6664201599999,
                 "y": 1977.1999999999998
@@ -351,51 +220,29 @@
             }
         },
         {
-            "id": "b46108fb-7d5d-4fe6-b835-b812fde46c99",
-            "name": "Depot",
+            "id": "3321b0a0-099f-4645-b5d7-ddd01a66ac4c",
+            "name": "Barn",
             "description": "",
-            "terrain": "water",
+            "terrain": "forest",
             "connections": [
-                "44b9d309-6ea9-47b0-acd9-767996002e76",
-                "ffa3e252-446e-45ab-9592-89d2d4714d25",
-                "22c2d083-3d2f-4cb1-b114-cde8b4cfaf8d",
+                "9d42f447-23fa-4573-9a1f-782e61a910c2",
+                "b46108fb-7d5d-4fe6-b835-b812fde46c99",
                 "3fa790b1-0b0b-49a9-aaab-759f9e87cda2",
-                "3321b0a0-099f-4645-b5d7-ddd01a66ac4c",
-                "9d42f447-23fa-4573-9a1f-782e61a910c2"
+                "a2c8154c-4bc1-441b-9060-02322fcf5714",
+                "3e815793-45a9-479a-98db-baf2f2ce5214",
+                "950d4231-ced0-4f39-a3ef-680cc94812a9"
             ],
             "visionModifier": 0,
             "isDeathZone": false,
             "weather": "clear",
             "interactables": [],
-            "items": [
-                {
-                    "id": "ec7c4de5-14cd-4c38-9e44-15b983628a57:monster:22:reward",
-                    "typeId": "reward1",
-                    "name": "sMoltz",
-                    "description": "",
-                    "category": "currency",
-                    "stackable": true,
-                    "quantity": 8
-                },
-                {
-                    "id": "ec7c4de5-14cd-4c38-9e44-15b983628a57:monster:22:loot:0",
-                    "typeId": "leather",
-                    "name": "Leather Armor",
-                    "description": "Low-tier armor",
-                    "category": "armor",
-                    "stackable": false,
-                    "quantity": 1,
-                    "grade": "low",
-                    "defBonus": 4
-                }
-            ],
             "position": {
-                "x": 772.8203232,
-                "y": 1877.6
+                "x": 703.53829088,
+                "y": 1977.1999999999998
             },
             "hexCoords": {
-                "q": -8,
-                "r": 6
+                "q": -9,
+                "r": 7
             }
         },
         {
@@ -414,19 +261,6 @@
             "isDeathZone": false,
             "weather": "clear",
             "interactables": [],
-            "items": [
-                {
-                    "id": "f8a2619a-7bc2-4c1a-abb3-e0f0b50d265b:4000",
-                    "typeId": "chainmail",
-                    "name": "Chainmail",
-                    "description": "Mid-tier armor",
-                    "category": "armor",
-                    "stackable": false,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "defBonus": 12
-                }
-            ],
             "position": {
                 "x": 911.3843878399999,
                 "y": 2076.8
@@ -437,92 +271,60 @@
             }
         },
         {
-            "id": "8b15255c-503e-4046-85dc-42b13b004175",
-            "name": "Armory",
-            "description": "",
-            "terrain": "cave",
-            "connections": [
-                "9d9eba45-5e3a-4e72-b8d0-d4abe95394f9",
-                "7431b959-5ccd-4cd5-bd09-eeb7adb4675c",
-                "c9ee6620-9c9d-4ead-9e91-ba5cdda89360",
-                "d36315fc-e770-4788-be23-e003e5a8d45a",
-                "d086c847-2531-4255-95af-c453fa8af64d",
-                "111a8521-48b5-4ce4-92ae-4aab3fffc8b6"
-            ],
-            "visionModifier": 0,
-            "isDeathZone": false,
-            "weather": "clear",
-            "interactables": [
-                {
-                    "id": "8b15255c-503e-4046-85dc-42b13b004175:facility:0",
-                    "type": "cave",
-                    "name": "Cave Entrance",
-                    "description": "Enter the cave for stealth. Vision -2, but harder to be spotted.",
-                    "isUsed": false
-                }
-            ],
-            "position": {
-                "x": 1188.51251712,
-                "y": 1877.6
-            },
-            "hexCoords": {
-                "q": -5,
-                "r": 6
-            }
-        },
-        {
-            "id": "fb52fce3-8943-4c9b-96f5-03565c811ce7",
-            "name": "Warehouse",
-            "description": "",
-            "terrain": "forest",
-            "connections": [
-                "1cdd19eb-98ad-4396-9c80-47cb86f90d41",
-                "4d0740f2-5192-4fab-988d-7af80bd1707f",
-                "4467701e-ccc7-497a-8289-8ef29daadd85",
-                "90a6ca91-16fd-48d5-b767-bf3357b8935a",
-                "22c2d083-3d2f-4cb1-b114-cde8b4cfaf8d",
-                "ffa3e252-446e-45ab-9592-89d2d4714d25"
-            ],
-            "visionModifier": 0,
-            "isDeathZone": false,
-            "weather": "clear",
-            "interactables": [
-                {
-                    "id": "fb52fce3-8943-4c9b-96f5-03565c811ce7:facility:0",
-                    "type": "medical_facility",
-                    "name": "Medical Facility",
-                    "description": "",
-                    "isUsed": false
-                }
-            ],
-            "position": {
-                "x": 772.8203232,
-                "y": 1678.4
-            },
-            "hexCoords": {
-                "q": -7,
-                "r": 4
-            }
-        },
-        {
-            "id": "0b4c9fca-f4f6-4974-ac33-82325075ea54",
-            "name": "Hotel",
+            "id": "d36315fc-e770-4788-be23-e003e5a8d45a",
+            "name": "Docks",
             "description": "",
             "terrain": "hills",
             "connections": [
-                "925fbac4-3264-4cc7-b218-78e07f221e8b",
-                "d3091e01-2899-4cb2-bb1a-4a8e7fe88f7f"
+                "8b15255c-503e-4046-85dc-42b13b004175",
+                "c9ee6620-9c9d-4ead-9e91-ba5cdda89360",
+                "0935b622-b129-431d-9861-4e49f1c6d226",
+                "44b9d309-6ea9-47b0-acd9-767996002e76",
+                "0ec3e18e-fd14-4029-a50c-2e21b97d7dca",
+                "d086c847-2531-4255-95af-c453fa8af64d"
             ],
             "visionModifier": 2,
             "isDeathZone": false,
             "weather": "clear",
+            "interactables": [
+                {
+                    "id": "d36315fc-e770-4788-be23-e003e5a8d45a:facility:0",
+                    "type": "supply_cache",
+                    "name": "Supply Cache",
+                    "description": "Contains random supplies. One use only.",
+                    "isUsed": false
+                }
+            ],
+            "position": {
+                "x": 1049.94845248,
+                "y": 1877.6
+            },
+            "hexCoords": {
+                "q": -6,
+                "r": 6
+            }
+        },
+        {
+            "id": "e1e5a05f-f132-4d41-941f-4cd1c8939ee3",
+            "name": "Jungle",
+            "description": "",
+            "terrain": "cave",
+            "connections": [
+                "d3091e01-2899-4cb2-bb1a-4a8e7fe88f7f",
+                "f8a2619a-7bc2-4c1a-abb3-e0f0b50d265b",
+                "950d4231-ced0-4f39-a3ef-680cc94812a9",
+                "c114c060-74dd-4d7b-9139-556069c8b140"
+            ],
+            "visionModifier": 0,
+            "isDeathZone": false,
+            "weather": "clear",
             "interactables": [],
             "position": {
-                "x": 1119.2304847999999,
+                "x": 842.10235552,
                 "y": 2176.4
             },
             "hexCoords": {
-                "q": -7,
+                "q": -9,
                 "r": 9
             }
         },
@@ -576,20 +378,6 @@
                     "isUsed": false
                 }
             ],
-            "items": [
-                {
-                    "id": "0935b622-b129-431d-9861-4e49f1c6d226:4000",
-                    "typeId": "knife",
-                    "name": "Dagger",
-                    "description": "Low-tier melee weapon",
-                    "category": "weapon",
-                    "stackable": false,
-                    "quantity": 1,
-                    "grade": "low",
-                    "atkBonus": 16,
-                    "epCost": 1
-                }
-            ],
             "position": {
                 "x": 980.6664201599999,
                 "y": 1778
@@ -597,6 +385,288 @@
             "hexCoords": {
                 "q": -6,
                 "r": 5
+            }
+        },
+        {
+            "id": "c9ee6620-9c9d-4ead-9e91-ba5cdda89360",
+            "name": "Gas Station",
+            "description": "",
+            "terrain": "water",
+            "connections": [
+                "7431b959-5ccd-4cd5-bd09-eeb7adb4675c",
+                "f776b434-c535-4902-a24e-51038ff3984c",
+                "e1fbb259-a7ad-455e-9824-9b3b55da9029",
+                "0935b622-b129-431d-9861-4e49f1c6d226",
+                "d36315fc-e770-4788-be23-e003e5a8d45a",
+                "8b15255c-503e-4046-85dc-42b13b004175"
+            ],
+            "visionModifier": 0,
+            "isDeathZone": false,
+            "weather": "clear",
+            "interactables": [
+                {
+                    "id": "c9ee6620-9c9d-4ead-9e91-ba5cdda89360:facility:0",
+                    "type": "watchtower",
+                    "name": "Watchtower",
+                    "description": "Climb to temporarily increase vision by +2.",
+                    "isUsed": false
+                }
+            ],
+            "position": {
+                "x": 1119.2304847999999,
+                "y": 1778
+            },
+            "hexCoords": {
+                "q": -5,
+                "r": 5
+            }
+        },
+        {
+            "id": "fb52fce3-8943-4c9b-96f5-03565c811ce7",
+            "name": "Warehouse",
+            "description": "",
+            "terrain": "forest",
+            "connections": [
+                "1cdd19eb-98ad-4396-9c80-47cb86f90d41",
+                "4d0740f2-5192-4fab-988d-7af80bd1707f",
+                "4467701e-ccc7-497a-8289-8ef29daadd85",
+                "90a6ca91-16fd-48d5-b767-bf3357b8935a",
+                "22c2d083-3d2f-4cb1-b114-cde8b4cfaf8d",
+                "ffa3e252-446e-45ab-9592-89d2d4714d25"
+            ],
+            "visionModifier": 0,
+            "isDeathZone": false,
+            "weather": "clear",
+            "interactables": [
+                {
+                    "id": "fb52fce3-8943-4c9b-96f5-03565c811ce7:facility:0",
+                    "type": "medical_facility",
+                    "name": "Medical Facility",
+                    "description": "",
+                    "isUsed": false
+                }
+            ],
+            "position": {
+                "x": 772.8203232,
+                "y": 1678.4
+            },
+            "hexCoords": {
+                "q": -7,
+                "r": 4
+            }
+        },
+        {
+            "id": "60c96573-3b9e-4f8c-8e88-2f74391c435e",
+            "name": "Lighthouse",
+            "description": "",
+            "terrain": "cave",
+            "connections": [
+                "22c2d083-3d2f-4cb1-b114-cde8b4cfaf8d",
+                "90a6ca91-16fd-48d5-b767-bf3357b8935a",
+                "6a4c2540-a7f0-4a7b-87c2-19eadc168d61",
+                "6258f4d6-e3e2-444f-be52-2450fdbe94fb",
+                "dc463bcb-71c8-4fcd-af49-1163aba1d793",
+                "3fa790b1-0b0b-49a9-aaab-759f9e87cda2"
+            ],
+            "visionModifier": 0,
+            "isDeathZone": false,
+            "weather": "clear",
+            "interactables": [],
+            "position": {
+                "x": 564.9742262399999,
+                "y": 1778
+            },
+            "hexCoords": {
+                "q": -9,
+                "r": 5
+            }
+        },
+        {
+            "id": "44b9d309-6ea9-47b0-acd9-767996002e76",
+            "name": "Uptown",
+            "description": "",
+            "terrain": "plains",
+            "connections": [
+                "d36315fc-e770-4788-be23-e003e5a8d45a",
+                "0935b622-b129-431d-9861-4e49f1c6d226",
+                "ffa3e252-446e-45ab-9592-89d2d4714d25",
+                "b46108fb-7d5d-4fe6-b835-b812fde46c99",
+                "9d42f447-23fa-4573-9a1f-782e61a910c2",
+                "0ec3e18e-fd14-4029-a50c-2e21b97d7dca"
+            ],
+            "visionModifier": 1,
+            "isDeathZone": false,
+            "weather": "clear",
+            "interactables": [],
+            "position": {
+                "x": 911.3843878399999,
+                "y": 1877.6
+            },
+            "hexCoords": {
+                "q": -7,
+                "r": 6
+            }
+        },
+        {
+            "id": "3fa790b1-0b0b-49a9-aaab-759f9e87cda2",
+            "name": "Cave",
+            "description": "",
+            "terrain": "forest",
+            "connections": [
+                "b46108fb-7d5d-4fe6-b835-b812fde46c99",
+                "22c2d083-3d2f-4cb1-b114-cde8b4cfaf8d",
+                "60c96573-3b9e-4f8c-8e88-2f74391c435e",
+                "dc463bcb-71c8-4fcd-af49-1163aba1d793",
+                "a2c8154c-4bc1-441b-9060-02322fcf5714",
+                "3321b0a0-099f-4645-b5d7-ddd01a66ac4c"
+            ],
+            "visionModifier": 0,
+            "isDeathZone": false,
+            "weather": "clear",
+            "interactables": [
+                {
+                    "id": "3fa790b1-0b0b-49a9-aaab-759f9e87cda2:facility:0",
+                    "type": "supply_cache",
+                    "name": "Supply Cache",
+                    "description": "Contains random supplies. One use only.",
+                    "isUsed": false
+                }
+            ],
+            "position": {
+                "x": 634.2562585599999,
+                "y": 1877.6
+            },
+            "hexCoords": {
+                "q": -9,
+                "r": 6
+            }
+        },
+        {
+            "id": "8b15255c-503e-4046-85dc-42b13b004175",
+            "name": "Armory",
+            "description": "",
+            "terrain": "cave",
+            "connections": [
+                "9d9eba45-5e3a-4e72-b8d0-d4abe95394f9",
+                "7431b959-5ccd-4cd5-bd09-eeb7adb4675c",
+                "c9ee6620-9c9d-4ead-9e91-ba5cdda89360",
+                "d36315fc-e770-4788-be23-e003e5a8d45a",
+                "d086c847-2531-4255-95af-c453fa8af64d",
+                "111a8521-48b5-4ce4-92ae-4aab3fffc8b6"
+            ],
+            "visionModifier": 0,
+            "isDeathZone": false,
+            "weather": "clear",
+            "interactables": [
+                {
+                    "id": "8b15255c-503e-4046-85dc-42b13b004175:facility:0",
+                    "type": "cave",
+                    "name": "Cave Entrance",
+                    "description": "Enter the cave for stealth. Vision -2, but harder to be spotted.",
+                    "isUsed": false
+                }
+            ],
+            "position": {
+                "x": 1188.51251712,
+                "y": 1877.6
+            },
+            "hexCoords": {
+                "q": -5,
+                "r": 6
+            }
+        },
+        {
+            "id": "1cdd19eb-98ad-4396-9c80-47cb86f90d41",
+            "name": "Airport",
+            "description": "",
+            "terrain": "plains",
+            "connections": [
+                "e1fbb259-a7ad-455e-9824-9b3b55da9029",
+                "98616759-545c-4a06-acfc-742fdc54a170",
+                "4d0740f2-5192-4fab-988d-7af80bd1707f",
+                "fb52fce3-8943-4c9b-96f5-03565c811ce7",
+                "ffa3e252-446e-45ab-9592-89d2d4714d25",
+                "0935b622-b129-431d-9861-4e49f1c6d226"
+            ],
+            "visionModifier": 1,
+            "isDeathZone": false,
+            "weather": "clear",
+            "interactables": [
+                {
+                    "id": "1cdd19eb-98ad-4396-9c80-47cb86f90d41:facility:0",
+                    "type": "broadcast_station",
+                    "name": "Broadcast Station",
+                    "description": "You can broadcast a message to all agents.",
+                    "isUsed": false
+                }
+            ],
+            "position": {
+                "x": 911.3843878399999,
+                "y": 1678.4
+            },
+            "hexCoords": {
+                "q": -6,
+                "r": 4
+            }
+        },
+        {
+            "id": "90a6ca91-16fd-48d5-b767-bf3357b8935a",
+            "name": "Fire Station",
+            "description": "",
+            "terrain": "water",
+            "connections": [
+                "fb52fce3-8943-4c9b-96f5-03565c811ce7",
+                "4467701e-ccc7-497a-8289-8ef29daadd85",
+                "455038da-1aef-4c97-bcbb-300e0b5acdaf",
+                "6a4c2540-a7f0-4a7b-87c2-19eadc168d61",
+                "60c96573-3b9e-4f8c-8e88-2f74391c435e",
+                "22c2d083-3d2f-4cb1-b114-cde8b4cfaf8d"
+            ],
+            "visionModifier": 0,
+            "isDeathZone": false,
+            "weather": "clear",
+            "interactables": [],
+            "position": {
+                "x": 634.2562585599999,
+                "y": 1678.4
+            },
+            "hexCoords": {
+                "q": -8,
+                "r": 4
+            }
+        },
+        {
+            "id": "950d4231-ced0-4f39-a3ef-680cc94812a9",
+            "name": "Downtown",
+            "description": "",
+            "terrain": "forest",
+            "connections": [
+                "f8a2619a-7bc2-4c1a-abb3-e0f0b50d265b",
+                "9d42f447-23fa-4573-9a1f-782e61a910c2",
+                "3321b0a0-099f-4645-b5d7-ddd01a66ac4c",
+                "3e815793-45a9-479a-98db-baf2f2ce5214",
+                "c114c060-74dd-4d7b-9139-556069c8b140",
+                "e1e5a05f-f132-4d41-941f-4cd1c8939ee3"
+            ],
+            "visionModifier": 0,
+            "isDeathZone": false,
+            "weather": "clear",
+            "interactables": [
+                {
+                    "id": "950d4231-ced0-4f39-a3ef-680cc94812a9:facility:0",
+                    "type": "supply_cache",
+                    "name": "Supply Cache",
+                    "description": "Contains random supplies. One use only.",
+                    "isUsed": false
+                }
+            ],
+            "position": {
+                "x": 772.8203232,
+                "y": 2076.8
+            },
+            "hexCoords": {
+                "q": -9,
+                "r": 8
             }
         },
         {
@@ -659,288 +729,29 @@
             }
         },
         {
-            "id": "1cdd19eb-98ad-4396-9c80-47cb86f90d41",
-            "name": "Airport",
-            "description": "",
-            "terrain": "plains",
-            "connections": [
-                "e1fbb259-a7ad-455e-9824-9b3b55da9029",
-                "98616759-545c-4a06-acfc-742fdc54a170",
-                "4d0740f2-5192-4fab-988d-7af80bd1707f",
-                "fb52fce3-8943-4c9b-96f5-03565c811ce7",
-                "ffa3e252-446e-45ab-9592-89d2d4714d25",
-                "0935b622-b129-431d-9861-4e49f1c6d226"
-            ],
-            "visionModifier": 1,
-            "isDeathZone": false,
-            "weather": "clear",
-            "interactables": [
-                {
-                    "id": "1cdd19eb-98ad-4396-9c80-47cb86f90d41:facility:0",
-                    "type": "broadcast_station",
-                    "name": "Broadcast Station",
-                    "description": "You can broadcast a message to all agents.",
-                    "isUsed": false
-                }
-            ],
-            "position": {
-                "x": 911.3843878399999,
-                "y": 1678.4
-            },
-            "hexCoords": {
-                "q": -6,
-                "r": 4
-            }
-        },
-        {
-            "id": "c114c060-74dd-4d7b-9139-556069c8b140",
-            "name": "Garage",
-            "description": "",
-            "terrain": "cave",
-            "connections": [
-                "e1e5a05f-f132-4d41-941f-4cd1c8939ee3",
-                "950d4231-ced0-4f39-a3ef-680cc94812a9",
-                "3e815793-45a9-479a-98db-baf2f2ce5214"
-            ],
-            "visionModifier": 0,
-            "isDeathZone": false,
-            "weather": "clear",
-            "interactables": [
-                {
-                    "id": "c114c060-74dd-4d7b-9139-556069c8b140:facility:0",
-                    "type": "supply_cache",
-                    "name": "Supply Cache",
-                    "description": "",
-                    "isUsed": false
-                }
-            ],
-            "position": {
-                "x": 703.53829088,
-                "y": 2176.4
-            },
-            "hexCoords": {
-                "q": -10,
-                "r": 9
-            }
-        },
-        {
-            "id": "e1e5a05f-f132-4d41-941f-4cd1c8939ee3",
-            "name": "Jungle",
-            "description": "",
-            "terrain": "cave",
-            "connections": [
-                "d3091e01-2899-4cb2-bb1a-4a8e7fe88f7f",
-                "f8a2619a-7bc2-4c1a-abb3-e0f0b50d265b",
-                "950d4231-ced0-4f39-a3ef-680cc94812a9",
-                "c114c060-74dd-4d7b-9139-556069c8b140"
-            ],
-            "visionModifier": 0,
-            "isDeathZone": false,
-            "weather": "clear",
-            "interactables": [],
-            "position": {
-                "x": 842.10235552,
-                "y": 2176.4
-            },
-            "hexCoords": {
-                "q": -9,
-                "r": 9
-            }
-        },
-        {
-            "id": "c9ee6620-9c9d-4ead-9e91-ba5cdda89360",
-            "name": "Gas Station",
+            "id": "b46108fb-7d5d-4fe6-b835-b812fde46c99",
+            "name": "Depot",
             "description": "",
             "terrain": "water",
             "connections": [
-                "7431b959-5ccd-4cd5-bd09-eeb7adb4675c",
-                "f776b434-c535-4902-a24e-51038ff3984c",
-                "e1fbb259-a7ad-455e-9824-9b3b55da9029",
-                "0935b622-b129-431d-9861-4e49f1c6d226",
-                "d36315fc-e770-4788-be23-e003e5a8d45a",
-                "8b15255c-503e-4046-85dc-42b13b004175"
-            ],
-            "visionModifier": 0,
-            "isDeathZone": false,
-            "weather": "clear",
-            "interactables": [
-                {
-                    "id": "c9ee6620-9c9d-4ead-9e91-ba5cdda89360:facility:0",
-                    "type": "watchtower",
-                    "name": "Watchtower",
-                    "description": "Climb to temporarily increase vision by +2.",
-                    "isUsed": false
-                }
-            ],
-            "position": {
-                "x": 1119.2304847999999,
-                "y": 1778
-            },
-            "hexCoords": {
-                "q": -5,
-                "r": 5
-            }
-        },
-        {
-            "id": "dc463bcb-71c8-4fcd-af49-1163aba1d793",
-            "name": "Stadium",
-            "description": "",
-            "terrain": "hills",
-            "connections": [
-                "3fa790b1-0b0b-49a9-aaab-759f9e87cda2",
-                "60c96573-3b9e-4f8c-8e88-2f74391c435e",
-                "6258f4d6-e3e2-444f-be52-2450fdbe94fb",
-                "a2c8154c-4bc1-441b-9060-02322fcf5714"
-            ],
-            "visionModifier": 2,
-            "isDeathZone": false,
-            "weather": "clear",
-            "interactables": [],
-            "position": {
-                "x": 495.6921939199999,
-                "y": 1877.6
-            },
-            "hexCoords": {
-                "q": -10,
-                "r": 6
-            }
-        },
-        {
-            "id": "44b9d309-6ea9-47b0-acd9-767996002e76",
-            "name": "Uptown",
-            "description": "",
-            "terrain": "plains",
-            "connections": [
-                "d36315fc-e770-4788-be23-e003e5a8d45a",
-                "0935b622-b129-431d-9861-4e49f1c6d226",
-                "ffa3e252-446e-45ab-9592-89d2d4714d25",
-                "b46108fb-7d5d-4fe6-b835-b812fde46c99",
-                "9d42f447-23fa-4573-9a1f-782e61a910c2",
-                "0ec3e18e-fd14-4029-a50c-2e21b97d7dca"
-            ],
-            "visionModifier": 1,
-            "isDeathZone": false,
-            "weather": "clear",
-            "interactables": [],
-            "position": {
-                "x": 911.3843878399999,
-                "y": 1877.6
-            },
-            "hexCoords": {
-                "q": -7,
-                "r": 6
-            }
-        },
-        {
-            "id": "d36315fc-e770-4788-be23-e003e5a8d45a",
-            "name": "Docks",
-            "description": "",
-            "terrain": "hills",
-            "connections": [
-                "8b15255c-503e-4046-85dc-42b13b004175",
-                "c9ee6620-9c9d-4ead-9e91-ba5cdda89360",
-                "0935b622-b129-431d-9861-4e49f1c6d226",
                 "44b9d309-6ea9-47b0-acd9-767996002e76",
-                "0ec3e18e-fd14-4029-a50c-2e21b97d7dca",
-                "d086c847-2531-4255-95af-c453fa8af64d"
+                "ffa3e252-446e-45ab-9592-89d2d4714d25",
+                "22c2d083-3d2f-4cb1-b114-cde8b4cfaf8d",
+                "3fa790b1-0b0b-49a9-aaab-759f9e87cda2",
+                "3321b0a0-099f-4645-b5d7-ddd01a66ac4c",
+                "9d42f447-23fa-4573-9a1f-782e61a910c2"
             ],
-            "visionModifier": 2,
+            "visionModifier": 0,
             "isDeathZone": false,
             "weather": "clear",
-            "interactables": [
-                {
-                    "id": "d36315fc-e770-4788-be23-e003e5a8d45a:facility:0",
-                    "type": "supply_cache",
-                    "name": "Supply Cache",
-                    "description": "Contains random supplies. One use only.",
-                    "isUsed": false
-                }
-            ],
+            "interactables": [],
             "position": {
-                "x": 1049.94845248,
+                "x": 772.8203232,
                 "y": 1877.6
             },
             "hexCoords": {
-                "q": -6,
+                "q": -8,
                 "r": 6
-            }
-        },
-        {
-            "id": "22c2d083-3d2f-4cb1-b114-cde8b4cfaf8d",
-            "name": "Windmill",
-            "description": "",
-            "terrain": "plains",
-            "connections": [
-                "ffa3e252-446e-45ab-9592-89d2d4714d25",
-                "fb52fce3-8943-4c9b-96f5-03565c811ce7",
-                "90a6ca91-16fd-48d5-b767-bf3357b8935a",
-                "60c96573-3b9e-4f8c-8e88-2f74391c435e",
-                "3fa790b1-0b0b-49a9-aaab-759f9e87cda2",
-                "b46108fb-7d5d-4fe6-b835-b812fde46c99"
-            ],
-            "visionModifier": 1,
-            "isDeathZone": false,
-            "weather": "clear",
-            "interactables": [],
-            "position": {
-                "x": 703.53829088,
-                "y": 1778
-            },
-            "hexCoords": {
-                "q": -8,
-                "r": 5
-            }
-        },
-        {
-            "id": "90a6ca91-16fd-48d5-b767-bf3357b8935a",
-            "name": "Fire Station",
-            "description": "",
-            "terrain": "water",
-            "connections": [
-                "fb52fce3-8943-4c9b-96f5-03565c811ce7",
-                "4467701e-ccc7-497a-8289-8ef29daadd85",
-                "455038da-1aef-4c97-bcbb-300e0b5acdaf",
-                "6a4c2540-a7f0-4a7b-87c2-19eadc168d61",
-                "60c96573-3b9e-4f8c-8e88-2f74391c435e",
-                "22c2d083-3d2f-4cb1-b114-cde8b4cfaf8d"
-            ],
-            "visionModifier": 0,
-            "isDeathZone": false,
-            "weather": "clear",
-            "interactables": [],
-            "position": {
-                "x": 634.2562585599999,
-                "y": 1678.4
-            },
-            "hexCoords": {
-                "q": -8,
-                "r": 4
-            }
-        },
-        {
-            "id": "60c96573-3b9e-4f8c-8e88-2f74391c435e",
-            "name": "Lighthouse",
-            "description": "",
-            "terrain": "cave",
-            "connections": [
-                "22c2d083-3d2f-4cb1-b114-cde8b4cfaf8d",
-                "90a6ca91-16fd-48d5-b767-bf3357b8935a",
-                "6a4c2540-a7f0-4a7b-87c2-19eadc168d61",
-                "6258f4d6-e3e2-444f-be52-2450fdbe94fb",
-                "dc463bcb-71c8-4fcd-af49-1163aba1d793",
-                "3fa790b1-0b0b-49a9-aaab-759f9e87cda2"
-            ],
-            "visionModifier": 0,
-            "isDeathZone": false,
-            "weather": "clear",
-            "interactables": [],
-            "position": {
-                "x": 564.9742262399999,
-                "y": 1778
-            },
-            "hexCoords": {
-                "q": -9,
-                "r": 5
             }
         },
         {
@@ -974,38 +785,405 @@
             }
         },
         {
-            "id": "3321b0a0-099f-4645-b5d7-ddd01a66ac4c",
-            "name": "Barn",
+            "id": "d3091e01-2899-4cb2-bb1a-4a8e7fe88f7f",
+            "name": "Garage",
             "description": "",
             "terrain": "forest",
             "connections": [
-                "9d42f447-23fa-4573-9a1f-782e61a910c2",
-                "b46108fb-7d5d-4fe6-b835-b812fde46c99",
+                "0b4c9fca-f4f6-4974-ac33-82325075ea54",
+                "f8a2619a-7bc2-4c1a-abb3-e0f0b50d265b",
+                "e1e5a05f-f132-4d41-941f-4cd1c8939ee3"
+            ],
+            "visionModifier": 0,
+            "isDeathZone": false,
+            "weather": "clear",
+            "interactables": [
+                {
+                    "id": "d3091e01-2899-4cb2-bb1a-4a8e7fe88f7f:facility:0",
+                    "type": "supply_cache",
+                    "name": "Supply Cache",
+                    "description": "Contains random supplies. One use only.",
+                    "isUsed": false
+                }
+            ],
+            "position": {
+                "x": 980.6664201599999,
+                "y": 2176.4
+            },
+            "hexCoords": {
+                "q": -8,
+                "r": 9
+            }
+        },
+        {
+            "id": "dc463bcb-71c8-4fcd-af49-1163aba1d793",
+            "name": "Stadium",
+            "description": "",
+            "terrain": "hills",
+            "connections": [
                 "3fa790b1-0b0b-49a9-aaab-759f9e87cda2",
+                "60c96573-3b9e-4f8c-8e88-2f74391c435e",
+                "6258f4d6-e3e2-444f-be52-2450fdbe94fb",
+                "a2c8154c-4bc1-441b-9060-02322fcf5714"
+            ],
+            "visionModifier": 2,
+            "isDeathZone": false,
+            "weather": "clear",
+            "interactables": [],
+            "position": {
+                "x": 495.6921939199999,
+                "y": 1877.6
+            },
+            "hexCoords": {
+                "q": -10,
+                "r": 6
+            }
+        },
+        {
+            "id": "3e815793-45a9-479a-98db-baf2f2ce5214",
+            "name": "Camp",
+            "description": "",
+            "terrain": "plains",
+            "connections": [
+                "950d4231-ced0-4f39-a3ef-680cc94812a9",
+                "3321b0a0-099f-4645-b5d7-ddd01a66ac4c",
                 "a2c8154c-4bc1-441b-9060-02322fcf5714",
-                "3e815793-45a9-479a-98db-baf2f2ce5214",
-                "950d4231-ced0-4f39-a3ef-680cc94812a9"
+                "0db875c8-607b-4c93-b292-e5cc9ca29370",
+                "c114c060-74dd-4d7b-9139-556069c8b140"
+            ],
+            "visionModifier": 1,
+            "isDeathZone": false,
+            "weather": "clear",
+            "interactables": [],
+            "position": {
+                "x": 634.2562585599999,
+                "y": 2076.8
+            },
+            "hexCoords": {
+                "q": -10,
+                "r": 8
+            }
+        },
+        {
+            "id": "111a8521-48b5-4ce4-92ae-4aab3fffc8b6",
+            "name": "Windmill",
+            "description": "",
+            "terrain": "forest",
+            "connections": [
+                "9d9eba45-5e3a-4e72-b8d0-d4abe95394f9",
+                "8b15255c-503e-4046-85dc-42b13b004175",
+                "d086c847-2531-4255-95af-c453fa8af64d",
+                "925fbac4-3264-4cc7-b218-78e07f221e8b"
             ],
             "visionModifier": 0,
             "isDeathZone": false,
             "weather": "clear",
             "interactables": [],
             "position": {
-                "x": 703.53829088,
+                "x": 1257.7945494399999,
                 "y": 1977.1999999999998
             },
             "hexCoords": {
-                "q": -9,
+                "q": -5,
                 "r": 7
+            }
+        },
+        {
+            "id": "e1fbb259-a7ad-455e-9824-9b3b55da9029",
+            "name": "Meadow",
+            "description": "",
+            "terrain": "forest",
+            "connections": [
+                "f776b434-c535-4902-a24e-51038ff3984c",
+                "dff14af4-4a75-4c81-87ac-86ef88b2406d",
+                "98616759-545c-4a06-acfc-742fdc54a170",
+                "1cdd19eb-98ad-4396-9c80-47cb86f90d41",
+                "0935b622-b129-431d-9861-4e49f1c6d226",
+                "c9ee6620-9c9d-4ead-9e91-ba5cdda89360"
+            ],
+            "visionModifier": 0,
+            "isDeathZone": false,
+            "weather": "clear",
+            "interactables": [],
+            "items": [
+                {
+                    "id": "ec7c4de5-14cd-4c38-9e44-15b983628a57:monster:10:reward",
+                    "typeId": "reward1",
+                    "name": "sMoltz",
+                    "description": "",
+                    "category": "currency",
+                    "stackable": true,
+                    "quantity": 7
+                },
+                {
+                    "id": "ec7c4de5-14cd-4c38-9e44-15b983628a57:monster:10:loot:0",
+                    "typeId": "bow",
+                    "name": "Bow",
+                    "description": "Low-tier ranged weapon",
+                    "category": "weapon",
+                    "stackable": false,
+                    "quantity": 1,
+                    "grade": "low",
+                    "atkBonus": 8,
+                    "range": 1,
+                    "epCost": 1
+                }
+            ],
+            "position": {
+                "x": 1049.94845248,
+                "y": 1678.4
+            },
+            "hexCoords": {
+                "q": -5,
+                "r": 4
+            }
+        },
+        {
+            "id": "0b4c9fca-f4f6-4974-ac33-82325075ea54",
+            "name": "Hotel",
+            "description": "",
+            "terrain": "hills",
+            "connections": [
+                "925fbac4-3264-4cc7-b218-78e07f221e8b",
+                "d3091e01-2899-4cb2-bb1a-4a8e7fe88f7f"
+            ],
+            "visionModifier": 2,
+            "isDeathZone": false,
+            "weather": "clear",
+            "interactables": [],
+            "position": {
+                "x": 1119.2304847999999,
+                "y": 2176.4
+            },
+            "hexCoords": {
+                "q": -7,
+                "r": 9
             }
         }
     ],
     "visibleAgents": [
         {
-            "id": "c82b16b9-6b5e-476b-b303-e76b792a2de5",
-            "name": "Blaze-Hawk989",
-            "profileIndex": 24,
-            "regionId": "dc463bcb-71c8-4fcd-af49-1163aba1d793",
+            "id": "245b35e9-66e0-518d-93f1-ac4d0aec3988",
+            "name": "Guardian",
+            "profileIndex": 0,
+            "regionId": "60c96573-3b9e-4f8c-8e88-2f74391c435e",
+            "hp": 150,
+            "maxHp": 150,
+            "isAlive": true,
+            "isDiscovered": false,
+            "kills": 0,
+            "placement": 0,
+            "isGuardian": true,
+            "isAI": false,
+            "inCave": false,
+            "killedBy": null,
+            "diedAt": null,
+            "atk": 12,
+            "def": 120,
+            "ep": 10,
+            "maxEp": 10,
+            "inventory": [
+                {
+                    "id": "245b35e9-66e0-518d-93f1-ac4d0aec3988:1000",
+                    "typeId": "emergency_food",
+                    "name": "Emergency Food",
+                    "description": "Restores 20 HP, 5 EP",
+                    "category": "recovery",
+                    "stackable": true,
+                    "quantity": 1,
+                    "grade": "middle",
+                    "hpRestore": 20,
+                    "epRestore": 5
+                },
+                {
+                    "id": "245b35e9-66e0-518d-93f1-ac4d0aec3988:1100",
+                    "typeId": "bandage",
+                    "name": "Bandage",
+                    "description": "Restores 10 HP",
+                    "category": "recovery",
+                    "stackable": true,
+                    "quantity": 1,
+                    "grade": "low",
+                    "hpRestore": 10
+                },
+                {
+                    "id": "245b35e9-66e0-518d-93f1-ac4d0aec3988:3000",
+                    "typeId": "reward1",
+                    "name": "sMoltz",
+                    "description": "In-game rewards. Collected on victory to account balance.",
+                    "category": "currency",
+                    "stackable": true,
+                    "quantity": 40,
+                    "grade": "low"
+                }
+            ],
+            "equippedWeaponId": null,
+            "equippedWeapon": null,
+            "equippedArmorId": null,
+            "equippedArmor": null,
+            "mainPackName": null,
+            "subPackName": null,
+            "relicStats": null
+        },
+        {
+            "id": "80239482-5b85-4887-9fce-890a541c0f0a",
+            "name": "LunarPro602",
+            "profileIndex": 49,
+            "regionId": "d3091e01-2899-4cb2-bb1a-4a8e7fe88f7f",
+            "hp": 61,
+            "maxHp": 100,
+            "isAlive": true,
+            "isDiscovered": false,
+            "kills": 0,
+            "placement": 0,
+            "isGuardian": false,
+            "isAI": true,
+            "inCave": false,
+            "killedBy": null,
+            "diedAt": null,
+            "atk": 25,
+            "def": 5,
+            "ep": 2,
+            "maxEp": 10,
+            "inventory": [
+                {
+                    "id": "80239482-5b85-4887-9fce-890a541c0f0a:1001",
+                    "typeId": "emergency_food",
+                    "name": "Emergency Food",
+                    "description": "Restores 20 HP, 5 EP",
+                    "category": "recovery",
+                    "stackable": true,
+                    "quantity": 1,
+                    "grade": "middle",
+                    "hpRestore": 20,
+                    "epRestore": 5
+                },
+                {
+                    "id": "80239482-5b85-4887-9fce-890a541c0f0a:3000",
+                    "typeId": "reward1",
+                    "name": "sMoltz",
+                    "description": "In-game rewards. Collected on victory to account balance.",
+                    "category": "currency",
+                    "stackable": true,
+                    "quantity": 1,
+                    "grade": "low"
+                },
+                {
+                    "id": "9d42f447-23fa-4573-9a1f-782e61a910c2:4000",
+                    "typeId": "emergency_food",
+                    "name": "Emergency Food",
+                    "description": "Restores 20 HP, 5 EP",
+                    "category": "recovery",
+                    "stackable": true,
+                    "quantity": 1,
+                    "grade": "middle",
+                    "hpRestore": 20,
+                    "epRestore": 5
+                },
+                {
+                    "id": "0ec3e18e-fd14-4029-a50c-2e21b97d7dca:4000",
+                    "typeId": "knife",
+                    "name": "Dagger",
+                    "description": "Low-tier melee weapon",
+                    "category": "weapon",
+                    "stackable": false,
+                    "quantity": 1,
+                    "grade": "low",
+                    "atkBonus": 16,
+                    "epCost": 1
+                }
+            ],
+            "equippedWeaponId": "0ec3e18e-fd14-4029-a50c-2e21b97d7dca:4000",
+            "equippedWeapon": {
+                "id": "0ec3e18e-fd14-4029-a50c-2e21b97d7dca:4000",
+                "typeId": "knife",
+                "name": "Dagger",
+                "description": "Low-tier melee weapon",
+                "category": "weapon",
+                "stackable": false,
+                "quantity": 1,
+                "grade": "low",
+                "atkBonus": 16,
+                "epCost": 1
+            },
+            "equippedArmorId": null,
+            "equippedArmor": null,
+            "mainPackName": null,
+            "subPackName": null,
+            "relicStats": null
+        },
+        {
+            "id": "36d6a3f6-3fb8-450b-920c-460394ff9327",
+            "name": "Ember_Runner560",
+            "profileIndex": 58,
+            "regionId": "0ec3e18e-fd14-4029-a50c-2e21b97d7dca",
+            "hp": 28,
+            "maxHp": 100,
+            "isAlive": true,
+            "isDiscovered": false,
+            "kills": 0,
+            "placement": 0,
+            "isGuardian": false,
+            "isAI": true,
+            "inCave": false,
+            "killedBy": null,
+            "diedAt": null,
+            "atk": 25,
+            "def": 9,
+            "ep": 7,
+            "maxEp": 10,
+            "inventory": [
+                {
+                    "id": "36d6a3f6-3fb8-450b-920c-460394ff9327:1100",
+                    "typeId": "bandage",
+                    "name": "Bandage",
+                    "description": "Restores 10 HP",
+                    "category": "recovery",
+                    "stackable": true,
+                    "quantity": 1,
+                    "grade": "low",
+                    "hpRestore": 10
+                },
+                {
+                    "id": "36d6a3f6-3fb8-450b-920c-460394ff9327:3000",
+                    "typeId": "reward1",
+                    "name": "sMoltz",
+                    "description": "In-game rewards. Collected on victory to account balance.",
+                    "category": "currency",
+                    "stackable": true,
+                    "quantity": 1,
+                    "grade": "low"
+                },
+                {
+                    "id": "b46108fb-7d5d-4fe6-b835-b812fde46c99:4000",
+                    "typeId": "leather",
+                    "name": "Leather Armor",
+                    "description": "Low-tier armor",
+                    "category": "armor",
+                    "stackable": false,
+                    "quantity": 1,
+                    "grade": "low",
+                    "defBonus": 4
+                }
+            ],
+            "equippedWeaponId": null,
+            "equippedWeapon": null,
+            "equippedArmorId": "leather",
+            "equippedArmor": {
+                "id": "leather",
+                "name": "Leather Armor",
+                "grade": "low",
+                "defBonus": 4
+            },
+            "mainPackName": null,
+            "subPackName": null,
+            "relicStats": null
+        },
+        {
+            "id": "2d8e3a47-d95e-4791-9514-e39a72d385c1",
+            "name": "Blaze-Blade417",
+            "profileIndex": 47,
+            "regionId": "d086c847-2531-4255-95af-c453fa8af64d",
             "hp": 100,
             "maxHp": 100,
             "isAlive": true,
@@ -1018,12 +1196,12 @@
             "killedBy": null,
             "diedAt": null,
             "atk": 25,
-            "def": 25,
+            "def": 5,
             "ep": 2,
             "maxEp": 10,
             "inventory": [
                 {
-                    "id": "c82b16b9-6b5e-476b-b303-e76b792a2de5:1000",
+                    "id": "2d8e3a47-d95e-4791-9514-e39a72d385c1:1001",
                     "typeId": "emergency_food",
                     "name": "Emergency Food",
                     "description": "Restores 20 HP, 5 EP",
@@ -1034,6 +1212,94 @@
                     "hpRestore": 20,
                     "epRestore": 5
                 },
+                {
+                    "id": "2d8e3a47-d95e-4791-9514-e39a72d385c1:1100",
+                    "typeId": "bandage",
+                    "name": "Bandage",
+                    "description": "Restores 10 HP",
+                    "category": "recovery",
+                    "stackable": true,
+                    "quantity": 1,
+                    "grade": "low",
+                    "hpRestore": 10
+                },
+                {
+                    "id": "2d8e3a47-d95e-4791-9514-e39a72d385c1:3000",
+                    "typeId": "reward1",
+                    "name": "sMoltz",
+                    "description": "In-game rewards. Collected on victory to account balance.",
+                    "category": "currency",
+                    "stackable": true,
+                    "quantity": 1,
+                    "grade": "low"
+                },
+                {
+                    "id": "44b9d309-6ea9-47b0-acd9-767996002e76:4000",
+                    "typeId": "emergency_food",
+                    "name": "Emergency Food",
+                    "description": "Restores 20 HP, 5 EP",
+                    "category": "recovery",
+                    "stackable": true,
+                    "quantity": 1,
+                    "grade": "middle",
+                    "hpRestore": 20,
+                    "epRestore": 5
+                },
+                {
+                    "id": "44b9d309-6ea9-47b0-acd9-767996002e76:4001",
+                    "typeId": "sniper",
+                    "name": "Sniper rifle",
+                    "description": "High-tier ranged weapon",
+                    "category": "weapon",
+                    "stackable": false,
+                    "quantity": 1,
+                    "grade": "high",
+                    "atkBonus": 32,
+                    "range": 2,
+                    "epCost": 3
+                }
+            ],
+            "equippedWeaponId": "44b9d309-6ea9-47b0-acd9-767996002e76:4001",
+            "equippedWeapon": {
+                "id": "44b9d309-6ea9-47b0-acd9-767996002e76:4001",
+                "typeId": "sniper",
+                "name": "Sniper rifle",
+                "description": "High-tier ranged weapon",
+                "category": "weapon",
+                "stackable": false,
+                "quantity": 1,
+                "grade": "high",
+                "atkBonus": 32,
+                "range": 2,
+                "epCost": 3
+            },
+            "equippedArmorId": null,
+            "equippedArmor": null,
+            "mainPackName": null,
+            "subPackName": null,
+            "relicStats": null
+        },
+        {
+            "id": "c82b16b9-6b5e-476b-b303-e76b792a2de5",
+            "name": "Blaze-Hawk989",
+            "profileIndex": 24,
+            "regionId": "3321b0a0-099f-4645-b5d7-ddd01a66ac4c",
+            "hp": 99,
+            "maxHp": 100,
+            "isAlive": true,
+            "isDiscovered": false,
+            "kills": 0,
+            "placement": 0,
+            "isGuardian": false,
+            "isAI": true,
+            "inCave": false,
+            "killedBy": null,
+            "diedAt": null,
+            "atk": 25,
+            "def": 25,
+            "ep": 3,
+            "maxEp": 10,
+            "inventory": [
                 {
                     "id": "c82b16b9-6b5e-476b-b303-e76b792a2de5:1100",
                     "typeId": "bandage",
@@ -1117,602 +1383,11 @@
             "relicStats": null
         },
         {
-            "id": "e03b0315-e9e5-45d6-870a-1fe79b0a7ed3",
-            "name": "CrimsonCrow290",
-            "profileIndex": 65,
-            "regionId": "b46108fb-7d5d-4fe6-b835-b812fde46c99",
-            "hp": 66,
-            "maxHp": 100,
-            "isAlive": true,
-            "isDiscovered": false,
-            "kills": 0,
-            "placement": 0,
-            "isGuardian": false,
-            "isAI": true,
-            "inCave": false,
-            "killedBy": null,
-            "diedAt": null,
-            "atk": 25,
-            "def": 5,
-            "ep": 4,
-            "maxEp": 10,
-            "inventory": [
-                {
-                    "id": "e03b0315-e9e5-45d6-870a-1fe79b0a7ed3:1000",
-                    "typeId": "emergency_food",
-                    "name": "Emergency Food",
-                    "description": "Restores 20 HP, 5 EP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "hpRestore": 20,
-                    "epRestore": 5
-                },
-                {
-                    "id": "e03b0315-e9e5-45d6-870a-1fe79b0a7ed3:1001",
-                    "typeId": "emergency_food",
-                    "name": "Emergency Food",
-                    "description": "Restores 20 HP, 5 EP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "hpRestore": 20,
-                    "epRestore": 5
-                },
-                {
-                    "id": "e03b0315-e9e5-45d6-870a-1fe79b0a7ed3:3000",
-                    "typeId": "reward1",
-                    "name": "sMoltz",
-                    "description": "In-game rewards. Collected on victory to account balance.",
-                    "category": "currency",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "low"
-                },
-                {
-                    "id": "a2c8154c-4bc1-441b-9060-02322fcf5714:4000",
-                    "typeId": "emergency_food",
-                    "name": "Emergency Food",
-                    "description": "Restores 20 HP, 5 EP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "hpRestore": 20,
-                    "epRestore": 5
-                },
-                {
-                    "id": "3e815793-45a9-479a-98db-baf2f2ce5214:4000",
-                    "typeId": "energy_drink",
-                    "name": "Energy drink",
-                    "description": "Restores 5 EP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "low",
-                    "epRestore": 5
-                },
-                {
-                    "id": "3e815793-45a9-479a-98db-baf2f2ce5214:4001",
-                    "typeId": "knife",
-                    "name": "Dagger",
-                    "description": "Low-tier melee weapon",
-                    "category": "weapon",
-                    "stackable": false,
-                    "quantity": 1,
-                    "grade": "low",
-                    "atkBonus": 16,
-                    "epCost": 1
-                }
-            ],
-            "equippedWeaponId": "3e815793-45a9-479a-98db-baf2f2ce5214:4001",
-            "equippedWeapon": {
-                "id": "3e815793-45a9-479a-98db-baf2f2ce5214:4001",
-                "typeId": "knife",
-                "name": "Dagger",
-                "description": "Low-tier melee weapon",
-                "category": "weapon",
-                "stackable": false,
-                "quantity": 1,
-                "grade": "low",
-                "atkBonus": 16,
-                "epCost": 1
-            },
-            "equippedArmorId": null,
-            "equippedArmor": null,
-            "mainPackName": null,
-            "subPackName": null,
-            "relicStats": null
-        },
-        {
-            "id": "326f6fca-0a4e-4eb7-a6b2-f7a4a215d82f",
-            "name": "StormAce1",
-            "profileIndex": 82,
-            "regionId": "111a8521-48b5-4ce4-92ae-4aab3fffc8b6",
-            "hp": 80,
-            "maxHp": 100,
-            "isAlive": true,
-            "isDiscovered": false,
-            "kills": 0,
-            "placement": 0,
-            "isGuardian": false,
-            "isAI": true,
-            "inCave": false,
-            "killedBy": null,
-            "diedAt": null,
-            "atk": 25,
-            "def": 5,
-            "ep": 4,
-            "maxEp": 10,
-            "inventory": [
-                {
-                    "id": "326f6fca-0a4e-4eb7-a6b2-f7a4a215d82f:1000",
-                    "typeId": "emergency_food",
-                    "name": "Emergency Food",
-                    "description": "Restores 20 HP, 5 EP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "hpRestore": 20,
-                    "epRestore": 5
-                },
-                {
-                    "id": "326f6fca-0a4e-4eb7-a6b2-f7a4a215d82f:1100",
-                    "typeId": "bandage",
-                    "name": "Bandage",
-                    "description": "Restores 10 HP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "low",
-                    "hpRestore": 10
-                },
-                {
-                    "id": "326f6fca-0a4e-4eb7-a6b2-f7a4a215d82f:3000",
-                    "typeId": "reward1",
-                    "name": "sMoltz",
-                    "description": "In-game rewards. Collected on victory to account balance.",
-                    "category": "currency",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "low"
-                },
-                {
-                    "id": "8b15255c-503e-4046-85dc-42b13b004175:4000",
-                    "typeId": "bandage",
-                    "name": "Bandage",
-                    "description": "Restores 10 HP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "low",
-                    "hpRestore": 10
-                },
-                {
-                    "id": "8b15255c-503e-4046-85dc-42b13b004175:4001",
-                    "typeId": "pistol",
-                    "name": "Pistol",
-                    "description": "Mid-tier ranged weapon",
-                    "category": "weapon",
-                    "stackable": false,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "atkBonus": 15,
-                    "range": 1,
-                    "epCost": 2
-                }
-            ],
-            "equippedWeaponId": "8b15255c-503e-4046-85dc-42b13b004175:4001",
-            "equippedWeapon": {
-                "id": "8b15255c-503e-4046-85dc-42b13b004175:4001",
-                "typeId": "pistol",
-                "name": "Pistol",
-                "description": "Mid-tier ranged weapon",
-                "category": "weapon",
-                "stackable": false,
-                "quantity": 1,
-                "grade": "middle",
-                "atkBonus": 15,
-                "range": 1,
-                "epCost": 2
-            },
-            "equippedArmorId": null,
-            "equippedArmor": null,
-            "mainPackName": null,
-            "subPackName": null,
-            "relicStats": null
-        },
-        {
-            "id": "83eb873d-2de9-4fee-a4fa-8c9e81727811",
-            "name": "NightShark303",
-            "profileIndex": 36,
-            "regionId": "950d4231-ced0-4f39-a3ef-680cc94812a9",
-            "hp": 100,
-            "maxHp": 100,
-            "isAlive": true,
-            "isDiscovered": false,
-            "kills": 0,
-            "placement": 0,
-            "isGuardian": false,
-            "isAI": true,
-            "inCave": false,
-            "killedBy": null,
-            "diedAt": null,
-            "atk": 25,
-            "def": 5,
-            "ep": 2,
-            "maxEp": 10,
-            "inventory": [
-                {
-                    "id": "83eb873d-2de9-4fee-a4fa-8c9e81727811:1000",
-                    "typeId": "emergency_food",
-                    "name": "Emergency Food",
-                    "description": "Restores 20 HP, 5 EP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "hpRestore": 20,
-                    "epRestore": 5
-                },
-                {
-                    "id": "83eb873d-2de9-4fee-a4fa-8c9e81727811:1001",
-                    "typeId": "emergency_food",
-                    "name": "Emergency Food",
-                    "description": "Restores 20 HP, 5 EP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "hpRestore": 20,
-                    "epRestore": 5
-                },
-                {
-                    "id": "83eb873d-2de9-4fee-a4fa-8c9e81727811:3000",
-                    "typeId": "reward1",
-                    "name": "sMoltz",
-                    "description": "In-game rewards. Collected on victory to account balance.",
-                    "category": "currency",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "low"
-                }
-            ],
-            "equippedWeaponId": null,
-            "equippedWeapon": null,
-            "equippedArmorId": null,
-            "equippedArmor": null,
-            "mainPackName": null,
-            "subPackName": null,
-            "relicStats": null
-        },
-        {
-            "id": "36d6a3f6-3fb8-450b-920c-460394ff9327",
-            "name": "Ember_Runner560",
-            "profileIndex": 58,
-            "regionId": "9d42f447-23fa-4573-9a1f-782e61a910c2",
-            "hp": 72,
-            "maxHp": 100,
-            "isAlive": true,
-            "isDiscovered": false,
-            "kills": 0,
-            "placement": 0,
-            "isGuardian": false,
-            "isAI": true,
-            "inCave": false,
-            "killedBy": null,
-            "diedAt": null,
-            "atk": 25,
-            "def": 9,
-            "ep": 6,
-            "maxEp": 10,
-            "inventory": [
-                {
-                    "id": "36d6a3f6-3fb8-450b-920c-460394ff9327:1100",
-                    "typeId": "bandage",
-                    "name": "Bandage",
-                    "description": "Restores 10 HP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "low",
-                    "hpRestore": 10
-                },
-                {
-                    "id": "36d6a3f6-3fb8-450b-920c-460394ff9327:3000",
-                    "typeId": "reward1",
-                    "name": "sMoltz",
-                    "description": "In-game rewards. Collected on victory to account balance.",
-                    "category": "currency",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "low"
-                },
-                {
-                    "id": "b46108fb-7d5d-4fe6-b835-b812fde46c99:4000",
-                    "typeId": "leather",
-                    "name": "Leather Armor",
-                    "description": "Low-tier armor",
-                    "category": "armor",
-                    "stackable": false,
-                    "quantity": 1,
-                    "grade": "low",
-                    "defBonus": 4
-                },
-                {
-                    "id": "3fa790b1-0b0b-49a9-aaab-759f9e87cda2:4000",
-                    "typeId": "emergency_food",
-                    "name": "Emergency Food",
-                    "description": "Restores 20 HP, 5 EP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "hpRestore": 20,
-                    "epRestore": 5
-                }
-            ],
-            "equippedWeaponId": null,
-            "equippedWeapon": null,
-            "equippedArmorId": "leather",
-            "equippedArmor": {
-                "id": "leather",
-                "name": "Leather Armor",
-                "grade": "low",
-                "defBonus": 4
-            },
-            "mainPackName": null,
-            "subPackName": null,
-            "relicStats": null
-        },
-        {
-            "id": "80239482-5b85-4887-9fce-890a541c0f0a",
-            "name": "LunarPro602",
-            "profileIndex": 49,
-            "regionId": "d36315fc-e770-4788-be23-e003e5a8d45a",
-            "hp": 61,
-            "maxHp": 100,
-            "isAlive": true,
-            "isDiscovered": false,
-            "kills": 0,
-            "placement": 0,
-            "isGuardian": false,
-            "isAI": true,
-            "inCave": false,
-            "killedBy": null,
-            "diedAt": null,
-            "atk": 25,
-            "def": 5,
-            "ep": 8,
-            "maxEp": 10,
-            "inventory": [
-                {
-                    "id": "80239482-5b85-4887-9fce-890a541c0f0a:1001",
-                    "typeId": "emergency_food",
-                    "name": "Emergency Food",
-                    "description": "Restores 20 HP, 5 EP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "hpRestore": 20,
-                    "epRestore": 5
-                },
-                {
-                    "id": "80239482-5b85-4887-9fce-890a541c0f0a:3000",
-                    "typeId": "reward1",
-                    "name": "sMoltz",
-                    "description": "In-game rewards. Collected on victory to account balance.",
-                    "category": "currency",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "low"
-                },
-                {
-                    "id": "9d42f447-23fa-4573-9a1f-782e61a910c2:4000",
-                    "typeId": "emergency_food",
-                    "name": "Emergency Food",
-                    "description": "Restores 20 HP, 5 EP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "hpRestore": 20,
-                    "epRestore": 5
-                }
-            ],
-            "equippedWeaponId": null,
-            "equippedWeapon": null,
-            "equippedArmorId": null,
-            "equippedArmor": null,
-            "mainPackName": null,
-            "subPackName": null,
-            "relicStats": null
-        },
-        {
-            "id": "245b35e9-66e0-518d-93f1-ac4d0aec3988",
-            "name": "Guardian",
-            "profileIndex": 0,
-            "regionId": "60c96573-3b9e-4f8c-8e88-2f74391c435e",
-            "hp": 150,
-            "maxHp": 150,
-            "isAlive": true,
-            "isDiscovered": false,
-            "kills": 0,
-            "placement": 0,
-            "isGuardian": true,
-            "isAI": false,
-            "inCave": false,
-            "killedBy": null,
-            "diedAt": null,
-            "atk": 12,
-            "def": 120,
-            "ep": 10,
-            "maxEp": 10,
-            "inventory": [
-                {
-                    "id": "245b35e9-66e0-518d-93f1-ac4d0aec3988:1000",
-                    "typeId": "emergency_food",
-                    "name": "Emergency Food",
-                    "description": "Restores 20 HP, 5 EP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "hpRestore": 20,
-                    "epRestore": 5
-                },
-                {
-                    "id": "245b35e9-66e0-518d-93f1-ac4d0aec3988:1100",
-                    "typeId": "bandage",
-                    "name": "Bandage",
-                    "description": "Restores 10 HP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "low",
-                    "hpRestore": 10
-                },
-                {
-                    "id": "245b35e9-66e0-518d-93f1-ac4d0aec3988:3000",
-                    "typeId": "reward1",
-                    "name": "sMoltz",
-                    "description": "In-game rewards. Collected on victory to account balance.",
-                    "category": "currency",
-                    "stackable": true,
-                    "quantity": 40,
-                    "grade": "low"
-                }
-            ],
-            "equippedWeaponId": null,
-            "equippedWeapon": null,
-            "equippedArmorId": null,
-            "equippedArmor": null,
-            "mainPackName": null,
-            "subPackName": null,
-            "relicStats": null
-        },
-        {
-            "id": "2d8e3a47-d95e-4791-9514-e39a72d385c1",
-            "name": "Blaze-Blade417",
-            "profileIndex": 47,
-            "regionId": "9d42f447-23fa-4573-9a1f-782e61a910c2",
-            "hp": 93,
-            "maxHp": 100,
-            "isAlive": true,
-            "isDiscovered": false,
-            "kills": 0,
-            "placement": 0,
-            "isGuardian": false,
-            "isAI": true,
-            "inCave": false,
-            "killedBy": null,
-            "diedAt": null,
-            "atk": 25,
-            "def": 5,
-            "ep": 2,
-            "maxEp": 10,
-            "inventory": [
-                {
-                    "id": "2d8e3a47-d95e-4791-9514-e39a72d385c1:1000",
-                    "typeId": "emergency_food",
-                    "name": "Emergency Food",
-                    "description": "Restores 20 HP, 5 EP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "hpRestore": 20,
-                    "epRestore": 5
-                },
-                {
-                    "id": "2d8e3a47-d95e-4791-9514-e39a72d385c1:1001",
-                    "typeId": "emergency_food",
-                    "name": "Emergency Food",
-                    "description": "Restores 20 HP, 5 EP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "hpRestore": 20,
-                    "epRestore": 5
-                },
-                {
-                    "id": "2d8e3a47-d95e-4791-9514-e39a72d385c1:1100",
-                    "typeId": "bandage",
-                    "name": "Bandage",
-                    "description": "Restores 10 HP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "low",
-                    "hpRestore": 10
-                },
-                {
-                    "id": "2d8e3a47-d95e-4791-9514-e39a72d385c1:3000",
-                    "typeId": "reward1",
-                    "name": "sMoltz",
-                    "description": "In-game rewards. Collected on victory to account balance.",
-                    "category": "currency",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "low"
-                },
-                {
-                    "id": "44b9d309-6ea9-47b0-acd9-767996002e76:4000",
-                    "typeId": "emergency_food",
-                    "name": "Emergency Food",
-                    "description": "Restores 20 HP, 5 EP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "hpRestore": 20,
-                    "epRestore": 5
-                },
-                {
-                    "id": "44b9d309-6ea9-47b0-acd9-767996002e76:4001",
-                    "typeId": "sniper",
-                    "name": "Sniper rifle",
-                    "description": "High-tier ranged weapon",
-                    "category": "weapon",
-                    "stackable": false,
-                    "quantity": 1,
-                    "grade": "high",
-                    "atkBonus": 32,
-                    "range": 2,
-                    "epCost": 3
-                }
-            ],
-            "equippedWeaponId": "44b9d309-6ea9-47b0-acd9-767996002e76:4001",
-            "equippedWeapon": {
-                "id": "44b9d309-6ea9-47b0-acd9-767996002e76:4001",
-                "typeId": "sniper",
-                "name": "Sniper rifle",
-                "description": "High-tier ranged weapon",
-                "category": "weapon",
-                "stackable": false,
-                "quantity": 1,
-                "grade": "high",
-                "atkBonus": 32,
-                "range": 2,
-                "epCost": 3
-            },
-            "equippedArmorId": null,
-            "equippedArmor": null,
-            "mainPackName": null,
-            "subPackName": null,
-            "relicStats": null
-        },
-        {
             "id": "7520476d-25b2-46bc-b733-42751dfcfcfa",
             "name": "SilverKing690",
             "profileIndex": 51,
-            "regionId": "ffa3e252-446e-45ab-9592-89d2d4714d25",
-            "hp": 92,
+            "regionId": "60c96573-3b9e-4f8c-8e88-2f74391c435e",
+            "hp": 68,
             "maxHp": 100,
             "isAlive": true,
             "isDiscovered": false,
@@ -1725,7 +1400,7 @@
             "diedAt": null,
             "atk": 25,
             "def": 17,
-            "ep": 5,
+            "ep": 2,
             "maxEp": 10,
             "inventory": [
                 {
@@ -1797,43 +1472,347 @@
             "mainPackName": null,
             "subPackName": null,
             "relicStats": null
+        },
+        {
+            "id": "83eb873d-2de9-4fee-a4fa-8c9e81727811",
+            "name": "NightShark303",
+            "profileIndex": 36,
+            "regionId": "0ec3e18e-fd14-4029-a50c-2e21b97d7dca",
+            "hp": 100,
+            "maxHp": 100,
+            "isAlive": true,
+            "isDiscovered": false,
+            "kills": 0,
+            "placement": 0,
+            "isGuardian": false,
+            "isAI": true,
+            "inCave": false,
+            "killedBy": null,
+            "diedAt": null,
+            "atk": 25,
+            "def": 17,
+            "ep": 0,
+            "maxEp": 10,
+            "inventory": [
+                {
+                    "id": "83eb873d-2de9-4fee-a4fa-8c9e81727811:1000",
+                    "typeId": "emergency_food",
+                    "name": "Emergency Food",
+                    "description": "Restores 20 HP, 5 EP",
+                    "category": "recovery",
+                    "stackable": true,
+                    "quantity": 1,
+                    "grade": "middle",
+                    "hpRestore": 20,
+                    "epRestore": 5
+                },
+                {
+                    "id": "83eb873d-2de9-4fee-a4fa-8c9e81727811:1001",
+                    "typeId": "emergency_food",
+                    "name": "Emergency Food",
+                    "description": "Restores 20 HP, 5 EP",
+                    "category": "recovery",
+                    "stackable": true,
+                    "quantity": 1,
+                    "grade": "middle",
+                    "hpRestore": 20,
+                    "epRestore": 5
+                },
+                {
+                    "id": "83eb873d-2de9-4fee-a4fa-8c9e81727811:3000",
+                    "typeId": "reward1",
+                    "name": "sMoltz",
+                    "description": "In-game rewards. Collected on victory to account balance.",
+                    "category": "currency",
+                    "stackable": true,
+                    "quantity": 1,
+                    "grade": "low"
+                },
+                {
+                    "id": "f8a2619a-7bc2-4c1a-abb3-e0f0b50d265b:4000",
+                    "typeId": "chainmail",
+                    "name": "Chainmail",
+                    "description": "Mid-tier armor",
+                    "category": "armor",
+                    "stackable": false,
+                    "quantity": 1,
+                    "grade": "middle",
+                    "defBonus": 12
+                }
+            ],
+            "equippedWeaponId": null,
+            "equippedWeapon": null,
+            "equippedArmorId": "chainmail",
+            "equippedArmor": {
+                "id": "chainmail",
+                "name": "Chainmail",
+                "grade": "middle",
+                "defBonus": 12
+            },
+            "mainPackName": null,
+            "subPackName": null,
+            "relicStats": null
+        },
+        {
+            "id": "0e599cd6-218b-4bb0-8aa6-7815182435b8",
+            "name": "Delta_Caster64",
+            "profileIndex": 39,
+            "regionId": "e1fbb259-a7ad-455e-9824-9b3b55da9029",
+            "hp": 33,
+            "maxHp": 100,
+            "isAlive": true,
+            "isDiscovered": false,
+            "kills": 0,
+            "placement": 0,
+            "isGuardian": false,
+            "isAI": true,
+            "inCave": false,
+            "killedBy": null,
+            "diedAt": null,
+            "atk": 25,
+            "def": 5,
+            "ep": 0,
+            "maxEp": 10,
+            "inventory": [
+                {
+                    "id": "0e599cd6-218b-4bb0-8aa6-7815182435b8:1000",
+                    "typeId": "emergency_food",
+                    "name": "Emergency Food",
+                    "description": "Restores 20 HP, 5 EP",
+                    "category": "recovery",
+                    "stackable": true,
+                    "quantity": 1,
+                    "grade": "middle",
+                    "hpRestore": 20,
+                    "epRestore": 5
+                },
+                {
+                    "id": "0e599cd6-218b-4bb0-8aa6-7815182435b8:1001",
+                    "typeId": "emergency_food",
+                    "name": "Emergency Food",
+                    "description": "Restores 20 HP, 5 EP",
+                    "category": "recovery",
+                    "stackable": true,
+                    "quantity": 1,
+                    "grade": "middle",
+                    "hpRestore": 20,
+                    "epRestore": 5
+                },
+                {
+                    "id": "0e599cd6-218b-4bb0-8aa6-7815182435b8:1100",
+                    "typeId": "bandage",
+                    "name": "Bandage",
+                    "description": "Restores 10 HP",
+                    "category": "recovery",
+                    "stackable": true,
+                    "quantity": 1,
+                    "grade": "low",
+                    "hpRestore": 10
+                },
+                {
+                    "id": "0e599cd6-218b-4bb0-8aa6-7815182435b8:3000",
+                    "typeId": "reward1",
+                    "name": "sMoltz",
+                    "description": "In-game rewards. Collected on victory to account balance.",
+                    "category": "currency",
+                    "stackable": true,
+                    "quantity": 1,
+                    "grade": "low"
+                },
+                {
+                    "id": "0b4c9fca-f4f6-4974-ac33-82325075ea54:4000",
+                    "typeId": "bandage",
+                    "name": "Bandage",
+                    "description": "Restores 10 HP",
+                    "category": "recovery",
+                    "stackable": true,
+                    "quantity": 1,
+                    "grade": "low",
+                    "hpRestore": 10
+                },
+                {
+                    "id": "0b4c9fca-f4f6-4974-ac33-82325075ea54:4001",
+                    "typeId": "pistol",
+                    "name": "Pistol",
+                    "description": "Mid-tier ranged weapon",
+                    "category": "weapon",
+                    "stackable": false,
+                    "quantity": 1,
+                    "grade": "middle",
+                    "atkBonus": 15,
+                    "range": 1,
+                    "epCost": 2
+                },
+                {
+                    "id": "9d9eba45-5e3a-4e72-b8d0-d4abe95394f9:4000",
+                    "typeId": "katana",
+                    "name": "Katana",
+                    "description": "High-tier melee weapon",
+                    "category": "weapon",
+                    "stackable": false,
+                    "quantity": 1,
+                    "grade": "high",
+                    "atkBonus": 40,
+                    "epCost": 3
+                },
+                {
+                    "id": "0935b622-b129-431d-9861-4e49f1c6d226:4000",
+                    "typeId": "knife",
+                    "name": "Dagger",
+                    "description": "Low-tier melee weapon",
+                    "category": "weapon",
+                    "stackable": false,
+                    "quantity": 1,
+                    "grade": "low",
+                    "atkBonus": 16,
+                    "epCost": 1
+                }
+            ],
+            "equippedWeaponId": "9d9eba45-5e3a-4e72-b8d0-d4abe95394f9:4000",
+            "equippedWeapon": {
+                "id": "9d9eba45-5e3a-4e72-b8d0-d4abe95394f9:4000",
+                "typeId": "katana",
+                "name": "Katana",
+                "description": "High-tier melee weapon",
+                "category": "weapon",
+                "stackable": false,
+                "quantity": 1,
+                "grade": "high",
+                "atkBonus": 40,
+                "epCost": 3
+            },
+            "equippedArmorId": null,
+            "equippedArmor": null,
+            "mainPackName": null,
+            "subPackName": null,
+            "relicStats": null
+        },
+        {
+            "id": "e03b0315-e9e5-45d6-870a-1fe79b0a7ed3",
+            "name": "CrimsonCrow290",
+            "profileIndex": 65,
+            "regionId": "3fa790b1-0b0b-49a9-aaab-759f9e87cda2",
+            "hp": 86,
+            "maxHp": 100,
+            "isAlive": true,
+            "isDiscovered": false,
+            "kills": 0,
+            "placement": 0,
+            "isGuardian": false,
+            "isAI": true,
+            "inCave": false,
+            "killedBy": null,
+            "diedAt": null,
+            "atk": 25,
+            "def": 9,
+            "ep": 6,
+            "maxEp": 10,
+            "inventory": [
+                {
+                    "id": "e03b0315-e9e5-45d6-870a-1fe79b0a7ed3:1001",
+                    "typeId": "emergency_food",
+                    "name": "Emergency Food",
+                    "description": "Restores 20 HP, 5 EP",
+                    "category": "recovery",
+                    "stackable": true,
+                    "quantity": 1,
+                    "grade": "middle",
+                    "hpRestore": 20,
+                    "epRestore": 5
+                },
+                {
+                    "id": "e03b0315-e9e5-45d6-870a-1fe79b0a7ed3:3000",
+                    "typeId": "reward1",
+                    "name": "sMoltz",
+                    "description": "In-game rewards. Collected on victory to account balance.",
+                    "category": "currency",
+                    "stackable": true,
+                    "quantity": 9,
+                    "grade": "low"
+                },
+                {
+                    "id": "a2c8154c-4bc1-441b-9060-02322fcf5714:4000",
+                    "typeId": "emergency_food",
+                    "name": "Emergency Food",
+                    "description": "Restores 20 HP, 5 EP",
+                    "category": "recovery",
+                    "stackable": true,
+                    "quantity": 1,
+                    "grade": "middle",
+                    "hpRestore": 20,
+                    "epRestore": 5
+                },
+                {
+                    "id": "3e815793-45a9-479a-98db-baf2f2ce5214:4000",
+                    "typeId": "energy_drink",
+                    "name": "Energy drink",
+                    "description": "Restores 5 EP",
+                    "category": "recovery",
+                    "stackable": true,
+                    "quantity": 1,
+                    "grade": "low",
+                    "epRestore": 5
+                },
+                {
+                    "id": "3e815793-45a9-479a-98db-baf2f2ce5214:4001",
+                    "typeId": "knife",
+                    "name": "Dagger",
+                    "description": "Low-tier melee weapon",
+                    "category": "weapon",
+                    "stackable": false,
+                    "quantity": 1,
+                    "grade": "low",
+                    "atkBonus": 16,
+                    "epCost": 1
+                },
+                {
+                    "id": "ec7c4de5-14cd-4c38-9e44-15b983628a57:monster:22:loot:0",
+                    "typeId": "leather",
+                    "name": "Leather Armor",
+                    "description": "Low-tier armor",
+                    "category": "armor",
+                    "stackable": false,
+                    "quantity": 1,
+                    "grade": "low",
+                    "defBonus": 4
+                }
+            ],
+            "equippedWeaponId": "3e815793-45a9-479a-98db-baf2f2ce5214:4001",
+            "equippedWeapon": {
+                "id": "3e815793-45a9-479a-98db-baf2f2ce5214:4001",
+                "typeId": "knife",
+                "name": "Dagger",
+                "description": "Low-tier melee weapon",
+                "category": "weapon",
+                "stackable": false,
+                "quantity": 1,
+                "grade": "low",
+                "atkBonus": 16,
+                "epCost": 1
+            },
+            "equippedArmorId": "leather",
+            "equippedArmor": {
+                "id": "leather",
+                "name": "Leather Armor",
+                "grade": "low",
+                "defBonus": 4
+            },
+            "mainPackName": null,
+            "subPackName": null,
+            "relicStats": null
         }
     ],
     "visibleMonsters": [
         {
-            "id": "ec7c4de5-14cd-4c38-9e44-15b983628a57:monster:10",
-            "type": "bandit",
-            "name": "Bandit",
-            "hp": 20,
-            "maxHp": 40,
-            "regionId": "e1fbb259-a7ad-455e-9824-9b3b55da9029",
-            "isDiscovered": false,
-            "lootTable": [
-                "bandit"
-            ]
-        },
-        {
-            "id": "ec7c4de5-14cd-4c38-9e44-15b983628a57:monster:7",
+            "id": "ec7c4de5-14cd-4c38-9e44-15b983628a57:monster:6",
             "type": "bear",
             "name": "Bear",
-            "hp": 7,
+            "hp": 30,
             "maxHp": 30,
-            "regionId": "a2c8154c-4bc1-441b-9060-02322fcf5714",
+            "regionId": "8b15255c-503e-4046-85dc-42b13b004175",
             "isDiscovered": false,
             "lootTable": [
                 "bear"
-            ]
-        },
-        {
-            "id": "ec7c4de5-14cd-4c38-9e44-15b983628a57:monster:18",
-            "type": "wolf",
-            "name": "Wolf",
-            "hp": 25,
-            "maxHp": 25,
-            "regionId": "e1fbb259-a7ad-455e-9824-9b3b55da9029",
-            "isDiscovered": false,
-            "lootTable": [
-                "wolf"
             ]
         },
         {
@@ -1842,7 +1821,7 @@
             "name": "Bandit",
             "hp": 40,
             "maxHp": 40,
-            "regionId": "950d4231-ced0-4f39-a3ef-680cc94812a9",
+            "regionId": "9d42f447-23fa-4573-9a1f-782e61a910c2",
             "isDiscovered": false,
             "lootTable": [
                 "bandit"
@@ -1852,7 +1831,7 @@
             "id": "ec7c4de5-14cd-4c38-9e44-15b983628a57:monster:29",
             "type": "bandit",
             "name": "Bandit",
-            "hp": 40,
+            "hp": 5,
             "maxHp": 40,
             "regionId": "111a8521-48b5-4ce4-92ae-4aab3fffc8b6",
             "isDiscovered": false,
@@ -1867,7 +1846,7 @@
     "myPacks": [],
     "recentLogs": [],
     "recentMessages": [],
-    "aliveCount": 96,
+    "aliveCount": 89,
     "cursedVictimIds": [],
     "season": 368553,
     "availableActions": {
