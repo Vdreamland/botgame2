@@ -60,7 +60,9 @@ def evaluate_equipment(inventory, current_weapon_id, current_armor_id):
                 to_drop.append(item)
                 
     if best_melee_item:
-        to_equip_weapon = best_melee_item
+        item_type = best_melee_item.get("typeId") or best_melee_item.get("name") or best_melee_item.get("id")
+        if current_weapon_clean != str(item_type).lower().replace(" ", "_"):
+            to_equip_weapon = best_melee_item
         
     for item in inventory:
         if not isinstance(item, dict):
@@ -84,14 +86,16 @@ def evaluate_equipment(inventory, current_weapon_id, current_armor_id):
     ranged_representatives.sort(key=lambda x: x[0], reverse=True)
     for i, (score, item) in enumerate(ranged_representatives):
         if i < 2:
-            item_id = item.get("id") or item.get("typeId")
-            if current_weapon_id != item_id:
+            item_type = item.get("typeId") or item.get("name") or item.get("id")
+            if current_weapon_clean != str(item_type).lower().replace(" ", "_"):
                 to_equip_weapon = item
         else:
             to_drop.append(item)
             
     if best_armor_item:
-        to_equip_armor = best_armor_item
+        item_type = best_armor_item.get("typeId") or best_armor_item.get("name") or best_armor_item.get("id")
+        if current_armor_clean != str(item_type).lower().replace(" ", "_"):
+            to_equip_armor = best_armor_item
         
     return {
         "to_equip_weapon": to_equip_weapon,
