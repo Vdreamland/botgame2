@@ -69,34 +69,6 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
             print(f"Weapon : {weapon_name} | Armour : {armor_name}")
             print(f"Inventory : {inv_display}")
             
-            try:
-                next_action = decide_next_action(view)
-                if next_action and next_action.get("type") == "action":
-                    act_data = next_action.get("data", {})
-                    act_type = act_data.get("type")
-                    
-                    if act_type == "move":
-                        target_id = act_data.get("regionId")
-                        target_name = target_id
-                        for r in regions:
-                            if r.get("id") == target_id:
-                                target_name = r.get("name")
-                                break
-                        print(f"[Intention] Bot decides to move to: {target_name} to search or retrieve items")
-                    elif act_type == "pickup":
-                        target_id = act_data.get("itemId")
-                        print(f"[Intention] Bot decides to pick up item ID: {target_id}")
-                    elif act_type == "equip":
-                        target_id = act_data.get("itemId")
-                        print(f"[Intention] Bot decides to equip item ID: {target_id}")
-                    elif act_type == "use_item":
-                        target_id = act_data.get("itemId")
-                        print(f"[Intention] Bot decides to use item ID: {target_id}")
-                    elif act_type == "rest":
-                        print(f"[Intention] Bot decides to Rest to restore EP")
-            except Exception:
-                pass
-            
             if hp > 0:
                 region_strings = []
                 for r in regions:
@@ -126,6 +98,34 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
                         print(f"{r_name} > {', '.join(enemies)}")
                 else:
                     print("Region Enemy detector : none")
+                
+            try:
+                next_action = decide_next_action(view)
+                if next_action and next_action.get("type") == "action":
+                    act_data = next_action.get("data", {})
+                    act_type = act_data.get("type")
+                    
+                    if act_type == "move":
+                        target_id = act_data.get("regionId")
+                        target_name = target_id
+                        for r in regions:
+                            if r.get("id") == target_id:
+                                target_name = r.get("name")
+                                break
+                        print(f"[Intention] Bot decides to move to: {target_name} to search or retrieve items")
+                    elif act_type == "pickup":
+                        target_id = act_data.get("itemId")
+                        print(f"[Intention] Bot decides to pick up item ID: {target_id}")
+                    elif act_type == "equip":
+                        target_id = act_data.get("itemId")
+                        print(f"[Intention] Bot decides to equip item ID: {target_id}")
+                    elif act_type == "use_item":
+                        target_id = act_data.get("itemId")
+                        print(f"[Intention] Bot decides to use item ID: {target_id}")
+                    elif act_type == "rest":
+                        print(f"[Intention] Bot decides to Rest to restore EP")
+            except Exception:
+                pass
                 
             context.last_state = current_state
             
