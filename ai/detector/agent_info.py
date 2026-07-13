@@ -1,6 +1,6 @@
+import json
 from typing import Dict, Any
 
-# Pemetaan resmi nilai Vision Modifier berdasarkan tipe terrain/fasilitas
 TERRAIN_VISION_MODS = {
     "plains": 1,
     "forest": -1,
@@ -11,101 +11,98 @@ TERRAIN_VISION_MODS = {
 }
 
 def extract_agent_status(msg: Dict[str, Any]) -> Dict[str, Any]:
-    if "view" in msg:
-        view = msg.get("view") or {}
-        global_turn = msg.get("turn") or 1
+    if not isinstance(msg, dict):
+        try:
+            data = json.loads(msg)
+        except Exception:
+            return {}
     else:
-        view = msg
-        global_turn = view.get("turn") or 1
-        
-    player = view.get("self") or view.get("player") or {}
-    game_state = view.get("game") or view.get("gameState") or {}
-    region_data = view.get("currentRegion") or view.get("current_region") or {}
-    
-    eff_stats = player.get("effectiveStats") or {}
-    
-    name = player.get("name", "Unknown")
-    agent_id = player.get("id")
-    hp = player.get("hp", 0)
-    ep = player.get("ep", 0)
-    x = player.get("x", 0)
-    y = player.get("y", 0)
-    is_alive = player.get("isAlive") if player.get("isAlive") is not None else player.get("is_alive", True)
-    
-    day = (global_turn - 1) // 4 + 1
-    day_turn = (global_turn - 1) % 4 + 1
-    
-    atk = player.get("atk") or eff_stats.get("atk") or player.get("baseAtk", 0)
-    defense = player.get("def") or eff_stats.get("def") or player.get("baseDef", 0)
-    kills = player.get("kills") if player.get("kills") is not None else player.get("killCount", 0)
-    
-    region_name = region_data.get("name", "Unknown") if isinstance(region_data, dict) else "Unknown"
-    terrain = region_data.get("terrain", "unknown") if isinstance(region_data, dict) else "unknown"
-    
-    is_death_zone = False
-    if isinstance(region_data, dict):
-        is_death_zone = region_data.get("isDeathZone") if region_data.get("isDeathZone") is not None else region_data.get("is_death_zone", False)
-    
-    weather = game_state.get("weather", "clear")
-    num_links = len(region_data.get("connections") or [])
-    
-    # Ambil nilai Vision murni dari terrain petak saat ini
-    terrain_lower = terrain.lower()
-    facility_lower = (region_data.get("facility") or "").lower()
-    if facility_lower == "cave" or terrain_lower == "cave":
-        vision = -2
-    else:
-        vision = TERRAIN_VISION_MODS.get(terrain_lower, 0)
-        
-    # Deteksi status candi/ruin secara cerdas & adaptif (SOT fallback)
-    ruin_raw = region_data.get("ruin") or region_data.get("ruinState")
-    
-    if not ruin_raw:
-        # Fallback 1: Cari di top-level view["ruins"] atau view["ruinStates"]
-        ruins_map = view.get("ruins") or view.get("ruinStates") or {}
-        r_id = region_data.get("id")
-        if isinstance(ruins_map, dict):
-            ruin_raw = ruins_map.get(region_name) or ruins_map.get(r_id)
-        elif isinstance(ruins_map, list):
-            for r_ruin in ruins_map:
-                if isinstance(r_ruin, dict) and (r_ruin.get("ruinId") == r_id or r_ruin.get("ruinId") == region_name):
-                    ruin_raw = r_ruin
-                    break
+        data = msg
 
-    ruin = None
-    if isinstance(ruin_raw, dict):
-        status_val = ruin_raw.get("status") or ("Available" if not ruin_raw.get("isEmpty") else "empty")
-        # Format Explorer murni jika terdeteksi kosong/None
-        explorer_val = ruin_raw.get("explorerName") or ruin_raw.get("explorer") or ruin_raw.get("occupiedBy") or "—"
-        if not explorer_val or explorer_val == "null" or explorer_val == "None":
-            explorer_val = "—"
-            
-        ruin = {
-            "status": status_val,
-            "gauge": ruin_raw.get("gauge", 0),
-            "max_gauge": ruin_raw.get("maxGauge") or ruin_raw.get("max_gauge") or 3,
-            "explorer": explorer_val
-        }
+    view = data.get("view") or data.get("agentView") or data.get("agent_view") or data.get("data") or {}
+    self_data = view.get("self", {}) or {}
+    current_region = view.get("currentRegion", {}) or {}
+    
+    agent_id = self_data.get("id") or self_data.get("agentId") or self_data.get("agent_id") or "unknown"
+    name = self_data.get("name") or "unknown"
+    hp = self_data.get("hp", 100)
+    ep = self_data.get("ep", 10)
+    x = self_data.get("x", 0)
+    y = self_data.get("y", 0)
+    is_alive = self_data.get("isAlive", True) if self_data.get("isAlive") is not None else self_data.get("is_alive", True)
+    
+    global_turn = data.get("globalTurn") or data.get("global_turn", 1)
+    turn = data.get("turn", 1)
+    day = data.get("day", 1)
+    
+    atk = self_data.get("atk", 25)
+    defense = self_data.get("def", 5)
+    kills = self_data.get("kills", 0) if self_data.get("kills") is not None else self_data.get("kill", 0)
+    
+    region_name = current_region.get("name") or current_region.get("id") or "unknown"
+    is_death_zone = current_region.get("isDeathZone", False) or current_region.get("is_death_zone", False)
+    terrain = current_region.get("terrain", "unknown")
+    weather = current_region.get("weather", "clear")
+    
+    terrain_mod = TERRAIN_VISION_MODS.get(terrain.lower(), 0)
+    weather_mod = 0
+    if weather.lower() == "rain":
+        weather_mod = -1
+    elif weather.lower() == "fog":
+        weather_mod = -2
+    elif weather.lower() == "storm":
+        weather_mod = -3
+    vision_mod = terrain_mod + weather_mod
+    
+    num_links = len(current_region.get("connections", []))
+    ruin = current_region.get("ruins")
+    
+    equipped_weapon = self_data.get("equippedWeapon")
+    if isinstance(equipped_weapon, dict):
+        weapon_name = equipped_weapon.get("name") or equipped_weapon.get("id") or "None"
+    else:
+        weapon_name = self_data.get("equippedWeaponId") or "None"
+        
+    equipped_armor = self_data.get("equippedArmor")
+    if isinstance(equipped_armor, dict):
+        armor_name = equipped_armor.get("name") or equipped_armor.get("id") or "None"
+    else:
+        armor_name = self_data.get("equippedArmorId") or "None"
+        
+    inv_items = self_data.get("inventory", []) or []
+    inv_strings = []
+    for item in inv_items:
+        if isinstance(item, dict):
+            item_name = item.get("name") or item.get("id") or "Item"
+            qty = item.get("qty") or item.get("quantity") or 1
+            qty_str = f" x{qty}" if qty > 1 else ""
+            inv_strings.append(f"{item_name}{qty_str}")
+    inv_display = ", ".join(inv_strings) if inv_strings else "none"
     
     return {
-        "name": name,
         "id": agent_id,
+        "name": name,
         "hp": hp,
         "ep": ep,
         "x": x,
         "y": y,
         "is_alive": is_alive,
         "global_turn": global_turn,
-        "turn": day_turn,
+        "turn": turn,
         "day": day,
         "atk": atk,
         "def": defense,
         "kill": kills,
         "region_name": region_name,
-        "terrain": terrain,
         "is_death_zone": is_death_zone,
+        "terrain": terrain,
         "weather": weather,
-        "vision": vision,
+        "vision": vision_mod,
+        "vision_mod": vision_mod,
         "num_links": num_links,
-        "ruin": ruin
+        "links_count": num_links,
+        "ruin": ruin,
+        "weapon": weapon_name,
+        "armor": armor_name,
+        "inventory": inv_display
     }

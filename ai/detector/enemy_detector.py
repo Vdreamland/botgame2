@@ -107,6 +107,21 @@ def detect_region_enemies(view):
                 
         return None
 
+    def get_entity_equipment(entity):
+        wpn = entity.get('equippedWeapon')
+        if isinstance(wpn, dict):
+            wpn_name = wpn.get('name') or wpn.get('id') or "None"
+        else:
+            wpn_name = entity.get('equippedWeaponId') or "None"
+            
+        arm = entity.get('equippedArmor')
+        if isinstance(arm, dict):
+            arm_name = arm.get('name') or arm.get('id') or "None"
+        else:
+            arm_name = entity.get('equippedArmorId') or "None"
+            
+        return wpn_name, arm_name
+
     visible_agents = view.get('visibleAgents') or []
     for agent in visible_agents:
         if not isinstance(agent, dict):
@@ -126,7 +141,8 @@ def detect_region_enemies(view):
                     detected[r_name] = []
                 is_guardian = agent.get('isGuardian', False)
                 prefix = "G" if is_guardian else "P"
-                detected[r_name].append(f"{prefix} : {name} HP:{hp}/EP:{ep}/ATK:{atk}/DEF:{defense}/")
+                wpn_name, arm_name = get_entity_equipment(agent)
+                detected[r_name].append(f"{prefix} : {name} HP:{hp}/EP:{ep}/ATK:{atk}/DEF:{defense}/Wpn:{wpn_name}/Arm:{arm_name}/")
                 
     visible_monsters = view.get('visibleMonsters') or []
     for m in visible_monsters:
@@ -142,7 +158,8 @@ def detect_region_enemies(view):
                 ep = m.get('ep', 0)
                 atk = m.get('atk', 0)
                 defense = m.get('def', 0)
-                detected[r_name].append(f"M : {m_type} HP:{hp}/EP:{ep}/ATK:{atk}/DEF:{defense}/")
+                wpn_name, arm_name = get_entity_equipment(m)
+                detected[r_name].append(f"M : {m_type} HP:{hp}/EP:{ep}/ATK:{atk}/DEF:{defense}/Wpn:{wpn_name}/Arm:{arm_name}/")
                 
     visible_npcs = view.get('visibleNPCs') or []
     for npc in visible_npcs:
@@ -158,6 +175,7 @@ def detect_region_enemies(view):
                 ep = npc.get('ep', 0)
                 atk = npc.get('atk', 0)
                 defense = npc.get('def', 0)
-                detected[r_name].append(f"G : {npc_type} HP:{npc}/EP:{ep}/ATK:{atk}/DEF:{defense}/")
+                wpn_name, arm_name = get_entity_equipment(npc)
+                detected[r_name].append(f"G : {npc_type} HP:{hp}/EP:{ep}/ATK:{atk}/DEF:{defense}/Wpn:{wpn_name}/Arm:{arm_name}/")
                 
     return detected

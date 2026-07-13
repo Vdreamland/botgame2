@@ -41,6 +41,9 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         vision = status["vision"]
         num_links = status["num_links"]
         ruin = status["ruin"]
+        weapon_name = status["weapon"]
+        armor_name = status["armor"]
+        inv_display = status["inventory"]
         
         current_state = (global_turn, hp, ep, x, y, kills, region_name, terrain, is_death_zone, weather, vision, num_links, str(ruin), str(region_enemies))
         last_printed = getattr(context, "last_state", None)
@@ -62,6 +65,9 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
                 weather_cap = weather.capitalize() if weather else "Unknown"
                 print(f"Location: {region_name}{current_zone_label} | Terrain : {terrain_cap} | Weather : {weather_cap} | Vision {vision} | Link {num_links}")
                 
+            print(f"Weapon : {weapon_name} | Armour : {armor_name}")
+            print(f"Inventory : {inv_display}")
+            
             region_strings = []
             for r in regions:
                 is_dead = r.get("is_death_zone", False)
