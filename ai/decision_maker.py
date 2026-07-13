@@ -46,20 +46,20 @@ def decide_next_action(view):
         else:
             connected_regions.append({"id": conn_id, "name": conn_id})
             
+    eval_equip = evaluate_equipment(inventory, current_weapon, current_armor)
+    
     candidates = []
     is_safe = len(visible_agents) == 0 and len(visible_monsters) == 0 and len(visible_npcs) == 0
     
-    eval_equip = evaluate_equipment(inventory, current_weapon, current_armor)
-    
     if eval_equip["to_equip_weapon"]:
         if current_weapon is None:
-            candidates.append((70, {"action": "equip", "item": eval_equip["to_equip_weapon"]}))
+            candidates.append((300, {"action": "equip", "item": eval_equip["to_equip_weapon"]}))
         elif is_safe:
             candidates.append((30, {"action": "equip", "item": eval_equip["to_equip_weapon"]}))
             
     if eval_equip["to_equip_armor"]:
         if current_armor is None:
-            candidates.append((75, {"action": "equip", "item": eval_equip["to_equip_armor"]}))
+            candidates.append((305, {"action": "equip", "item": eval_equip["to_equip_armor"]}))
         elif is_safe:
             candidates.append((35, {"action": "equip", "item": eval_equip["to_equip_armor"]}))
             

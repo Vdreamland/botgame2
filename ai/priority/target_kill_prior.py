@@ -113,7 +113,7 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
                     else:
                         best_action = {"action": "attack", "target": enemy}
                 else:
-                    if best_weapon_range >= 1:
+                    if current_range >= 1:
                         best_action = {"action": "attack", "target": enemy}
                     else:
                         best_action = {"action": "move_to_enemy", "target": enemy, "region_name": r_name}
