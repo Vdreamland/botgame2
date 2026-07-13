@@ -23,9 +23,9 @@ def extract_agent_status(msg: Dict[str, Any]) -> Dict[str, Any]:
     y = self_data.get("y", 0)
     is_alive = self_data.get("isAlive", True) if self_data.get("isAlive") is not None else self_data.get("is_alive", True)
     
-    global_turn = data.get("globalTurn") or data.get("global_turn", 1)
-    turn = data.get("turn", 1)
-    day = data.get("day", 1)
+    global_turn = data.get("globalTurn") or data.get("global_turn") or data.get("turn") or 1
+    day = (global_turn - 1) // 4 + 1
+    turn_in_day = (global_turn - 1) % 4 + 1
     
     atk = self_data.get("atk", 25)
     defense = self_data.get("def", 5)
@@ -72,7 +72,7 @@ def extract_agent_status(msg: Dict[str, Any]) -> Dict[str, Any]:
         "y": y,
         "is_alive": is_alive,
         "global_turn": global_turn,
-        "turn": turn,
+        "turn": turn_in_day,
         "day": day,
         "atk": atk,
         "def": defense,
