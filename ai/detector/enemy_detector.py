@@ -116,14 +116,17 @@ def detect_region_enemies(view):
             continue
         if _is_entity_alive(agent):
             hp = agent.get('hp', 100)
+            ep = agent.get('ep', 0)
+            atk = agent.get('atk', 0)
+            defense = agent.get('def', 0)
             name = agent.get('name') or agent.get('username') or agent.get('agentName') or (f"Agent_{agent_id[:4]}" if agent_id else "Unknown Agent")
             r_name = get_entity_region_name(agent)
             if r_name:
                 if r_name not in detected:
                     detected[r_name] = []
                 is_guardian = agent.get('isGuardian', False)
-                prefix = "Guardian" if is_guardian else "Player"
-                detected[r_name].append(f"{prefix}: {name} [HP {hp}]")
+                prefix = "G" if is_guardian else "P"
+                detected[r_name].append(f"{prefix} : {name} {hp}/{ep}/{atk}/{defense}/")
                 
     visible_monsters = view.get('visibleMonsters') or []
     for m in visible_monsters:
@@ -131,13 +134,15 @@ def detect_region_enemies(view):
             continue
         if _is_entity_alive(m):
             m_type = m.get('type') or m.get('name') or m.get('monsterId') or "Monster"
-            hp = m.get('hp')
-            hp_str = f" [HP {hp}]" if hp is not None else ""
             r_name = get_entity_region_name(m)
             if r_name:
                 if r_name not in detected:
                     detected[r_name] = []
-                detected[r_name].append(f"Monster: {m_type}{hp_str}")
+                hp = m.get('hp', 0)
+                ep = m.get('ep', 0)
+                atk = m.get('atk', 0)
+                defense = m.get('def', 0)
+                detected[r_name].append(f"M : {m_type} {hp}/{ep}/{atk}/{defense}/")
                 
     visible_npcs = view.get('visibleNPCs') or []
     for npc in visible_npcs:
@@ -145,12 +150,14 @@ def detect_region_enemies(view):
             continue
         if _is_entity_alive(npc):
             npc_type = npc.get('type') or npc.get('name') or npc.get('npcId') or "NPC"
-            hp = npc.get('hp')
-            hp_str = f" [HP {hp}]" if hp is not None else ""
             r_name = get_entity_region_name(npc)
             if r_name:
                 if r_name not in detected:
                     detected[r_name] = []
-                detected[r_name].append(f"Guardian: {npc_type}{hp_str}")
+                hp = npc.get('hp', 0)
+                ep = npc.get('ep', 0)
+                atk = npc.get('atk', 0)
+                defense = npc.get('def', 0)
+                detected[r_name].append(f"G : {npc_type} {hp}/{ep}/{atk}/{defense}/")
                 
     return detected

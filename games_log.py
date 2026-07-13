@@ -71,9 +71,11 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
                     zone_label = ""
                 region_strings.append(f"{r['name']}{zone_label}")
                 
+            print()
             joined_regions = " / ".join(region_strings)
             print(f"Region detector : {joined_regions}")
             
+            print()
             if region_items:
                 print("Region Item detector :")
                 for r_name, items in region_items.items():
@@ -81,6 +83,7 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
             else:
                 print("Region Item detector : none")
                 
+            print()
             if region_enemies:
                 print("Region Enemy detector :")
                 for r_name, enemies in region_enemies.items():
