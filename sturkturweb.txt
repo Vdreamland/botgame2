@@ -33,6 +33,21 @@
 
 /botgame2/ai/
 __init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/__init__.py
+decision_maker.py https://github.com/Vdreamland/botgame2/blob/master/ai/decision_maker.py
+memory.py https://github.com/Vdreamland/botgame2/blob/master/ai/memory.py
+
+/botgame2/ai/strategy/
+__init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/strategy/__init__.py
+movement_strategy.py https://github.com/Vdreamland/botgame2/blob/master/ai/strategy/movement_strategy.py 
+ruin_exploration_strategy.py https://github.com/Vdreamland/botgame2/blob/master/ai/strategy/ruin_exploration_strategy.py 
+
+/botgame2/ai/priority/
+__init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/__init__.py
+equipment_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/equipment_prior.py
+interact_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/interact_prior.py
+recovery_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/recovery_prior.py
+region_loot_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/region_loot_prior.py
+target_kill_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/target_kill_prior.py
 
 /botgame2/ai/detector/
 __init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/__init__.py 
