@@ -24,6 +24,8 @@
 │   │   ├── recovery_prior.py
 │   │   ├── region_loot_prior.py
 │   │   ├── target_kill_prior.py
+│   │   ├── survival_prior.py
+
 │   ├── strategy/              
 │   │   ├── movement_strategy.py
 │   │   ├── ruin_exploration_strategy.py
@@ -49,6 +51,7 @@ recovery_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority
 region_loot_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/region_loot_prior.py
 target_kill_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/target_kill_prior.py
 survival_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/survival_prior.py 
+
 /botgame2/ai/detector/
 __init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/__init__.py 
 agent_info.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/agent_info.py

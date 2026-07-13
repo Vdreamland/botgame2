@@ -129,6 +129,9 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
                         print(f"[Intention] Bot decides to interact with facility ID: {target_obj}")
                     elif act_type == "explore":
                         print(f"[Intention] Bot decides to Explore Ruins to acquire Relic")
+                    elif act_type == "attack":
+                        target_obj = act_data.get("targetId")
+                        print(f"[Intention] Bot decides to Attack target ID: {target_obj}")
                     
                     if context.ws:
                         await context.ws.send(json.dumps(next_action))
