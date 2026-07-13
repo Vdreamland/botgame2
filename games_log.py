@@ -14,6 +14,12 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
     if msg_type in ("agent_view", "turn_advanced"):
         view = msg.get("view") or msg.get("agentView") or msg.get("agent_view") or msg.get("data") or {}
         
+        try:
+            with open("raw_agent_view.json", "w") as f:
+                json.dump(view, f, indent=4)
+        except Exception as e:
+            print(f"[DEBUG ERROR] Gagal menulis raw_agent_view.json: {e}")
+            
         status = extract_agent_status(msg)
         regions = detect_connected_regions(view)
         region_items = detect_region_items(view)
@@ -61,7 +67,7 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
                 terrain_cap = terrain.capitalize() if terrain else "Unknown"
                 weather_cap = weather.capitalize() if weather else "Unknown"
                 print(f"Location: {region_name}{current_zone_label} | Terrain : {terrain_cap} | Weather : {weather_cap} | Vision {vision} | Link {num_links}")
-            
+                
             region_strings = []
             for r in regions:
                 is_dead = r.get("is_death_zone", False)
@@ -70,7 +76,7 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
                 else:
                     zone_label = ""
                 region_strings.append(f"{r['name']}{zone_label}")
-            
+                
             joined_regions = " / ".join(region_strings)
             print(f"Region detector : {joined_regions}")
             
@@ -81,16 +87,25 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
             else:
                 print("Region Item detector : none")
                 
-            # Tampilkan Region Enemy detector secara terstruktur dan sejajar
             if region_enemies:
                 print("Region Enemy detector :")
                 for r_name, enemies in region_enemies.items():
                     print(f"{r_name} > {', '.join(enemies)}")
             else:
                 print("Region Enemy detector : none")
-            
+                
+            curr_reg = view.get("currentRegion", {}) or {}
+            print("\n[DIAGNOSTIC]")
+            print("- File 'raw_agent_view.json' telah berhasil diperbarui.")
+            print(f"- Kunci utama view: {list(view.keys())}")
+            print(f"- Kunci utama currentRegion: {list(curr_reg.keys())}")
+            if "agents" in curr_reg:
+                print(f"- Jumlah agents di currentRegion: {len(curr_reg['agents'] or [])}")
+            if "players" in curr_reg:
+                print(f"- Jumlah players di currentRegion: {len(curr_reg['players'] or [])}")
+                
             context.last_state = current_state
-
+            
         last_hp = getattr(context, "last_hp", None)
         if last_hp is not None and last_hp != hp:
             diff = last_hp - hp
@@ -102,16 +117,16 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
         
         if not is_alive:
             await _handle_agent_death(msg, view, context, "state view")
-
+            
     elif msg_type == "can_act_changed":
         can_act = msg.get("canAct", False)
         if can_act:
             print("[Action Ready] Cooldown over. You can act now!")
-
+            
     elif msg_type == "error":
         err_msg = msg.get("error", {}).get("message", json.dumps(msg))
         print(f"[Server Error] {err_msg}")
-
+        
     elif msg_type == "log":
         log_data = msg.get("log", {})
         message = log_data.get("message", "")
