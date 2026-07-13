@@ -46,44 +46,26 @@ def decide_next_action(view):
         else:
             connected_regions.append({"id": conn_id, "name": conn_id})
             
-    eval_equip = evaluate_equipment(inventory, current_weapon, current_armor)
-    
-    if eval_equip["to_equip_weapon"]:
-        item_obj = eval_equip["to_equip_weapon"]
-        item_id = item_obj.get("id") or item_obj.get("typeId") if isinstance(item_obj, dict) else item_obj
-        return {
-            "type": "action",
-            "data": {
-                "type": "equip",
-                "itemId": item_id
-            }
-        }
-        
-    if eval_equip["to_equip_armor"]:
-        item_obj = eval_equip["to_equip_armor"]
-        item_id = item_obj.get("id") or item_obj.get("typeId") if isinstance(item_obj, dict) else item_obj
-        return {
-            "type": "action",
-            "data": {
-                "type": "equip",
-                "itemId": item_id
-            }
-        }
-        
-    if eval_equip["to_drop"] and len(inventory) >= 10:
-        item_obj = eval_equip["to_drop"][0]
-        item_id = item_obj.get("id") or item_obj.get("typeId") if isinstance(item_obj, dict) else item_obj
-        return {
-            "type": "action",
-            "data": {
-                "type": "drop",
-                "itemId": item_id
-            }
-        }
-        
     candidates = []
     is_safe = len(visible_agents) == 0 and len(visible_monsters) == 0 and len(visible_npcs) == 0
     
+    eval_equip = evaluate_equipment(inventory, current_weapon, current_armor)
+    
+    if eval_equip["to_equip_weapon"]:
+        if current_weapon is None:
+            candidates.append((70, {"action": "equip", "item": eval_equip["to_equip_weapon"]}))
+        elif is_safe:
+            candidates.append((30, {"action": "equip", "item": eval_equip["to_equip_weapon"]}))
+            
+    if eval_equip["to_equip_armor"]:
+        if current_armor is None:
+            candidates.append((75, {"action": "equip", "item": eval_equip["to_equip_armor"]}))
+        elif is_safe:
+            candidates.append((35, {"action": "equip", "item": eval_equip["to_equip_armor"]}))
+            
+    if eval_equip["to_drop"] and len(inventory) >= 10:
+        candidates.append((80, {"action": "drop", "item": eval_equip["to_drop"][0]}))
+        
     surv_res = evaluate_survival(hp, ep, is_safe, current_region, {"visibleAgents": visible_agents, "visibleMonsters": visible_monsters, "visibleNPCs": visible_npcs}, pending_deathzones)
     should_flee = surv_res["should_flee"]
     
@@ -191,6 +173,16 @@ def decide_next_action(view):
             "type": "action",
             "data": {
                 "type": "use_item",
+                "itemId": item_id
+            }
+        }
+    elif act_type == "drop":
+        item_obj = best_action.get("item", {})
+        item_id = item_obj.get("id") or item_obj.get("typeId") if isinstance(item_obj, dict) else item_obj
+        return {
+            "type": "action",
+            "data": {
+                "type": "drop",
                 "itemId": item_id
             }
         }
