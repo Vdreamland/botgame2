@@ -1,5 +1,3 @@
-import networkx as nx
-
 def detect_connected_regions(view):
     """
     Detect all connected and visible regions
@@ -9,21 +7,18 @@ def detect_connected_regions(view):
     current_id = current_region.get('id')
     current_name = current_region.get('name') or current_id
     
-    # Track visible regions data
     visible_regions_map = {}
     for r in view.get('visibleRegions', []):
         r_id = r.get('id')
         if r_id:
             visible_regions_map[r_id] = r
             
-    # Include current region details if visible
     if current_id and current_id not in visible_regions_map:
         visible_regions_map[current_id] = current_region
         
     detected_list = []
     seen_ids = set()
     
-    # 1. Current region first
     if current_id:
         curr_detail = visible_regions_map.get(current_id, current_region)
         detected_list.append({
@@ -35,9 +30,7 @@ def detect_connected_regions(view):
         })
         seen_ids.add(current_id)
         
-    # 2. Adjacent connected regions
     for r in view.get('connectedRegions', []):
-        # connectedRegions can contain objects or bare IDs
         r_id = r.get('id') if isinstance(r, dict) else r
         if r_id and r_id not in seen_ids:
             if r_id in visible_regions_map:
@@ -50,7 +43,6 @@ def detect_connected_regions(view):
                     'is_visible': True
                 })
             else:
-                # Outside vision
                 detected_list.append({
                     'id': r_id,
                     'name': r_id,
@@ -60,7 +52,6 @@ def detect_connected_regions(view):
                 })
             seen_ids.add(r_id)
             
-    # 3. Other visible regions in sight (e.g. ruins, court, etc.)
     for r_id, detail in visible_regions_map.items():
         if r_id not in seen_ids:
             detected_list.append({
@@ -81,7 +72,6 @@ def detect_region_items(view):
     """
     detected = {}
     
-    # 1. Gather all regions
     current_region = view.get('currentRegion', {})
     current_id = current_region.get('id')
     current_name = current_region.get('name') or current_id
@@ -114,23 +104,19 @@ def detect_region_items(view):
         
         items = []
         
-        # Check facilities (e.g. cave, refinery)
         facility = r.get('facility')
         if facility:
             f_type = facility.get('type')
             if f_type:
-                # Format like "Cave" or "Refinery [2]"
                 level = facility.get('level')
                 level_str = f" [{level}]" if level is not None else ""
                 items.append(f"{f_type.capitalize()}{level_str}")
                 
-        # Check ruins
         ruins = r.get('ruins')
         if ruins:
             ruins_name = ruins.get('name') or "Ruins"
             items.append(f"{ruins_name}")
             
-        # Check ground items
         ground_items = r.get('items', []) or r.get('groundItems', [])
         for item in ground_items:
             item_name = item.get('name') or item.get('type') or "Item"
