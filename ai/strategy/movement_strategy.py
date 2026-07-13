@@ -48,7 +48,7 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
                         has_needed_item = True
                         break
             if has_needed_item:
-                score += 80
+                score += 20
                 
             interactables = region_detail.get("interactables", []) or []
             for inter in interactables:
@@ -60,9 +60,9 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
                         if t_id and t_id in interacted_ids:
                             continue
                         if name_clean == "medical_facility" and hp < 100:
-                            score += 85
+                            score += 30
                         elif name_clean == "supply_cache":
-                            score += 75
+                            score += 25
                             
         scored_regions.append((score, r))
         

@@ -23,12 +23,12 @@ def score_interactables(interactables, hp, ep, interacted_ids):
             
         if name_clean == "medical_facility":
             if hp < 100:
-                score = 80 + (100 - hp)
+                score = 180 + (100 - hp)
                 if score > best_score:
                     best_score = score
                     best_action = {"action": "interact", "target": inter}
         elif name_clean == "supply_cache":
-            score = 75
+            score = 170
             if score > best_score:
                 best_score = score
                 best_action = {"action": "interact", "target": inter}

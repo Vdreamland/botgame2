@@ -89,23 +89,23 @@ def is_item_needed(item_id: str, inventory, current_weapon_id, current_armor_id)
 def score_ground_item(item_id: str, hp: int, ep: int) -> int:
     name_clean = str(item_id).lower().replace(" ", "_")
     if name_clean == "smoltz":
-        return 100
+        return 200
         
-    score = 0
+    score = 150
     if name_clean in WEAPON_STATS:
         stat = WEAPON_STATS[name_clean]
-        score = 50 + stat["atk"]
+        score = 150 + stat["atk"]
     elif name_clean in ARMOR_STATS:
         stat = ARMOR_STATS[name_clean]
-        score = 50 + stat["def"]
+        score = 150 + stat["def"]
     elif name_clean in RECOVERY_STATS:
         stat = RECOVERY_STATS[name_clean]
         if stat["hp"] > 0 and hp < 40:
-            score = 70
+            score = 180
         elif stat["ep"] > 0 and ep <= 2:
-            score = 70
+            score = 180
         else:
-            score = 40
+            score = 140
             
     return score
 
