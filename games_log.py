@@ -1,144 +1,156 @@
-import json
-from typing import Dict, Any
-from ai.detector import extract_agent_status, detect_connected_regions, detect_region_items, detect_region_enemies
-
-async def _handle_agent_death(msg: Dict[str, Any], view: Dict[str, Any], context: Any, source: str):
-    print(f"[Alert] Agent has died (Detected via {source}). Connection closing...")
-    game_id = msg.get("gameId") or view.get("gameId") or view.get("game", {}).get("gameId")
-    if game_id and hasattr(context, "dead_games") and context.dead_games is not None:
-        context.dead_games.add(game_id)
-    if context.ws:
-        await context.ws.close()
-
-async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
-    if msg_type in ("agent_view", "turn_advanced"):
-        view = msg.get("view") or msg.get("agentView") or msg.get("agent_view") or msg.get("data") or {}
-        
+def _is_entity_alive(entity):
+    if not isinstance(entity, dict):
+        return False
+    is_alive_camel = entity.get('isAlive')
+    if is_alive_camel is not None:
+        return bool(is_alive_camel)
+    is_alive_snake = entity.get('is_alive')
+    if is_alive_snake is not None:
+        return bool(is_alive_snake)
+    hp = entity.get('hp')
+    if hp is not None:
         try:
-            with open("raw_agent_view.json", "w") as f:
-                json.dump(view, f, indent=4)
-        except Exception as e:
-            print(f"[DEBUG ERROR] Gagal menulis raw_agent_view.json: {e}")
-            
-        status = extract_agent_status(msg)
-        regions = detect_connected_regions(view)
-        region_items = detect_region_items(view)
-        region_enemies = detect_region_enemies(view)
+            return float(hp) > 0
+        except (ValueError, TypeError):
+            pass
+    return True
+
+def detect_region_enemies(view):
+    detected = {}
+    current_region = view.get('currentRegion', {}) or {}
+    current_id = current_region.get('id')
+    
+    regions_to_check = []
+    seen_regions = set()
+    
+    if current_id:
+        regions_to_check.append(current_region)
+        seen_regions.add(current_id)
         
-        name = status["name"]
-        context.agent_name = name
-        context.agent_id = status["id"]
-        
-        hp = status["hp"]
-        ep = status["ep"]
-        x = status["x"]
-        y = status["y"]
-        is_alive = status["is_alive"]
-        global_turn = status["global_turn"]
-        turn = status["turn"]
-        day = status["day"]
-        atk = status["atk"]
-        defense = status["def"]
-        kills = status["kill"]
-        region_name = status["region_name"]
-        is_death_zone = status["is_death_zone"]
-        terrain = status["terrain"]
-        weather = status["weather"]
-        vision = status["vision"]
-        num_links = status["num_links"]
-        ruin = status["ruin"]
-        
-        current_state = (global_turn, hp, ep, x, y, kills, region_name, terrain, is_death_zone, weather, vision, num_links, str(ruin), str(region_enemies))
-        last_printed = getattr(context, "last_state", None)
-        
-        if last_printed != current_state:
-            color_red = "\033[91m"
-            color_reset = "\033[0m"
-            
-            current_zone_label = f" {color_red}[deadzone]{color_reset}" if is_death_zone else ""
-            
-            print(f"\n--- [DAY {day} TURN {turn}] ---")
-            print(f"Agent: {name} | HP: {hp} | EP: {ep} | ATK: {atk} | DEF: {defense} | KILL: {kills}")
-            
-            if ruin:
-                status_val = ruin["status"].capitalize() if isinstance(ruin["status"], str) else ruin["status"]
-                print(f"Location: {region_name}{current_zone_label} | Status : {status_val} | Gauge : {ruin['gauge']} / {ruin['max_gauge']} | Explorer : {ruin['explorer']}")
+    for r in view.get('connectedRegions', []):
+        r_id = r.get('id') if isinstance(r, dict) else r
+        if r_id and r_id not in seen_regions:
+            if isinstance(r, dict):
+                regions_to_check.append(r)
             else:
-                terrain_cap = terrain.capitalize() if terrain else "Unknown"
-                weather_cap = weather.capitalize() if weather else "Unknown"
-                print(f"Location: {region_name}{current_zone_label} | Terrain : {terrain_cap} | Weather : {weather_cap} | Vision {vision} | Link {num_links}")
-                
-            region_strings = []
-            for r in regions:
-                is_dead = r.get("is_death_zone", False)
-                if is_dead:
-                    zone_label = f" {color_red}[deadzone]{color_reset}"
-                else:
-                    zone_label = ""
-                region_strings.append(f"{r['name']}{zone_label}")
-                
-            joined_regions = " / ".join(region_strings)
-            print(f"Region detector : {joined_regions}")
+                regions_to_check.append({'id': r_id})
+            seen_regions.add(r_id)
             
-            if region_items:
-                print("Region Item detector :")
-                for r_name, items in region_items.items():
-                    print(f"{r_name} > {', '.join(items)}")
-            else:
-                print("Region Item detector : none")
-                
-            if region_enemies:
-                print("Region Enemy detector :")
-                for r_name, enemies in region_enemies.items():
-                    print(f"{r_name} > {', '.join(enemies)}")
-            else:
-                print("Region Enemy detector : none")
-                
-            curr_reg = view.get("currentRegion", {}) or {}
-            print("\n[DIAGNOSTIC]")
-            print("- File 'raw_agent_view.json' telah berhasil diperbarui.")
-            print(f"- Kunci utama view: {list(view.keys())}")
-            print(f"- Kunci utama currentRegion: {list(curr_reg.keys())}")
-            if "agents" in curr_reg:
-                print(f"- Jumlah agents di currentRegion: {len(curr_reg['agents'] or [])}")
-            if "players" in curr_reg:
-                print(f"- Jumlah players di currentRegion: {len(curr_reg['players'] or [])}")
-                
-            context.last_state = current_state
+    for r in view.get('visibleRegions', []):
+        r_id = r.get('id')
+        if r_id and r_id not in seen_regions:
+            regions_to_check.append(r)
+            seen_regions.add(r_id)
             
-        last_hp = getattr(context, "last_hp", None)
-        if last_hp is not None and last_hp != hp:
-            diff = last_hp - hp
-            if diff > 0:
-                print(f"[Status Update] You took {diff} damage! HP is now {hp}/{view.get('self', {}).get('maxHp', 100)}")
-            elif diff < 0:
-                print(f"[Status Update] You healed {abs(diff)} HP! HP is now {hp}/{view.get('self', {}).get('maxHp', 100)}")
-        context.last_hp = hp
-        
-        if not is_alive:
-            await _handle_agent_death(msg, view, context, "state view")
+    self_data = view.get('self', {}) or {}
+    self_id = self_data.get('id') or self_data.get('agentId') or self_data.get('agent_id')
+    
+    region_id_to_name = {}
+    coord_to_region_name = {}
+    
+    for r in regions_to_check:
+        r_id = r.get('id')
+        r_name = r.get('name') or r_id
+        if r_id:
+            region_id_to_name[r_id] = r_name
+            region_id_to_name[r_name] = r_name
             
-    elif msg_type == "can_act_changed":
-        can_act = msg.get("canAct", False)
-        if can_act:
-            print("[Action Ready] Cooldown over. You can act now!")
+        coords = r.get('hexCoords') or r.get('hex_coords')
+        if coords:
+            if isinstance(coords, list):
+                coord_to_region_name[tuple(coords)] = r_name
+            elif isinstance(coords, dict):
+                q = coords.get('q') or coords.get('x')
+                r_val = coords.get('r') or coords.get('y')
+                if q is not None and r_val is not None:
+                    coord_to_region_name[(q, r_val)] = r_name
+                    
+        x = r.get('x')
+        y = r.get('y')
+        if x is not None and y is not None:
+            coord_to_region_name[(x, y)] = r_name
+
+    def get_entity_region_name(entity):
+        r_id = entity.get('regionId') or entity.get('region_id') or entity.get('location')
+        if not r_id and isinstance(entity.get('position'), dict):
+            pos = entity.get('position', {})
+            r_id = pos.get('regionId') or pos.get('region_id') or pos.get('id')
+        elif not r_id and isinstance(entity.get('position'), str):
+            r_id = entity.get('position')
             
-    elif msg_type == "error":
-        err_msg = msg.get("error", {}).get("message", json.dumps(msg))
-        print(f"[Server Error] {err_msg}")
-        
-    elif msg_type == "log":
-        log_data = msg.get("log", {})
-        message = log_data.get("message", "")
-        agent_id = msg.get("agentId") or log_data.get("agentId")
-        
-        if (agent_id == context.agent_id) or (context.agent_name and context.agent_name in message):
-            if message:
-                print(f"[World Log] {message}")
+        if r_id:
+            val = region_id_to_name.get(r_id) or region_id_to_name.get(str(r_id))
+            if val:
+                return val
+            return str(r_id)
+            
+        coords = entity.get('hexCoords') or entity.get('hex_coords')
+        if coords:
+            if isinstance(coords, list):
+                key = tuple(coords)
+                if key in coord_to_region_name:
+                    return coord_to_region_name[key]
+            elif isinstance(coords, dict):
+                q = coords.get('q') or coords.get('x')
+                r_val = coords.get('r') or coords.get('y')
+                if q is not None and r_val is not None:
+                    key = (q, r_val)
+                    if key in coord_to_region_name:
+                        return coord_to_region_name[key]
+                        
+        x = entity.get('x')
+        y = entity.get('y')
+        if x is not None and y is not None:
+            key = (x, y)
+            if key in coord_to_region_name:
+                return coord_to_region_name[key]
                 
-            if context.agent_name:
-                lower_msg = message.lower()
-                name_lower = context.agent_name.lower()
-                if name_lower in lower_msg:
-                    if "killed" in lower_msg or "died" in lower_msg or "eliminated" in lower_msg:
-                        await _handle_agent_death(msg, {}, context, "world log")
+        return None
+
+    visible_agents = view.get('visibleAgents') or []
+    for agent in visible_agents:
+        if not isinstance(agent, dict):
+            continue
+        agent_id = agent.get('id') or agent.get('agentId') or agent.get('agent_id')
+        if agent_id == self_id:
+            continue
+        if _is_entity_alive(agent):
+            hp = agent.get('hp', 100)
+            name = agent.get('name') or agent.get('username') or agent.get('agentName') or (f"Agent_{agent_id[:4]}" if agent_id else "Unknown Agent")
+            r_name = get_entity_region_name(agent)
+            if r_name:
+                if r_name not in detected:
+                    detected[r_name] = []
+                is_guardian = agent.get('isGuardian', False)
+                prefix = "Guardian" if is_guardian else "Player"
+                detected[r_name].append(f"{prefix}: {name} [HP {hp}]")
+                
+    visible_monsters = view.get('visibleMonsters') or []
+    for m in visible_monsters:
+        if not isinstance(m, dict):
+            continue
+        if _is_entity_alive(m):
+            m_type = m.get('type') or m.get('name') or m.get('monsterId') or "Monster"
+            hp = m.get('hp')
+            hp_str = f" [HP {hp}]" if hp is not None else ""
+            r_name = get_entity_region_name(m)
+            if r_name:
+                if r_name not in detected:
+                    detected[r_name] = []
+                detected[r_name].append(f"Monster: {m_type}{hp_str}")
+                
+    visible_npcs = view.get('visibleNPCs') or []
+    for npc in visible_npcs:
+        if not isinstance(npc, dict):
+            continue
+        if _is_entity_alive(npc):
+            npc_type = npc.get('type') or npc.get('name') or npc.get('npcId') or "NPC"
+            hp = npc.get('hp')
+            hp_str = f" [HP {hp}]" if hp is not None else ""
+            r_name = get_entity_region_name(npc)
+            if r_name:
+                if r_name not in detected:
+                    detected[r_name] = []
+                detected[r_name].append(f"Guardian: {npc_type}{hp_str}")
+                
+    return detected

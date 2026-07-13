@@ -4,57 +4,24 @@
         "name": "Raizer_NOX",
         "profileIndex": 66,
         "regionId": "e6740601-cfba-4fe7-9a76-a1c5bdbb97f8",
-        "hp": 51,
+        "hp": 0,
         "maxHp": 100,
         "ep": 10,
         "maxEp": 10,
         "atk": 25,
         "def": 5,
         "vision": 1,
-        "inventory": [
-            {
-                "id": "e679792f-a2b3-4388-b58c-5d47cf8b6ab7:1000",
-                "typeId": "emergency_food",
-                "name": "Emergency Food",
-                "description": "Restores 20 HP, 5 EP",
-                "category": "recovery",
-                "stackable": true,
-                "quantity": 1,
-                "grade": "middle",
-                "hpRestore": 20,
-                "epRestore": 5
-            },
-            {
-                "id": "e679792f-a2b3-4388-b58c-5d47cf8b6ab7:1001",
-                "typeId": "emergency_food",
-                "name": "Emergency Food",
-                "description": "Restores 20 HP, 5 EP",
-                "category": "recovery",
-                "stackable": true,
-                "quantity": 1,
-                "grade": "middle",
-                "hpRestore": 20,
-                "epRestore": 5
-            },
-            {
-                "id": "e679792f-a2b3-4388-b58c-5d47cf8b6ab7:3000",
-                "typeId": "reward1",
-                "name": "sMoltz",
-                "description": "In-game rewards. Collected on victory to account balance.",
-                "category": "currency",
-                "stackable": true,
-                "quantity": 1,
-                "grade": "low"
-            }
-        ],
+        "inventory": [],
         "equippedWeapon": null,
-        "rewards": 1,
-        "isAlive": true,
+        "rewards": 0,
+        "isAlive": false,
         "isDiscovered": false,
         "kills": 0,
-        "survivalTime": 13,
+        "survivalTime": 14,
         "joinedAt": "2026-07-13T02:12:19.459450709Z",
         "lastActionAt": "0001-01-01T00:00:00Z",
+        "diedAt": "2026-07-13T02:20:04.888729212Z",
+        "killedBy": "92f0c453-b0e9-448d-9e3a-c3b15bfd4e02",
         "alertGauge": 0,
         "alertActive": false,
         "appliedAffixes": [
@@ -126,6 +93,32 @@
         }
     },
     "visibleRegions": [
+        {
+            "id": "b2c0c40f-2662-466c-b25a-e0ce1e31297f",
+            "name": "Hotel",
+            "description": "",
+            "terrain": "water",
+            "connections": [
+                "ce34e339-d3bf-478f-8c44-6012605ca773",
+                "e6740601-cfba-4fe7-9a76-a1c5bdbb97f8",
+                "c37f880b-eaee-4ba0-90ed-abff08860d60",
+                "ab78fad0-df97-44b8-b4d6-4b9b53ef04a5",
+                "6b115afc-e536-40a4-82ce-74d6e7457626",
+                "d17983a0-bcbd-4daa-a6ad-3d4ce89845a0"
+            ],
+            "visionModifier": 0,
+            "isDeathZone": false,
+            "weather": "clear",
+            "interactables": [],
+            "position": {
+                "x": 842.10235552,
+                "y": 1338.8
+            },
+            "hexCoords": {
+                "q": -4,
+                "r": 3
+            }
+        },
         {
             "id": "ce34e339-d3bf-478f-8c44-6012605ca773",
             "name": "Crossroads",
@@ -248,21 +241,6 @@
                     "isUsed": false
                 }
             ],
-            "items": [
-                {
-                    "id": "b1b052e5-1643-4773-918f-e1fe44421b66:4000",
-                    "typeId": "bow",
-                    "name": "Bow",
-                    "description": "Low-tier ranged weapon",
-                    "category": "weapon",
-                    "stackable": false,
-                    "quantity": 1,
-                    "grade": "low",
-                    "atkBonus": 8,
-                    "range": 1,
-                    "epCost": 1
-                }
-            ],
             "position": {
                 "x": 980.6664201599999,
                 "y": 1139.6
@@ -339,183 +317,9 @@
                 "q": -4,
                 "r": 2
             }
-        },
-        {
-            "id": "b2c0c40f-2662-466c-b25a-e0ce1e31297f",
-            "name": "Hotel",
-            "description": "",
-            "terrain": "water",
-            "connections": [
-                "ce34e339-d3bf-478f-8c44-6012605ca773",
-                "e6740601-cfba-4fe7-9a76-a1c5bdbb97f8",
-                "c37f880b-eaee-4ba0-90ed-abff08860d60",
-                "ab78fad0-df97-44b8-b4d6-4b9b53ef04a5",
-                "6b115afc-e536-40a4-82ce-74d6e7457626",
-                "d17983a0-bcbd-4daa-a6ad-3d4ce89845a0"
-            ],
-            "visionModifier": 0,
-            "isDeathZone": false,
-            "weather": "clear",
-            "interactables": [],
-            "position": {
-                "x": 842.10235552,
-                "y": 1338.8
-            },
-            "hexCoords": {
-                "q": -4,
-                "r": 3
-            }
         }
     ],
     "visibleAgents": [
-        {
-            "id": "c1569179-3490-4fa2-ba10-c19b1c60e299",
-            "name": "BlazeRunner200",
-            "profileIndex": 53,
-            "regionId": "ce34e339-d3bf-478f-8c44-6012605ca773",
-            "hp": 92,
-            "maxHp": 100,
-            "isAlive": true,
-            "isDiscovered": false,
-            "kills": 2,
-            "placement": 0,
-            "isGuardian": false,
-            "isAI": true,
-            "inCave": false,
-            "killedBy": null,
-            "diedAt": null,
-            "atk": 25,
-            "def": 25,
-            "ep": 3,
-            "maxEp": 10,
-            "inventory": [
-                {
-                    "id": "c1569179-3490-4fa2-ba10-c19b1c60e299:3000",
-                    "typeId": "reward1",
-                    "name": "sMoltz",
-                    "description": "In-game rewards. Collected on victory to account balance.",
-                    "category": "currency",
-                    "stackable": true,
-                    "quantity": 4,
-                    "grade": "low"
-                },
-                {
-                    "id": "c37f880b-eaee-4ba0-90ed-abff08860d60:4000",
-                    "typeId": "chainmail",
-                    "name": "Chainmail",
-                    "description": "Mid-tier armor",
-                    "category": "armor",
-                    "stackable": false,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "defBonus": 12
-                },
-                {
-                    "id": "c37f880b-eaee-4ba0-90ed-abff08860d60:4001",
-                    "typeId": "plate",
-                    "name": "Plate Armor",
-                    "description": "High-tier armor",
-                    "category": "armor",
-                    "stackable": false,
-                    "quantity": 1,
-                    "grade": "high",
-                    "defBonus": 20
-                },
-                {
-                    "id": "ea1bd2fe-6608-40bc-aad0-23771984aee2:4000",
-                    "typeId": "emergency_food",
-                    "name": "Emergency Food",
-                    "description": "Restores 20 HP, 5 EP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "hpRestore": 20,
-                    "epRestore": 5
-                },
-                {
-                    "id": "ea1bd2fe-6608-40bc-aad0-23771984aee2:4001",
-                    "typeId": "bandage",
-                    "name": "Bandage",
-                    "description": "Restores 10 HP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "low",
-                    "hpRestore": 10
-                },
-                {
-                    "id": "ea1bd2fe-6608-40bc-aad0-23771984aee2:4002",
-                    "typeId": "energy_drink",
-                    "name": "Energy drink",
-                    "description": "Restores 5 EP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "low",
-                    "epRestore": 5
-                },
-                {
-                    "id": "ea1bd2fe-6608-40bc-aad0-23771984aee2:4003",
-                    "typeId": "sword",
-                    "name": "Sword",
-                    "description": "Mid-tier melee weapon",
-                    "category": "weapon",
-                    "stackable": false,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "atkBonus": 24,
-                    "epCost": 2
-                },
-                {
-                    "id": "e6740601-cfba-4fe7-9a76-a1c5bdbb97f8:4000",
-                    "typeId": "sword",
-                    "name": "Sword",
-                    "description": "Mid-tier melee weapon",
-                    "category": "weapon",
-                    "stackable": false,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "atkBonus": 24,
-                    "epCost": 2
-                },
-                {
-                    "id": "8bc1c918-948e-4cc0-95be-7b0bfeaae5a4:1000",
-                    "typeId": "emergency_food",
-                    "name": "Emergency Food",
-                    "description": "Restores 20 HP, 5 EP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "hpRestore": 20,
-                    "epRestore": 5
-                }
-            ],
-            "equippedWeaponId": "ea1bd2fe-6608-40bc-aad0-23771984aee2:4003",
-            "equippedWeapon": {
-                "id": "ea1bd2fe-6608-40bc-aad0-23771984aee2:4003",
-                "typeId": "sword",
-                "name": "Sword",
-                "description": "Mid-tier melee weapon",
-                "category": "weapon",
-                "stackable": false,
-                "quantity": 1,
-                "grade": "middle",
-                "atkBonus": 24,
-                "epCost": 2
-            },
-            "equippedArmorId": "plate",
-            "equippedArmor": {
-                "id": "plate",
-                "name": "Plate Armor",
-                "grade": "high",
-                "defBonus": 20
-            },
-            "mainPackName": null,
-            "subPackName": null,
-            "relicStats": null
-        },
         {
             "id": "bd96407c-169e-4f00-ac92-cdf2cf0a2fe4",
             "name": "EmberStar240",
@@ -675,258 +479,6 @@
             "mainPackName": null,
             "subPackName": null,
             "relicStats": null
-        },
-        {
-            "id": "fa6f3aaf-86bd-4a98-b2e1-144e3878b630",
-            "name": "Ember_Runner560",
-            "profileIndex": 58,
-            "regionId": "63bffcc4-eb0d-4529-8bea-1a42a8e2a5c6",
-            "hp": 100,
-            "maxHp": 100,
-            "isAlive": true,
-            "isDiscovered": false,
-            "kills": 0,
-            "placement": 0,
-            "isGuardian": false,
-            "isAI": true,
-            "inCave": false,
-            "killedBy": null,
-            "diedAt": null,
-            "atk": 25,
-            "def": 25,
-            "ep": 1,
-            "maxEp": 10,
-            "inventory": [
-                {
-                    "id": "fa6f3aaf-86bd-4a98-b2e1-144e3878b630:1001",
-                    "typeId": "emergency_food",
-                    "name": "Emergency Food",
-                    "description": "Restores 20 HP, 5 EP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "hpRestore": 20,
-                    "epRestore": 5
-                },
-                {
-                    "id": "fa6f3aaf-86bd-4a98-b2e1-144e3878b630:3000",
-                    "typeId": "reward1",
-                    "name": "sMoltz",
-                    "description": "In-game rewards. Collected on victory to account balance.",
-                    "category": "currency",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "low"
-                },
-                {
-                    "id": "7dfb5c92-4ae5-46a9-a67b-31db60431f26:4000",
-                    "typeId": "plate",
-                    "name": "Plate Armor",
-                    "description": "High-tier armor",
-                    "category": "armor",
-                    "stackable": false,
-                    "quantity": 1,
-                    "grade": "high",
-                    "defBonus": 20
-                },
-                {
-                    "id": "7b8d7c2b-e3a4-488e-9c3d-4739c3b37dd4:4000",
-                    "typeId": "energy_drink",
-                    "name": "Energy drink",
-                    "description": "Restores 5 EP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "low",
-                    "epRestore": 5
-                },
-                {
-                    "id": "7b8d7c2b-e3a4-488e-9c3d-4739c3b37dd4:4001",
-                    "typeId": "binoculars",
-                    "name": "Binoculars",
-                    "description": "Vision +1 (permanent)",
-                    "category": "utility",
-                    "stackable": false,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "effect": "vision_boost",
-                    "useType": "passive"
-                },
-                {
-                    "id": "7b8d7c2b-e3a4-488e-9c3d-4739c3b37dd4:4002",
-                    "typeId": "plate",
-                    "name": "Plate Armor",
-                    "description": "High-tier armor",
-                    "category": "armor",
-                    "stackable": false,
-                    "quantity": 1,
-                    "grade": "high",
-                    "defBonus": 20
-                },
-                {
-                    "id": "dd9267eb-c5e6-4267-8f0a-f4df2a3b9bae:1000",
-                    "typeId": "emergency_food",
-                    "name": "Emergency Food",
-                    "description": "Restores 20 HP, 5 EP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "hpRestore": 20,
-                    "epRestore": 5
-                },
-                {
-                    "id": "dd9267eb-c5e6-4267-8f0a-f4df2a3b9bae:1100",
-                    "typeId": "bandage",
-                    "name": "Bandage",
-                    "description": "Restores 10 HP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "low",
-                    "hpRestore": 10
-                },
-                {
-                    "id": "fc19a1d2-753d-49f5-811d-5e98bdb1b030:4000",
-                    "typeId": "knife",
-                    "name": "Dagger",
-                    "description": "Low-tier melee weapon",
-                    "category": "weapon",
-                    "stackable": false,
-                    "quantity": 1,
-                    "grade": "low",
-                    "atkBonus": 16,
-                    "epCost": 1
-                },
-                {
-                    "id": "fc19a1d2-753d-49f5-811d-5e98bdb1b030:4001",
-                    "typeId": "bow",
-                    "name": "Bow",
-                    "description": "Low-tier ranged weapon",
-                    "category": "weapon",
-                    "stackable": false,
-                    "quantity": 1,
-                    "grade": "low",
-                    "atkBonus": 8,
-                    "range": 1,
-                    "epCost": 1
-                }
-            ],
-            "equippedWeaponId": "fc19a1d2-753d-49f5-811d-5e98bdb1b030:4000",
-            "equippedWeapon": {
-                "id": "fc19a1d2-753d-49f5-811d-5e98bdb1b030:4000",
-                "typeId": "knife",
-                "name": "Dagger",
-                "description": "Low-tier melee weapon",
-                "category": "weapon",
-                "stackable": false,
-                "quantity": 1,
-                "grade": "low",
-                "atkBonus": 16,
-                "epCost": 1
-            },
-            "equippedArmorId": "plate",
-            "equippedArmor": {
-                "id": "plate",
-                "name": "Plate Armor",
-                "grade": "high",
-                "defBonus": 20
-            },
-            "mainPackName": null,
-            "subPackName": null,
-            "relicStats": null
-        },
-        {
-            "id": "92f0c453-b0e9-448d-9e3a-c3b15bfd4e02",
-            "name": "Nightrend_x",
-            "profileIndex": 1,
-            "regionId": "e6740601-cfba-4fe7-9a76-a1c5bdbb97f8",
-            "hp": 95,
-            "maxHp": 123,
-            "isAlive": true,
-            "isDiscovered": false,
-            "kills": 0,
-            "placement": 0,
-            "isGuardian": false,
-            "isAI": false,
-            "inCave": false,
-            "killedBy": null,
-            "diedAt": null,
-            "atk": 25,
-            "def": 11,
-            "ep": 10,
-            "maxEp": 10,
-            "inventory": [
-                {
-                    "id": "92f0c453-b0e9-448d-9e3a-c3b15bfd4e02:1000",
-                    "typeId": "emergency_food",
-                    "name": "Emergency Food",
-                    "description": "Restores 20 HP, 5 EP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "hpRestore": 20,
-                    "epRestore": 5
-                },
-                {
-                    "id": "92f0c453-b0e9-448d-9e3a-c3b15bfd4e02:1001",
-                    "typeId": "emergency_food",
-                    "name": "Emergency Food",
-                    "description": "Restores 20 HP, 5 EP",
-                    "category": "recovery",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "middle",
-                    "hpRestore": 20,
-                    "epRestore": 5
-                },
-                {
-                    "id": "92f0c453-b0e9-448d-9e3a-c3b15bfd4e02:3000",
-                    "typeId": "reward1",
-                    "name": "sMoltz",
-                    "description": "In-game rewards. Collected on victory to account balance.",
-                    "category": "currency",
-                    "stackable": true,
-                    "quantity": 1,
-                    "grade": "low"
-                },
-                {
-                    "id": "d310e326-7d98-4eee-928c-f08694f1a6b4:4000",
-                    "typeId": "knife",
-                    "name": "Dagger",
-                    "description": "Low-tier melee weapon",
-                    "category": "weapon",
-                    "stackable": false,
-                    "quantity": 1,
-                    "grade": "low",
-                    "atkBonus": 16,
-                    "epCost": 1
-                }
-            ],
-            "equippedWeaponId": "d310e326-7d98-4eee-928c-f08694f1a6b4:4000",
-            "equippedWeapon": {
-                "id": "d310e326-7d98-4eee-928c-f08694f1a6b4:4000",
-                "typeId": "knife",
-                "name": "Dagger",
-                "description": "Low-tier melee weapon",
-                "category": "weapon",
-                "stackable": false,
-                "quantity": 1,
-                "grade": "low",
-                "atkBonus": 16,
-                "epCost": 1
-            },
-            "equippedArmorId": null,
-            "equippedArmor": null,
-            "mainPackName": "Berserker",
-            "subPackName": "Iron Heart T2",
-            "relicStats": {
-                "def": 5,
-                "ep_regen": 1,
-                "max_hp": 20
-            }
         }
     ],
     "visibleMonsters": [],
@@ -937,539 +489,23 @@
     "recentLogs": [
         {
             "log": {
-                "agentId": "fa6f3aaf-86bd-4a98-b2e1-144e3878b630",
+                "agentId": "1d2040dd-435d-4bc1-83c4-458a7dbb3a2b",
                 "details": {
-                    "epCost": 2,
-                    "fromRegionId": "63bffcc4-eb0d-4529-8bea-1a42a8e2a5c6",
-                    "targetId": "ce34e339-d3bf-478f-8c44-6012605ca773",
-                    "targetName": "Crossroads",
-                    "toRegionId": "ce34e339-d3bf-478f-8c44-6012605ca773",
-                    "verb": "move"
-                },
-                "id": "dbd96fdbb6ce4828db304e68db4fce73b433cbc48a0ad5e3e5f98abda43c379d",
-                "message": "Ember_Runner560 moved to Crossroads.",
-                "regionId": "ce34e339-d3bf-478f-8c44-6012605ca773",
-                "segments": [
-                    {
-                        "id": "fa6f3aaf-86bd-4a98-b2e1-144e3878b630",
-                        "type": "agent",
-                        "value": "Ember_Runner560"
-                    },
-                    {
-                        "type": "text",
-                        "value": " moved to "
-                    },
-                    {
-                        "id": "ce34e339-d3bf-478f-8c44-6012605ca773",
-                        "type": "region",
-                        "value": "Crossroads"
-                    },
-                    {
-                        "type": "text",
-                        "value": "."
-                    }
-                ],
-                "target": "ce34e339-d3bf-478f-8c44-6012605ca773",
-                "timestamp": "2026-07-13T02:18:36.774451165Z",
-                "turn": 13,
-                "type": "move"
-            }
-        },
-        {
-            "log": {
-                "agentId": "0d6ceb5f-d264-45ef-a367-77c0980b2a2c",
-                "details": {
-                    "actualHpDrop": 8,
-                    "damage": 8,
-                    "killed": false,
-                    "newHp": 92,
-                    "prevHp": 100,
-                    "targetId": "c1569179-3490-4fa2-ba10-c19b1c60e299",
-                    "targetName": "BlazeRunner200",
-                    "targetType": "agent",
-                    "verb": "attack"
-                },
-                "id": "65ee0906b374bd06f40220acab133ff58e76d7f0bd459d3bb5aa3970f66a6e52",
-                "message": "Silent_Dragon969 attacked BlazeRunner200 for 8 damage.",
-                "regionId": "ce34e339-d3bf-478f-8c44-6012605ca773",
-                "segments": [
-                    {
-                        "id": "0d6ceb5f-d264-45ef-a367-77c0980b2a2c",
-                        "type": "agent",
-                        "value": "Silent_Dragon969"
-                    },
-                    {
-                        "type": "text",
-                        "value": " attacked "
-                    },
-                    {
-                        "id": "c1569179-3490-4fa2-ba10-c19b1c60e299",
-                        "type": "agent",
-                        "value": "BlazeRunner200"
-                    },
-                    {
-                        "type": "text",
-                        "value": " for 8 damage. (HP 100\u219292)"
-                    }
-                ],
-                "target": "c1569179-3490-4fa2-ba10-c19b1c60e299",
-                "timestamp": "2026-07-13T02:18:36.774993816Z",
-                "turn": 13,
-                "type": "attack"
-            }
-        },
-        {
-            "log": {
-                "details": {
-                    "clearedBy": "",
-                    "clearedByName": "",
-                    "contentType": "relic",
-                    "gauge": 2,
-                    "isEmpty": false,
-                    "maxGauge": 3,
-                    "occupiedBy": "ec097f07-b56c-4fe9-8192-34a9121de8bc",
-                    "ruinId": "9f1b589b-10fa-4e9e-8767-ab4235f8cedd"
-                },
-                "id": "bbf3a55331a6483483ffe1af38f5669ed8f5c42d3ae37ff6ad43e5e2f9138d0e",
-                "message": "Delta_Caster64 is excavating the relic ruin (2/3).",
-                "timestamp": "2026-07-13T02:18:36.775245231Z",
-                "turn": 13,
-                "type": "ruin_state_changed"
-            }
-        },
-        {
-            "log": {
-                "agentId": "6b03edce-651a-4841-82bf-f51d59056ca4",
-                "details": {
-                    "actualHpDrop": 56,
-                    "aoe": true,
-                    "damage": 60,
-                    "killed": true,
-                    "newHp": 0,
-                    "packEffects": [
-                        {
-                            "packKey": "goliath",
-                            "params": {
-                                "atkMultiplier": 0.75,
-                                "isAoe": true
-                            },
-                            "slot": "main",
-                            "variant": "aoe"
-                        }
-                    ],
-                    "prevHp": 56,
-                    "targetId": "bd470ca7-cb85-446c-a753-40f83ac88133",
-                    "targetName": "DeltaPhoenix744",
-                    "targetType": "agent",
-                    "verb": "attack"
-                },
-                "id": "1274becfd5b35cfd4bbd1fc388f8b53873bc5f75ead873136d286a0a4c3eeab2",
-                "message": "LunarRider219 killed DeltaPhoenix744.",
-                "packEffects": [
-                    {
-                        "packKey": "goliath",
-                        "params": {
-                            "atkMultiplier": 0.75,
-                            "isAoe": true
-                        },
-                        "slot": "main",
-                        "variant": "aoe"
-                    }
-                ],
-                "regionId": "16579530-bf23-41b1-b164-407243c9108b",
-                "segments": [
-                    {
-                        "id": "6b03edce-651a-4841-82bf-f51d59056ca4",
-                        "type": "agent",
-                        "value": "LunarRider219"
-                    },
-                    {
-                        "type": "text",
-                        "value": " attacked "
-                    },
-                    {
-                        "id": "bd470ca7-cb85-446c-a753-40f83ac88133",
-                        "type": "agent",
-                        "value": "DeltaPhoenix744"
-                    },
-                    {
-                        "type": "text",
-                        "value": " for 60 damage. (HP 56\u21920)"
-                    }
-                ],
-                "target": "bd470ca7-cb85-446c-a753-40f83ac88133",
-                "timestamp": "2026-07-13T02:18:36.775538487Z",
-                "turn": 13,
-                "type": "death"
-            }
-        },
-        {
-            "log": {
-                "agentId": "bd470ca7-cb85-446c-a753-40f83ac88133",
-                "details": {
-                    "killedBy": "6b03edce-651a-4841-82bf-f51d59056ca4",
-                    "killerName": "LunarRider219",
-                    "killerWeaponName": "Katana",
-                    "killerWeaponTypeId": "katana",
-                    "reason": "combat"
-                },
-                "id": "203dd7a102cd564623a84cab63291915beb8c1ac41e7cda5fa4dffcc100d8912",
-                "message": "DeltaPhoenix744 was killed by LunarRider219.",
-                "regionId": "16579530-bf23-41b1-b164-407243c9108b",
-                "segments": [
-                    {
-                        "id": "bd470ca7-cb85-446c-a753-40f83ac88133",
-                        "type": "agent",
-                        "value": "DeltaPhoenix744"
-                    },
-                    {
-                        "type": "text",
-                        "value": " was killed by "
-                    },
-                    {
-                        "id": "6b03edce-651a-4841-82bf-f51d59056ca4",
-                        "type": "agent",
-                        "value": "LunarRider219"
-                    },
-                    {
-                        "type": "text",
-                        "value": "."
-                    }
-                ],
-                "timestamp": "2026-07-13T02:18:36.775538487Z",
-                "turn": 13,
-                "type": "death"
-            }
-        },
-        {
-            "log": {
-                "agentId": "74129e20-d168-41f9-8bad-786ceccb9c0f",
-                "details": {
-                    "actualHpDrop": 7,
-                    "damage": 44,
-                    "killed": true,
-                    "newHp": 0,
-                    "prevHp": 7,
-                    "targetId": "d4580ba3-47e3-4707-b0bb-80d2b028e57f",
-                    "targetName": "Crimson_Runner702",
-                    "targetType": "agent",
-                    "verb": "attack"
-                },
-                "id": "e6f1e7a11ac823a57ced7c70c2ddc9a87b54cbfcd3eb882a8b348d2cded8882e",
-                "message": "Iron-Ninja611 killed Crimson_Runner702.",
-                "regionId": "6972f6db-81a2-4273-9e3f-fa0ce1e6781e",
-                "segments": [
-                    {
-                        "id": "74129e20-d168-41f9-8bad-786ceccb9c0f",
-                        "type": "agent",
-                        "value": "Iron-Ninja611"
-                    },
-                    {
-                        "type": "text",
-                        "value": " attacked "
-                    },
-                    {
-                        "id": "d4580ba3-47e3-4707-b0bb-80d2b028e57f",
-                        "type": "agent",
-                        "value": "Crimson_Runner702"
-                    },
-                    {
-                        "type": "text",
-                        "value": " for 44 damage. (HP 7\u21920)"
-                    }
-                ],
-                "target": "d4580ba3-47e3-4707-b0bb-80d2b028e57f",
-                "timestamp": "2026-07-13T02:18:36.775890204Z",
-                "turn": 13,
-                "type": "death"
-            }
-        },
-        {
-            "log": {
-                "agentId": "d4580ba3-47e3-4707-b0bb-80d2b028e57f",
-                "details": {
-                    "killedBy": "74129e20-d168-41f9-8bad-786ceccb9c0f",
-                    "killerName": "Iron-Ninja611",
-                    "killerWeaponName": "Sword",
-                    "killerWeaponTypeId": "sword",
-                    "reason": "combat"
-                },
-                "id": "87758cbe4df05a2d22bb1e8c28f770e959392f17dada3ed9f45855399c477949",
-                "message": "Crimson_Runner702 was killed by Iron-Ninja611.",
-                "regionId": "6972f6db-81a2-4273-9e3f-fa0ce1e6781e",
-                "segments": [
-                    {
-                        "id": "d4580ba3-47e3-4707-b0bb-80d2b028e57f",
-                        "type": "agent",
-                        "value": "Crimson_Runner702"
-                    },
-                    {
-                        "type": "text",
-                        "value": " was killed by "
-                    },
-                    {
-                        "id": "74129e20-d168-41f9-8bad-786ceccb9c0f",
-                        "type": "agent",
-                        "value": "Iron-Ninja611"
-                    },
-                    {
-                        "type": "text",
-                        "value": "."
-                    }
-                ],
-                "timestamp": "2026-07-13T02:18:36.775890204Z",
-                "turn": 13,
-                "type": "death"
-            }
-        },
-        {
-            "log": {
-                "details": {
-                    "clearedBy": "8b57a696-7de0-4695-9995-67378e02fa0f",
-                    "clearedByName": "DarkSniper374",
-                    "contentType": "pack",
-                    "gauge": 3,
-                    "isEmpty": true,
-                    "maxGauge": 3,
-                    "occupiedBy": "",
-                    "ruinId": "fcb7a942-57b3-4f9e-913a-2436033a57ef"
-                },
-                "id": "e693db51ce69c283a679d32f828ba4405a0d06416483cdabcab7efb099507efc",
-                "message": "The pack ruin has been fully excavated.",
-                "timestamp": "2026-07-13T02:18:36.776866434Z",
-                "turn": 13,
-                "type": "ruin_state_changed"
-            }
-        },
-        {
-            "log": {
-                "agentId": "ec3ffcaa-b13d-43b0-a491-d4734d32f43a",
-                "details": {
-                    "actualHpDrop": 31,
-                    "damage": 43,
-                    "killed": true,
-                    "newHp": 0,
-                    "prevHp": 31,
-                    "targetId": "ee39e9e8-333f-4daa-9ff8-1e42b2651bc0",
-                    "targetName": "IronRaven507",
-                    "targetType": "agent",
-                    "verb": "attack"
-                },
-                "id": "e1f210bf323522b4b59b044f45bb1c6f8ff390891f106356484d89c038dd3d47",
-                "message": "britt4nyrush killed IronRaven507.",
-                "regionId": "5bbbee4c-a172-42e2-899d-4bc249537369",
-                "segments": [
-                    {
-                        "id": "ec3ffcaa-b13d-43b0-a491-d4734d32f43a",
-                        "type": "agent",
-                        "value": "britt4nyrush"
-                    },
-                    {
-                        "type": "text",
-                        "value": " attacked "
-                    },
-                    {
-                        "id": "ee39e9e8-333f-4daa-9ff8-1e42b2651bc0",
-                        "type": "agent",
-                        "value": "IronRaven507"
-                    },
-                    {
-                        "type": "text",
-                        "value": " for 43 damage. (HP 31\u21920)"
-                    }
-                ],
-                "target": "ee39e9e8-333f-4daa-9ff8-1e42b2651bc0",
-                "timestamp": "2026-07-13T02:19:01.29669733Z",
-                "turn": 13,
-                "type": "death"
-            }
-        },
-        {
-            "log": {
-                "agentId": "ee39e9e8-333f-4daa-9ff8-1e42b2651bc0",
-                "details": {
-                    "killedBy": "ec3ffcaa-b13d-43b0-a491-d4734d32f43a",
-                    "killerName": "britt4nyrush",
-                    "killerWeaponName": "Bow",
-                    "killerWeaponTypeId": "bow",
-                    "reason": "combat"
-                },
-                "id": "f121c1b421e7e55d8fd60cac86f7f9b79e3d44b232e75f406716a625a0e4df34",
-                "message": "IronRaven507 was killed by britt4nyrush.",
-                "regionId": "599d558f-26b0-4cd4-8fa0-4ed94442626c",
-                "segments": [
-                    {
-                        "id": "ee39e9e8-333f-4daa-9ff8-1e42b2651bc0",
-                        "type": "agent",
-                        "value": "IronRaven507"
-                    },
-                    {
-                        "type": "text",
-                        "value": " was killed by "
-                    },
-                    {
-                        "id": "ec3ffcaa-b13d-43b0-a491-d4734d32f43a",
-                        "type": "agent",
-                        "value": "britt4nyrush"
-                    },
-                    {
-                        "type": "text",
-                        "value": "."
-                    }
-                ],
-                "timestamp": "2026-07-13T02:19:01.29669733Z",
-                "turn": 13,
-                "type": "death"
-            }
-        },
-        {
-            "log": {
-                "agentId": "92f0c453-b0e9-448d-9e3a-c3b15bfd4e02",
-                "details": {
-                    "actualHpDrop": 29,
-                    "damage": 29,
-                    "killed": false,
-                    "newHp": 51,
-                    "packEffects": [
-                        {
-                            "packKey": "steel_heart",
-                            "params": {
-                                "mult": 0.8
-                            },
-                            "slot": "sub",
-                            "variant": "dmg_mult"
-                        },
-                        {
-                            "packKey": "steel_heart",
-                            "params": {
-                                "defGained": 1,
-                                "hpGained": 3,
-                                "stack": 1
-                            },
-                            "slot": "sub",
-                            "variant": "stack"
-                        }
-                    ],
-                    "prevHp": 80,
-                    "targetId": "e679792f-a2b3-4388-b58c-5d47cf8b6ab7",
-                    "targetName": "Raizer_NOX",
-                    "targetType": "agent",
-                    "verb": "attack"
-                },
-                "id": "07baae67b897e3743a55ec795915f30255fdf0d612880ac4d9a3b347bfc1c59f",
-                "message": "Nightrend_x attacked Raizer_NOX for 29 damage.",
-                "packEffects": [
-                    {
-                        "packKey": "steel_heart",
-                        "params": {
-                            "mult": 0.8
-                        },
-                        "slot": "sub",
-                        "variant": "dmg_mult"
-                    },
-                    {
-                        "packKey": "steel_heart",
-                        "params": {
-                            "defGained": 1,
-                            "hpGained": 3,
-                            "stack": 1
-                        },
-                        "slot": "sub",
-                        "variant": "stack"
-                    }
-                ],
-                "regionId": "e6740601-cfba-4fe7-9a76-a1c5bdbb97f8",
-                "segments": [
-                    {
-                        "id": "92f0c453-b0e9-448d-9e3a-c3b15bfd4e02",
-                        "type": "agent",
-                        "value": "Nightrend_x"
-                    },
-                    {
-                        "type": "text",
-                        "value": " attacked "
-                    },
-                    {
-                        "id": "e679792f-a2b3-4388-b58c-5d47cf8b6ab7",
-                        "type": "agent",
-                        "value": "Raizer_NOX"
-                    },
-                    {
-                        "type": "text",
-                        "value": " for 29 damage. (HP 80\u219251)"
-                    }
-                ],
-                "target": "e679792f-a2b3-4388-b58c-5d47cf8b6ab7",
-                "timestamp": "2026-07-13T02:19:03.099210268Z",
-                "turn": 13,
-                "type": "attack"
-            }
-        },
-        {
-            "log": {
-                "details": {
-                    "regions": [
-                        "3df6ac40-ff18-4c9a-a7ad-9551a096e5fb",
-                        "42dafc42-1bfb-4c7a-9b10-859c09d304ee",
-                        "453893f1-8e37-4323-bac9-3fc889300019",
-                        "4a5bf20a-3ceb-457b-b63b-0b0f4f174a19",
-                        "4e716903-f004-4db5-8063-add8461257fc"
-                    ]
-                },
-                "id": "aeb39aad44e11b3dcd06963db87c3cc8be4d2610dd5071df068e084cc2f7647a",
-                "message": "The death zone is expanding.",
-                "timestamp": "2026-07-13T02:19:07.639298845Z",
-                "turn": 14,
-                "type": "deathzone_expanded"
-            }
-        },
-        {
-            "log": {
-                "agentId": "c6b3c07e-5dbd-577e-8391-2e56e3739421",
-                "details": {
-                    "ep": 10,
-                    "maxEp": 10,
-                    "recovered": 0,
-                    "verb": "rest"
-                },
-                "id": "17d673d16a884e83c3ad39f57cb55536d391d1dd1f8494a171b9d15a01624438",
-                "message": "Guardian rested.",
-                "regionId": "c37f880b-eaee-4ba0-90ed-abff08860d60",
-                "segments": [
-                    {
-                        "id": "c6b3c07e-5dbd-577e-8391-2e56e3739421",
-                        "type": "agent",
-                        "value": "Guardian"
-                    },
-                    {
-                        "type": "text",
-                        "value": " rested (+0 EP)"
-                    }
-                ],
-                "timestamp": "2026-07-13T02:19:07.689250108Z",
-                "turn": 14,
-                "type": "rest"
-            }
-        },
-        {
-            "log": {
-                "agentId": "fa6f3aaf-86bd-4a98-b2e1-144e3878b630",
-                "details": {
-                    "epCost": 2,
-                    "fromRegionId": "ce34e339-d3bf-478f-8c44-6012605ca773",
+                    "epCost": 0,
+                    "fromRegionId": "6d6da3c4-0e26-4b93-89e6-05add3ed682d",
                     "targetId": "63bffcc4-eb0d-4529-8bea-1a42a8e2a5c6",
                     "targetName": "Meadow",
                     "toRegionId": "63bffcc4-eb0d-4529-8bea-1a42a8e2a5c6",
                     "verb": "move"
                 },
-                "id": "b72f4c222d6925d329be8634f19e97de0cacc1cfd5da1eecd04e941d893d9988",
-                "message": "Ember_Runner560 moved to Meadow.",
+                "id": "b765b28bdc8d8743dfbd7fc74410d179c091103698926e33ea5e8c4136e1ea6b",
+                "message": "Azure-Slayer798 moved to Meadow.",
                 "regionId": "63bffcc4-eb0d-4529-8bea-1a42a8e2a5c6",
                 "segments": [
                     {
-                        "id": "fa6f3aaf-86bd-4a98-b2e1-144e3878b630",
+                        "id": "1d2040dd-435d-4bc1-83c4-458a7dbb3a2b",
                         "type": "agent",
-                        "value": "Ember_Runner560"
+                        "value": "Azure-Slayer798"
                     },
                     {
                         "type": "text",
@@ -1486,30 +522,58 @@
                     }
                 ],
                 "target": "63bffcc4-eb0d-4529-8bea-1a42a8e2a5c6",
-                "timestamp": "2026-07-13T02:19:07.772618496Z",
-                "turn": 14,
+                "timestamp": "2026-07-13T02:25:11.366310728Z",
+                "turn": 24,
                 "type": "move"
             }
         },
         {
             "log": {
-                "agentId": "c1569179-3490-4fa2-ba10-c19b1c60e299",
+                "agentId": "c6b3c07e-5dbd-577e-8391-2e56e3739421",
                 "details": {
-                    "epCost": 2,
-                    "fromRegionId": "cebfaba8-ccbd-4d7a-88e0-2af49143f6f6",
+                    "ep": 10,
+                    "maxEp": 10,
+                    "recovered": 0,
+                    "verb": "rest"
+                },
+                "id": "2fdf8d470cc89a32ea5a5cd0a21bcd7aa473314536c3609b4bb76c8a5f9e61f2",
+                "message": "Guardian rested.",
+                "regionId": "c37f880b-eaee-4ba0-90ed-abff08860d60",
+                "segments": [
+                    {
+                        "id": "c6b3c07e-5dbd-577e-8391-2e56e3739421",
+                        "type": "agent",
+                        "value": "Guardian"
+                    },
+                    {
+                        "type": "text",
+                        "value": " rested (+0 EP)"
+                    }
+                ],
+                "timestamp": "2026-07-13T02:25:50.626308519Z",
+                "turn": 25,
+                "type": "rest"
+            }
+        },
+        {
+            "log": {
+                "agentId": "1d2040dd-435d-4bc1-83c4-458a7dbb3a2b",
+                "details": {
+                    "epCost": 0,
+                    "fromRegionId": "63bffcc4-eb0d-4529-8bea-1a42a8e2a5c6",
                     "targetId": "ce34e339-d3bf-478f-8c44-6012605ca773",
                     "targetName": "Crossroads",
                     "toRegionId": "ce34e339-d3bf-478f-8c44-6012605ca773",
                     "verb": "move"
                 },
-                "id": "c103999975eed4d482d10e74968f45a6da72bbaf8b92e0bb62d8457a3386c1af",
-                "message": "BlazeRunner200 moved to Crossroads.",
+                "id": "640685decc46271ad100debbe31fc3e72286f342daf96464de3f9748d2420fe0",
+                "message": "Azure-Slayer798 moved to Crossroads.",
                 "regionId": "ce34e339-d3bf-478f-8c44-6012605ca773",
                 "segments": [
                     {
-                        "id": "c1569179-3490-4fa2-ba10-c19b1c60e299",
+                        "id": "1d2040dd-435d-4bc1-83c4-458a7dbb3a2b",
                         "type": "agent",
-                        "value": "BlazeRunner200"
+                        "value": "Azure-Slayer798"
                     },
                     {
                         "type": "text",
@@ -1526,118 +590,306 @@
                     }
                 ],
                 "target": "ce34e339-d3bf-478f-8c44-6012605ca773",
-                "timestamp": "2026-07-13T02:19:07.773415589Z",
-                "turn": 14,
+                "timestamp": "2026-07-13T02:25:50.681489048Z",
+                "turn": 25,
                 "type": "move"
             }
         },
         {
             "log": {
-                "agentId": "c21f1f5d-324b-4f21-b617-7025acc80665",
+                "agentId": "f529b280-c567-4485-bd75-e97aed476fd1",
                 "details": {
-                    "actualHpDrop": 18,
-                    "damage": 26,
+                    "epCost": 2,
+                    "fromRegionId": "e6740601-cfba-4fe7-9a76-a1c5bdbb97f8",
+                    "targetId": "b1b052e5-1643-4773-918f-e1fe44421b66",
+                    "targetName": "Silo",
+                    "toRegionId": "b1b052e5-1643-4773-918f-e1fe44421b66",
+                    "verb": "move"
+                },
+                "id": "8b37d05002007a4c9defb68ec3e3ee08c5c0123e2b92e4f71c8eb76ffa70afac",
+                "message": "IronBear438 moved to Silo.",
+                "regionId": "b1b052e5-1643-4773-918f-e1fe44421b66",
+                "segments": [
+                    {
+                        "id": "f529b280-c567-4485-bd75-e97aed476fd1",
+                        "type": "agent",
+                        "value": "IronBear438"
+                    },
+                    {
+                        "type": "text",
+                        "value": " moved to "
+                    },
+                    {
+                        "id": "b1b052e5-1643-4773-918f-e1fe44421b66",
+                        "type": "region",
+                        "value": "Silo"
+                    },
+                    {
+                        "type": "text",
+                        "value": "."
+                    }
+                ],
+                "target": "b1b052e5-1643-4773-918f-e1fe44421b66",
+                "timestamp": "2026-07-13T02:25:50.681780035Z",
+                "turn": 25,
+                "type": "move"
+            }
+        },
+        {
+            "log": {
+                "agentId": "d9f47f61-0f8f-48ad-8c5b-2a794f4564d4",
+                "details": {
+                    "actualHpDrop": 5,
+                    "damage": 28,
                     "killed": true,
                     "newHp": 0,
-                    "prevHp": 18,
-                    "targetId": "77981b09-ed20-4c8b-a5d6-9ce790dcb07b",
-                    "targetName": "RapidForge2",
+                    "prevHp": 5,
+                    "targetId": "454bf871-5441-4fab-8e14-41fde719f5e2",
+                    "targetName": "SolarCaster953",
                     "targetType": "agent",
                     "verb": "attack"
                 },
-                "id": "3526dffe67c3cdbb7ee41e6e18fb4c518b5391ac24b341fa51cf644073eb3745",
-                "message": "Neon-Rider48 killed RapidForge2.",
-                "regionId": "a57ef39a-5ade-4cdc-b9a4-ba8dfad78b91",
+                "id": "b860124735fe46dfcf644365ca210be758ee6c7bd68b3b198abf1440e5f976db",
+                "message": "Blaze_Wolf593 killed SolarCaster953.",
+                "regionId": "bf23ab72-aeea-4ba7-8d8c-3f934a00c343",
                 "segments": [
                     {
-                        "id": "c21f1f5d-324b-4f21-b617-7025acc80665",
+                        "id": "d9f47f61-0f8f-48ad-8c5b-2a794f4564d4",
                         "type": "agent",
-                        "value": "Neon-Rider48"
+                        "value": "Blaze_Wolf593"
                     },
                     {
                         "type": "text",
                         "value": " attacked "
                     },
                     {
-                        "id": "77981b09-ed20-4c8b-a5d6-9ce790dcb07b",
+                        "id": "454bf871-5441-4fab-8e14-41fde719f5e2",
                         "type": "agent",
-                        "value": "RapidForge2"
+                        "value": "SolarCaster953"
                     },
                     {
                         "type": "text",
-                        "value": " for 26 damage. (HP 18\u21920)"
+                        "value": " for 28 damage. (HP 5\u21920)"
                     }
                 ],
-                "target": "77981b09-ed20-4c8b-a5d6-9ce790dcb07b",
-                "timestamp": "2026-07-13T02:19:07.774538314Z",
-                "turn": 14,
+                "target": "454bf871-5441-4fab-8e14-41fde719f5e2",
+                "timestamp": "2026-07-13T02:25:50.681962909Z",
+                "turn": 25,
+                "type": "death"
+            }
+        },
+        {
+            "log": {
+                "agentId": "454bf871-5441-4fab-8e14-41fde719f5e2",
+                "details": {
+                    "killedBy": "d9f47f61-0f8f-48ad-8c5b-2a794f4564d4",
+                    "killerName": "Blaze_Wolf593",
+                    "killerWeaponName": "Bow",
+                    "killerWeaponTypeId": "bow",
+                    "reason": "combat"
+                },
+                "id": "80f298a02e4c0d80c3ca1645e690fdaf92ca1d77f11729028a1b401339c34c40",
+                "message": "SolarCaster953 was killed by Blaze_Wolf593.",
+                "regionId": "3f08a3a1-3ea0-4914-ba44-58e253a20a45",
+                "segments": [
+                    {
+                        "id": "454bf871-5441-4fab-8e14-41fde719f5e2",
+                        "type": "agent",
+                        "value": "SolarCaster953"
+                    },
+                    {
+                        "type": "text",
+                        "value": " was killed by "
+                    },
+                    {
+                        "id": "d9f47f61-0f8f-48ad-8c5b-2a794f4564d4",
+                        "type": "agent",
+                        "value": "Blaze_Wolf593"
+                    },
+                    {
+                        "type": "text",
+                        "value": "."
+                    }
+                ],
+                "timestamp": "2026-07-13T02:25:50.681962909Z",
+                "turn": 25,
+                "type": "death"
+            }
+        },
+        {
+            "log": {
+                "agentId": "ec3ffcaa-b13d-43b0-a491-d4734d32f43a",
+                "details": {
+                    "actualHpDrop": 38,
+                    "damage": 72,
+                    "killed": true,
+                    "newHp": 0,
+                    "prevHp": 38,
+                    "targetId": "51813246-d579-40aa-b392-d881cf996a54",
+                    "targetName": "Mystic-Fox308",
+                    "targetType": "agent",
+                    "verb": "attack"
+                },
+                "id": "96439238448bcb568542fe9d8c57b3f8b7ca58dade5b15e42125bf71485fe53d",
+                "message": "britt4nyrush killed Mystic-Fox308.",
+                "regionId": "f88a4725-5472-4bd4-9047-e8db6d7d2037",
+                "segments": [
+                    {
+                        "id": "ec3ffcaa-b13d-43b0-a491-d4734d32f43a",
+                        "type": "agent",
+                        "value": "britt4nyrush"
+                    },
+                    {
+                        "type": "text",
+                        "value": " attacked "
+                    },
+                    {
+                        "id": "51813246-d579-40aa-b392-d881cf996a54",
+                        "type": "agent",
+                        "value": "Mystic-Fox308"
+                    },
+                    {
+                        "type": "text",
+                        "value": " for 72 damage. (HP 38\u21920)"
+                    }
+                ],
+                "target": "51813246-d579-40aa-b392-d881cf996a54",
+                "timestamp": "2026-07-13T02:26:15.223891899Z",
+                "turn": 25,
+                "type": "death"
+            }
+        },
+        {
+            "log": {
+                "agentId": "51813246-d579-40aa-b392-d881cf996a54",
+                "details": {
+                    "killedBy": "ec3ffcaa-b13d-43b0-a491-d4734d32f43a",
+                    "killerName": "britt4nyrush",
+                    "killerWeaponName": "Sword",
+                    "killerWeaponTypeId": "sword",
+                    "reason": "combat"
+                },
+                "id": "7c786804b7a727b7630fbaff5dc95443ee79f3ee212f8667f1117f566e8f0d20",
+                "message": "Mystic-Fox308 was killed by britt4nyrush.",
+                "regionId": "f88a4725-5472-4bd4-9047-e8db6d7d2037",
+                "segments": [
+                    {
+                        "id": "51813246-d579-40aa-b392-d881cf996a54",
+                        "type": "agent",
+                        "value": "Mystic-Fox308"
+                    },
+                    {
+                        "type": "text",
+                        "value": " was killed by "
+                    },
+                    {
+                        "id": "ec3ffcaa-b13d-43b0-a491-d4734d32f43a",
+                        "type": "agent",
+                        "value": "britt4nyrush"
+                    },
+                    {
+                        "type": "text",
+                        "value": "."
+                    }
+                ],
+                "timestamp": "2026-07-13T02:26:15.223891899Z",
+                "turn": 25,
                 "type": "death"
             }
         },
         {
             "log": {
                 "details": {
-                    "clearedBy": "ec097f07-b56c-4fe9-8192-34a9121de8bc",
-                    "clearedByName": "Delta_Caster64",
-                    "contentType": "relic",
-                    "gauge": 3,
-                    "isEmpty": true,
-                    "maxGauge": 3,
-                    "occupiedBy": "",
-                    "ruinId": "9f1b589b-10fa-4e9e-8767-ab4235f8cedd"
+                    "regions": [
+                        "e64dd316-520d-4f2e-bb73-7d81ff5e21f1",
+                        "6bb871ef-acbe-4863-9857-8c4f063df554",
+                        "bda80030-0275-433f-90c8-91c1e30c6105",
+                        "f72cfebc-8841-4662-8d9a-11be9697a3c9",
+                        "1e120334-890d-494b-a5ef-a76e21e8741a",
+                        "29c376e2-0a71-4daa-9c72-97353b07292f",
+                        "3a7389e6-4a0a-4f9b-a249-08f495a65a8c"
+                    ]
                 },
-                "id": "14378a3dee7b9fbde2744b4b47e1182e61edff035dc67d157c5215792571d2cc",
-                "message": "The relic ruin has been fully excavated.",
-                "timestamp": "2026-07-13T02:19:07.774616854Z",
-                "turn": 14,
-                "type": "ruin_state_changed"
+                "id": "23b551dc9e1c699791976f47479a063057e73f45c668b9a417f25651f42dd8c7",
+                "message": "The death zone is expanding.",
+                "timestamp": "2026-07-13T02:26:20.970928281Z",
+                "turn": 26,
+                "type": "deathzone_expanded"
+            }
+        },
+        {
+            "log": {
+                "agentId": "c6b3c07e-5dbd-577e-8391-2e56e3739421",
+                "details": {
+                    "ep": 10,
+                    "maxEp": 10,
+                    "recovered": 0,
+                    "verb": "rest"
+                },
+                "id": "9c1ec8889d4330e124f451ef4a5f542bfcab38cebcf567fe87226d0c7db823d1",
+                "message": "Guardian rested.",
+                "regionId": "c37f880b-eaee-4ba0-90ed-abff08860d60",
+                "segments": [
+                    {
+                        "id": "c6b3c07e-5dbd-577e-8391-2e56e3739421",
+                        "type": "agent",
+                        "value": "Guardian"
+                    },
+                    {
+                        "type": "text",
+                        "value": " rested (+0 EP)"
+                    }
+                ],
+                "timestamp": "2026-07-13T02:26:21.00259212Z",
+                "turn": 26,
+                "type": "rest"
             }
         }
     ],
     "recentMessages": [],
-    "aliveCount": 85,
+    "aliveCount": 72,
     "cursedVictimIds": [],
     "season": 368437,
     "availableActions": {
         "attack": {
             "cost": 1,
-            "ok": true
+            "ok": false
         },
         "equip": {
             "cost": 0,
-            "ok": true
+            "ok": false
         },
         "explore": {
             "cost": 1,
-            "ok": true
+            "ok": false
         },
         "interact": {
             "cost": 0,
-            "ok": true
+            "ok": false
         },
         "move": {
             "cost": 2,
-            "ok": true
+            "ok": false
         },
         "pickup": {
             "cost": 0,
-            "ok": true
+            "ok": false
         },
         "rest": {
             "cost": 0,
-            "ok": true
+            "ok": false
         },
         "talk": {
             "cost": 0,
-            "ok": true
+            "ok": false
         },
         "use_item": {
             "cost": 0,
-            "ok": true
+            "ok": false
         },
         "whisper": {
             "cost": 0,
-            "ok": true
+            "ok": false
         }
     }
 }
