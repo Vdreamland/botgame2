@@ -7,11 +7,11 @@ from ai.priority.survival_prior import evaluate_survival
 from ai.strategy.movement_strategy import get_best_movement_action
 from ai.strategy.ruin_exploration_strategy import score_exploration
 
-INTERACTED_FACILITIES = set()
-LAST_TARGET_ID = None
+_LOCAL_INTERACTED = set()
+_LOCAL_LAST_TARGET = None
 
 def decide_next_action(view, context=None):
-    global LAST_TARGET_ID
+    global _LOCAL_LAST_TARGET
     
     if context is not None:
         if not hasattr(context, "interacted_facilities") or context.interacted_facilities is None:
@@ -92,7 +92,7 @@ def decide_next_action(view, context=None):
     if loot_res and not should_flee:
         candidates.append((loot_res["score"], {"action": "pickup", "item": loot_res["item"]}))
         
-    inter_res = score_interactables(interactables, hp, ep, INTERACTED_FACILITIES)
+    inter_res = score_interactables(interactables, hp, ep, interacted_ids)
     if inter_res["action"] and not should_flee:
         candidates.append((inter_res["score"], inter_res["action"]))
         
@@ -108,11 +108,11 @@ def decide_next_action(view, context=None):
         if r_id and r_id != current_region.get("id"):
             visible_enemies_map[r_id] = [e for e in (visible_agents + visible_monsters + visible_npcs) if str(e.get("regionId") or e.get("region_id")).lower() == str(r_id).lower()]
             
-    combat_res = score_targets(visible_enemies_map, hp, ep, current_weapon, inventory, atk, defense, weather, LAST_TARGET_ID)
+    combat_res = score_targets(visible_enemies_map, hp, ep, current_weapon, inventory, atk, defense, weather, last_target_id)
     if combat_res["action"]:
         candidates.append((combat_res["score"], combat_res["action"]))
         
-    move_res = get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, INTERACTED_FACILITIES, current_region)
+    move_res = get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, interacted_ids, current_region, visible_agents, visible_monsters, visible_npcs)
     if move_res:
         score = move_res["score"]
         if should_flee:
