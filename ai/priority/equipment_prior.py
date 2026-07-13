@@ -4,13 +4,13 @@ def score_weapon(weapon_id: str) -> int:
     if not weapon_id:
         return 0
     name_clean = str(weapon_id).lower().replace(" ", "_")
-    return WEAPON_STATS.get(name_clean, {"atk": 0}).get("atk", 0)
+    return WEAPON_STATS.get(name_clean, {}).get("atk", 0)
 
 def score_armor(armor_id: str) -> int:
     if not armor_id:
         return 0
     name_clean = str(armor_id).lower().replace(" ", "_")
-    return ARMOR_STATS.get(name_clean, {"def": 0}).get("def", 0)
+    return ARMOR_STATS.get(name_clean, {}).get("def", 0)
 
 def evaluate_equipment(inventory, current_weapon_id, current_armor_id):
     to_equip = None
@@ -31,11 +31,12 @@ def evaluate_equipment(inventory, current_weapon_id, current_armor_id):
     for item in inventory:
         if not isinstance(item, dict):
             continue
-        item_id = item.get("id") or item.get("typeId")
-        if not item_id:
+            
+        item_type = item.get("typeId") or item.get("name") or item.get("id")
+        if not item_type:
             continue
         
-        name_clean = str(item_id).lower().replace(" ", "_")
+        name_clean = str(item_type).lower().replace(" ", "_")
         
         if name_clean in WEAPON_STATS:
             stat = WEAPON_STATS[name_clean]
@@ -63,10 +64,10 @@ def evaluate_equipment(inventory, current_weapon_id, current_armor_id):
     for item in inventory:
         if not isinstance(item, dict):
             continue
-        item_id = item.get("id") or item.get("typeId")
-        if not item_id:
+        item_type = item.get("typeId") or item.get("name") or item.get("id")
+        if not item_type:
             continue
-        name_clean = str(item_id).lower().replace(" ", "_")
+        name_clean = str(item_type).lower().replace(" ", "_")
         if name_clean in WEAPON_STATS and WEAPON_STATS[name_clean]["type"] == "melee":
             if item != best_melee_item:
                 to_drop.append(item)
