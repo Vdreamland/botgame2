@@ -138,8 +138,8 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
                     
                     if context.ws:
                         await context.ws.send(json.dumps(next_action))
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"[DEBUG ERROR] Gagal mengeksekusi decide_next_action: {e}")
                 
             context.last_state = current_state
             
