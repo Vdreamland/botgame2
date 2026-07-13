@@ -68,34 +68,35 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
             print(f"Weapon : {weapon_name} | Armour : {armor_name}")
             print(f"Inventory : {inv_display}")
             
-            region_strings = []
-            for r in regions:
-                is_dead = r.get("is_death_zone", False)
-                if is_dead:
-                    zone_label = f" {color_red}[deadzone]{color_reset}"
+            if hp > 0:
+                region_strings = []
+                for r in regions:
+                    is_dead = r.get("is_death_zone", False)
+                    if is_dead:
+                        zone_label = f" {color_red}[deadzone]{color_reset}"
+                    else:
+                        zone_label = ""
+                    region_strings.append(f"{r['name']}{zone_label}")
+                    
+                print()
+                joined_regions = " / ".join(region_strings)
+                print(f"Region detector : {joined_regions}")
+                
+                print()
+                if region_items:
+                    print("Region Item detector :")
+                    for r_name, items in region_items.items():
+                        print(f"{r_name} > {', '.join(items)}")
                 else:
-                    zone_label = ""
-                region_strings.append(f"{r['name']}{zone_label}")
-                
-            print()
-            joined_regions = " / ".join(region_strings)
-            print(f"Region detector : {joined_regions}")
-            
-            print()
-            if region_items:
-                print("Region Item detector :")
-                for r_name, items in region_items.items():
-                    print(f"{r_name} > {', '.join(items)}")
-            else:
-                print("Region Item detector : none")
-                
-            print()
-            if region_enemies:
-                print("Region Enemy detector :")
-                for r_name, enemies in region_enemies.items():
-                    print(f"{r_name} > {', '.join(enemies)}")
-            else:
-                print("Region Enemy detector : none")
+                    print("Region Item detector : none")
+                    
+                print()
+                if region_enemies:
+                    print("Region Enemy detector :")
+                    for r_name, enemies in region_enemies.items():
+                        print(f"{r_name} > {', '.join(enemies)}")
+                else:
+                    print("Region Enemy detector : none")
                 
             context.last_state = current_state
             
