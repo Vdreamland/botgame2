@@ -41,8 +41,8 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
     except ValueError:
         weather_enum = WeatherType.CLEAR
 
-    for r_name, enemies_list in visible_enemies.items():
-        is_current_region = str(r_name).lower() == "current" or r_name == ""
+    for r_id_key, enemies_list in visible_enemies.items():
+        is_current_region = str(r_id_key).lower() == "current" or r_id_key == ""
         
         for enemy in enemies_list:
             if not isinstance(enemy, dict):
@@ -130,7 +130,7 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
                     if current_range >= 1:
                         best_action = {"action": "attack", "target": enemy}
                     else:
-                        best_action = {"action": "move_to_enemy", "target": enemy, "region_name": r_name}
+                        best_action = {"action": "move_to_enemy", "target": enemy, "region_id": r_id_key}
                         
     return {
         "score": best_score,

@@ -101,18 +101,18 @@ def decide_next_action(view, context=None):
         candidates.append((explore_res["score"], explore_res["action"]))
         
     visible_enemies_map = {
-        "current": [e for e in (visible_agents + visible_monsters + visible_npcs) if str(e.get("regionId") or e.get("region_id")).lower() == str(current_region.get("id")).lower()]
+        current_region.get("id"): [e for e in (visible_agents + visible_monsters + visible_npcs) if str(e.get("regionId") or e.get("region_id")).lower() == str(current_region.get("id")).lower()]
     }
     for r_name, r_obj in visible_regions_map.items():
         r_id = r_obj.get("id")
         if r_id and r_id != current_region.get("id"):
-            visible_enemies_map[r_obj.get("name") or r_id] = [e for e in (visible_agents + visible_monsters + visible_npcs) if str(e.get("regionId") or e.get("region_id")).lower() == str(r_id).lower()]
+            visible_enemies_map[r_id] = [e for e in (visible_agents + visible_monsters + visible_npcs) if str(e.get("regionId") or e.get("region_id")).lower() == str(r_id).lower()]
             
     combat_res = score_targets(visible_enemies_map, hp, ep, current_weapon, inventory, atk, defense, weather, LAST_TARGET_ID)
     if combat_res["action"]:
         candidates.append((combat_res["score"], combat_res["action"]))
         
-    move_res = get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, INTERACTED_FACILITIES, current_region, visible_agents, visible_monsters, visible_npcs)
+    move_res = get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, INTERACTED_FACILITIES, current_region)
     if move_res:
         score = move_res["score"]
         if should_flee:
@@ -148,10 +148,10 @@ def decide_next_action(view, context=None):
             }
         }
     elif act_type == "move_to_enemy":
-        region_name = best_action.get("region_name")
+        target_region_id = best_action.get("region_id")
         r_id = None
         for r in connected_regions:
-            if r.get("name") == region_name:
+            if r.get("id") == target_region_id:
                 r_id = r.get("id")
                 break
         if r_id:
