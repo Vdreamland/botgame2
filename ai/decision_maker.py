@@ -40,26 +40,10 @@ def decide_next_action(view):
             
     eval_equip = evaluate_equipment(inventory, current_weapon, current_armor)
     if eval_equip["to_equip"]:
-        item_obj = eval_equip["to_equip"]
-        item_id = item_obj.get("id") or item_obj.get("typeId") if isinstance(item_obj, dict) else item_obj
-        return {
-            "type": "action",
-            "data": {
-                "type": "equip",
-                "itemId": item_id
-            }
-        }
+        return {"type": "action", "data": {"type": "equip", "item": eval_equip["to_equip"]}}
         
     if eval_equip["to_drop"] and len(inventory) >= 10:
-        item_obj = eval_equip["to_drop"][0]
-        item_id = item_obj.get("id") or item_obj.get("typeId") if isinstance(item_obj, dict) else item_obj
-        return {
-            "type": "action",
-            "data": {
-                "type": "drop",
-                "itemId": item_id
-            }
-        }
+        return {"type": "action", "data": {"type": "drop", "item": eval_equip["to_drop"][0]}}
         
     candidates = []
     is_safe = len(visible_agents) == 0 and len(visible_monsters) == 0 and len(visible_npcs) == 0

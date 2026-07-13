@@ -73,24 +73,25 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
                 next_action = decide_next_action(view)
                 if next_action and next_action.get("type") == "action":
                     act_data = next_action.get("data", {})
-                    act_type = act_data.get("type") or act_data.get("action")
+                    act_type = act_data.get("type")
                     
                     if act_type == "move":
-                        target_region = act_data.get("target", {})
-                        target_name = target_region.get("name") if isinstance(target_region, dict) else target_region
+                        target_id = act_data.get("regionId")
+                        target_name = target_id
+                        for r in regions:
+                            if r.get("id") == target_id:
+                                target_name = r.get("name")
+                                break
                         print(f"[Intention] Bot decides to move to: {target_name} to search or retrieve items")
                     elif act_type == "pickup":
-                        item_obj = act_data.get("item", {})
-                        item_name = item_obj.get("name") if isinstance(item_obj, dict) else item_obj
-                        print(f"[Intention] Bot decides to pick up item: {item_name}")
+                        target_id = act_data.get("itemId")
+                        print(f"[Intention] Bot decides to pick up item ID: {target_id}")
                     elif act_type == "equip":
-                        item_obj = act_data.get("item", {})
-                        item_name = item_obj.get("name") if isinstance(item_obj, dict) else item_obj
-                        print(f"[Intention] Bot decides to equip: {item_name}")
+                        target_id = act_data.get("itemId")
+                        print(f"[Intention] Bot decides to equip item ID: {target_id}")
                     elif act_type == "use_item":
-                        item_obj = act_data.get("item", {})
-                        item_name = item_obj.get("name") if isinstance(item_obj, dict) else item_obj
-                        print(f"[Intention] Bot decides to use item: {item_name}")
+                        target_id = act_data.get("itemId")
+                        print(f"[Intention] Bot decides to use item ID: {target_id}")
                     elif act_type == "rest":
                         print(f"[Intention] Bot decides to Rest to restore EP")
             except Exception:
