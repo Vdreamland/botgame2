@@ -19,7 +19,7 @@ def score_region_movement(region, is_death_zone_pending, hp, is_safe):
             
     return score
 
-def get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor):
+def get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, interacted_ids):
     if ep < 2 or not connected_regions:
         return None
         
@@ -50,6 +50,20 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
             if has_needed_item:
                 score += 80
                 
+            interactables = region_detail.get("interactables", []) or []
+            for inter in interactables:
+                if isinstance(inter, dict):
+                    f_type = inter.get("type") or inter.get("name") or inter.get("id")
+                    if f_type:
+                        name_clean = f_type.lower().replace(" ", "_")
+                        t_id = inter.get("id") or inter.get("targetId") or inter.get("facilityId")
+                        if t_id and t_id in interacted_ids:
+                            continue
+                        if name_clean == "medical_facility" and hp < 100:
+                            score += 85
+                        elif name_clean == "supply_cache":
+                            score += 75
+                            
         scored_regions.append((score, r))
         
     if not scored_regions:

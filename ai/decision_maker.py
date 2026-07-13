@@ -6,6 +6,8 @@ from ai.priority.target_kill_prior import score_targets
 from ai.strategy.movement_strategy import get_best_movement_action
 from ai.strategy.ruin_exploration_strategy import score_exploration
 
+INTERACTED_FACILITIES = set()
+
 def decide_next_action(view):
     self_data = view.get("self", {}) or {}
     hp = self_data.get("hp", 100)
@@ -40,10 +42,26 @@ def decide_next_action(view):
             
     eval_equip = evaluate_equipment(inventory, current_weapon, current_armor)
     if eval_equip["to_equip"]:
-        return {"type": "action", "data": {"type": "equip", "item": eval_equip["to_equip"]}}
+        item_obj = eval_equip["to_equip"]
+        item_id = item_obj.get("id") or item_obj.get("typeId") if isinstance(item_obj, dict) else item_obj
+        return {
+            "type": "action",
+            "data": {
+                "type": "equip",
+                "itemId": item_id
+            }
+        }
         
     if eval_equip["to_drop"] and len(inventory) >= 10:
-        return {"type": "action", "data": {"type": "drop", "item": eval_equip["to_drop"][0]}}
+        item_obj = eval_equip["to_drop"][0]
+        item_id = item_obj.get("id") or item_obj.get("typeId") if isinstance(item_obj, dict) else item_obj
+        return {
+            "type": "action",
+            "data": {
+                "type": "drop",
+                "itemId": item_id
+            }
+        }
         
     candidates = []
     is_safe = len(visible_agents) == 0 and len(visible_monsters) == 0 and len(visible_npcs) == 0
@@ -56,11 +74,11 @@ def decide_next_action(view):
     if loot_res:
         candidates.append((loot_res["score"], {"action": "pickup", "item": loot_res["item"]}))
         
-    inter_res = score_interactables(interactables, hp, ep)
+    inter_res = score_interactables(interactables, hp, ep, INTERACTED_FACILITIES)
     if inter_res["action"]:
         candidates.append((inter_res["score"], inter_res["action"]))
         
-    move_res = get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor)
+    move_res = get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, INTERACTED_FACILITIES)
     if move_res:
         candidates.append((move_res["score"], move_res["action"]))
         
@@ -116,6 +134,18 @@ def decide_next_action(view):
             "type": "action",
             "data": {
                 "type": "rest"
+            }
+        }
+    elif act_type == "interact":
+        target = best_action.get("target", {})
+        t_id = target.get("id") or target.get("targetId") or target.get("facilityId")
+        if t_id:
+            INTERACTED_FACILITIES.add(t_id)
+        return {
+            "type": "action",
+            "data": {
+                "type": "interact",
+                "targetId": t_id
             }
         }
         
