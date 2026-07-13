@@ -1,6 +1,6 @@
 from ai.priority.region_loot_prior import is_item_needed
 
-def score_region_movement(region, is_death_zone_pending, hp, is_safe):
+def score_region_movement(region, is_death_zone_pending, hp, is_safe, enemy_count):
     score = 100
     
     is_dead_zone = region.get("is_death_zone") or region.get("isDeathZone") or False
@@ -17,9 +17,15 @@ def score_region_movement(region, is_death_zone_pending, hp, is_safe):
         else:
             score += 20
             
+    if enemy_count > 0:
+        if hp < 50:
+            score -= 150 * enemy_count
+        else:
+            score -= 50 * enemy_count
+            
     return score
 
-def get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, interacted_ids, current_region):
+def get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, interacted_ids, current_region, visible_agents, visible_monsters, visible_npcs):
     if ep < 2 or not connected_regions:
         return None
         
@@ -28,6 +34,14 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
     is_in_pending = current_id in pending_deathzones if current_id else False
     is_urgent = is_in_dead_zone or is_in_pending or (hp < 40 and not is_safe)
     
+    enemies_by_region = {}
+    for enemy in (visible_agents or []) + (visible_monsters or []) + (visible_npcs or []):
+        if not isinstance(enemy, dict):
+            continue
+        r_id = enemy.get("regionId") or enemy.get("region_id") or enemy.get("location")
+        if r_id:
+            enemies_by_region[r_id] = enemies_by_region.get(r_id, 0) + 1
+            
     visible_regions_map = {}
     for r in visible_regions:
         if isinstance(r, dict):
@@ -40,21 +54,22 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
         r_id = r.get("id") if isinstance(r, dict) else r
         is_pending_dead = r_id in pending_deathzones if r_id else False
         
-        score = score_region_movement(r, is_pending_dead, hp, is_safe)
+        enemy_count = enemies_by_region.get(r_id, 0) if r_id else 0
+        score = score_region_movement(r, is_pending_dead, hp, is_safe, enemy_count)
         
         if ep < 3 and not is_urgent:
             score -= 1500
             
         region_detail = visible_regions_map.get(r_id) if r_id else None
         
-        has_ruin = False
+        has_ruid = False
         r_name_lower = str(r.get("name", "")).lower()
         if "relic" in r_name_lower or "ruin" in r_name_lower or (region_detail and region_detail.get("ruins")):
             ruin_obj = r.get("ruins") or (region_detail.get("ruins") if region_detail else None)
             if not ruin_obj or str(ruin_obj.get("status", "")).lower() not in ("cleared", "completed", "finished"):
-                has_ruin = True
+                has_ruid = True
                 
-        if has_ruin:
+        if has_ruid:
             score += 50
             
         if region_detail:

@@ -1,5 +1,9 @@
 from helpers.game_math import WEAPON_STATS, ARMOR_STATS, RECOVERY_STATS
 
+def _is_smoltz(item_id_or_name: str) -> bool:
+    clean = str(item_id_or_name).lower()
+    return "smoltz" in clean or "reward1" in clean
+
 def score_weapon(weapon_id: str) -> int:
     if not weapon_id:
         return 0
@@ -13,10 +17,10 @@ def score_armor(armor_id: str) -> int:
     return ARMOR_STATS.get(name_clean, {}).get("def", 0)
 
 def is_item_needed(item_id: str, inventory, current_weapon_id, current_armor_id) -> bool:
-    name_clean = str(item_id).lower().replace(" ", "_")
-    if name_clean == "smoltz":
+    if _is_smoltz(item_id):
         return True
         
+    name_clean = str(item_id).lower().replace(" ", "_")
     if name_clean in WEAPON_STATS:
         stat = WEAPON_STATS[name_clean]
         w_type = stat["type"]
@@ -91,10 +95,10 @@ def is_item_needed(item_id: str, inventory, current_weapon_id, current_armor_id)
     return False
 
 def score_ground_item(item_id: str, hp: int, ep: int) -> int:
-    name_clean = str(item_id).lower().replace(" ", "_")
-    if name_clean == "smoltz":
+    if _is_smoltz(item_id):
         return 200
         
+    name_clean = str(item_id).lower().replace(" ", "_")
     score = 150
     if name_clean in WEAPON_STATS:
         stat = WEAPON_STATS[name_clean]
@@ -123,8 +127,7 @@ def get_best_loot_action(ground_items, current_inventory, hp, ep, current_weapon
         if not isinstance(item, dict):
             continue
         item_type = item.get("typeId") or item.get("name") or item.get("id") or ""
-        item_name = str(item_type).lower().replace(" ", "_")
-        if item_name == "smoltz":
+        if _is_smoltz(item_type):
             has_smoltz_slot = True
         inv_count += 1
         
@@ -146,7 +149,7 @@ def get_best_loot_action(ground_items, current_inventory, hp, ep, current_weapon
     scored_items.sort(key=lambda x: x[0], reverse=True)
     best_score, best_name, best_item = scored_items[0]
     
-    if best_name.lower() == "smoltz" and has_smoltz_slot:
+    if _is_smoltz(best_name) and has_smoltz_slot:
         return {"action": "pickup", "item": best_item, "score": best_score}
         
     if inv_count < 10:
