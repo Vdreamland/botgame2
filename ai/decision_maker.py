@@ -108,7 +108,8 @@ def decide_next_action(view, context=None):
         if r_id and r_id != current_region.get("id"):
             visible_enemies_map[r_id] = [e for e in (visible_agents + visible_monsters + visible_npcs) if str(e.get("regionId") or e.get("region_id")).lower() == str(r_id).lower()]
             
-    combat_res = score_targets(visible_enemies_map, hp, ep, current_weapon, inventory, atk, defense, weather, last_target_id)
+    connected_region_ids = {r.get("id") for r in connected_regions if r.get("id")}
+    combat_res = score_targets(visible_enemies_map, hp, ep, current_weapon, inventory, atk, defense, weather, last_target_id, connected_region_ids)
     if combat_res["action"]:
         candidates.append((combat_res["score"], combat_res["action"]))
         
@@ -120,12 +121,39 @@ def decide_next_action(view, context=None):
         candidates.append((score, move_res["action"]))
         
     if not candidates:
+        print("[DEBUG DECISION] candidates are empty!")
         best_action = {"action": "rest"}
     else:
         candidates.sort(key=lambda x: x[0], reverse=True)
         print(f"[DEBUG DECISION] candidates: {[(c[0], c[1].get('action') or c[1].get('type')) for c in candidates]}")
-        best_action = candidates[0][1]
         
+        best_action = None
+        for score, cand in candidates:
+            act_type = cand.get("action")
+            
+            if act_type == "move":
+                target = cand.get("target", {})
+                r_id = target.get("id") if isinstance(target, dict) else target
+                if r_id:
+                    best_action = cand
+                    break
+            elif act_type == "move_to_enemy":
+                target_region_id = cand.get("region_id")
+                r_id = None
+                for r in connected_regions:
+                    if r.get("id") == target_region_id:
+                        r_id = r.get("id")
+                        break
+                if r_id:
+                    best_action = cand
+                    break
+            elif act_type in ("pickup", "equip", "use_item", "drop", "rest", "interact", "explore", "attack"):
+                best_action = cand
+                break
+                
+        if not best_action:
+            best_action = {"action": "rest"}
+            
     act_type = best_action.get("action")
     
     new_target_id = None

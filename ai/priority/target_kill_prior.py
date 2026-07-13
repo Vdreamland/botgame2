@@ -1,7 +1,7 @@
 import math
 from helpers.game_math import WEAPON_STATS, WeatherType, calculate_damage
 
-def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_atk, self_def, weather, last_target_id):
+def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_atk, self_def, weather, last_target_id, connected_region_ids=None):
     best_action = None
     best_score = 0
     best_target_id = None
@@ -44,6 +44,10 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
     for r_id_key, enemies_list in visible_enemies.items():
         is_current_region = str(r_id_key).lower() == "current" or r_id_key == ""
         
+        if not is_current_region and connected_region_ids is not None:
+            if r_id_key not in connected_region_ids:
+                continue
+                
         for enemy in enemies_list:
             if not isinstance(enemy, dict):
                 continue
