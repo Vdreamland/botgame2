@@ -1,4 +1,4 @@
-def evaluate_survival(hp, ep, is_safe, current_region, visible_enemies, pending_deathzones):
+def evaluate_survival(hp, ep, is_safe, current_region, visible_enemies, pending_deathzones, connected_region_ids=None):
     danger_score = 0
     should_flee = False
     
@@ -19,11 +19,13 @@ def evaluate_survival(hp, ep, is_safe, current_region, visible_enemies, pending_
         danger_score += 100
         should_flee = True
         
-    enemy_count = 0
-    for r_name, enemies in visible_enemies.items():
-        enemy_count += len(enemies)
-        
-    if enemy_count > 1 and hp < 60:
+    nearby_enemy_count = 0
+    for r_id_key, enemies in visible_enemies.items():
+        is_nearby = (r_id_key == current_id) or (connected_region_ids is not None and r_id_key in connected_region_ids)
+        if is_nearby:
+            nearby_enemy_count += len(enemies)
+            
+    if nearby_enemy_count > 1 and hp < 60:
         danger_score += 30
         should_flee = True
         

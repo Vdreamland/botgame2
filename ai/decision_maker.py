@@ -47,6 +47,15 @@ def decide_next_action(view, context=None):
     visible_monsters = view.get("visibleMonsters", []) or []
     visible_npcs = view.get("visibleNPCs", []) or []
     
+    current_id = current_region.get("id")
+    is_safe = True
+    for enemy in (visible_agents or []) + (visible_monsters or []) + (visible_npcs or []):
+        if isinstance(enemy, dict):
+            r_id = enemy.get("regionId") or enemy.get("region_id") or enemy.get("location")
+            if r_id == current_id:
+                is_safe = False
+                break
+                
     visible_regions_map = {r.get("id"): r for r in visible_regions if isinstance(r, dict) and r.get("id")}
     connected_regions = []
     connections = current_region.get("connections", []) or []
@@ -61,7 +70,6 @@ def decide_next_action(view, context=None):
     eval_equip = evaluate_equipment(inventory, current_weapon, current_armor)
     
     candidates = []
-    is_safe = len(visible_agents) == 0 and len(visible_monsters) == 0 and len(visible_npcs) == 0
     
     if eval_equip["to_equip_weapon"]:
         if current_weapon is None:
@@ -78,7 +86,9 @@ def decide_next_action(view, context=None):
     if eval_equip["to_drop"] and len(inventory) >= 10:
         candidates.append((80, {"action": "drop", "item": eval_equip["to_drop"][0]}))
         
-    surv_res = evaluate_survival(hp, ep, is_safe, current_region, {"visibleAgents": visible_agents, "visibleMonsters": visible_monsters, "visibleNPCs": visible_npcs}, pending_deathzones)
+    connected_region_ids = {r.get("id") for r in connected_regions if r.get("id")}
+    
+    surv_res = evaluate_survival(hp, ep, is_safe, current_region, {"current": [e for e in (visible_agents + visible_monsters + visible_npcs) if (e.get("regionId") or e.get("region_id")) == current_id]}, pending_deathzones, connected_region_ids)
     should_flee = surv_res["should_flee"]
     
     rec_res = score_recovery_actions(hp, ep, inventory, is_safe)
@@ -92,7 +102,7 @@ def decide_next_action(view, context=None):
     if loot_res and not should_flee:
         candidates.append((loot_res["score"], {"action": "pickup", "item": loot_res["item"]}))
         
-    inter_res = score_interactables(interactables, hp, ep, interacted_ids)
+    inter_res = score_interactables(interactables, hp, ep, INTERACTED_FACILITIES)
     if inter_res["action"] and not should_flee:
         candidates.append((inter_res["score"], inter_res["action"]))
         
@@ -108,12 +118,11 @@ def decide_next_action(view, context=None):
         if r_id and r_id != current_region.get("id"):
             visible_enemies_map[r_id] = [e for e in (visible_agents + visible_monsters + visible_npcs) if str(e.get("regionId") or e.get("region_id")).lower() == str(r_id).lower()]
             
-    connected_region_ids = {r.get("id") for r in connected_regions if r.get("id")}
     combat_res = score_targets(visible_enemies_map, hp, ep, current_weapon, inventory, atk, defense, weather, last_target_id, connected_region_ids)
     if combat_res["action"]:
         candidates.append((combat_res["score"], combat_res["action"]))
         
-    move_res = get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, interacted_ids, current_region, visible_agents, visible_monsters, visible_npcs)
+    move_res = get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, INTERACTED_FACILITIES, current_region, visible_agents, visible_monsters, visible_npcs)
     if move_res:
         score = move_res["score"]
         if should_flee:
