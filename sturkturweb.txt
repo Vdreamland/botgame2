@@ -16,6 +16,7 @@
 │   │   ├── __init__.py        
 │   │   ├── agent_info.py  
 │   │   ├── region_detector.py  
+│   │   ├── enemy_detector.py  
 
 
 │   │   ├── enemy_info.py      
@@ -30,7 +31,8 @@ __init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/__init__.py
 /botgame2/ai/detector/
 __init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/__init__.py 
 agent_info.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/agent_info.py
-region_detector.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/agent_info.py
+region_detector.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/region_detector.py
+enemy_detector.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/enemy_detector.py
 
 /botgame2/
 requirements.txt https://github.com/Vdreamland/botgame2/blob/master/requirements.txt
@@ -45,6 +47,38 @@ game_math.py https://github.com/Vdreamland/botgame2/blob/master/helpers/game_mat
 agent_memory.py https://github.com/Vdreamland/botgame2/blob/master/helpers/agent_memory.py
 websocket_join.py https://github.com/Vdreamland/botgame2/blob/master/helpers/websocket_join.py
 config.py https://github.com/Vdreamland/botgame2/blob/master/helpers/config.py
+
+
+
+
+
+Reference :
+actions.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/actions.md
+agent-memory.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/agent-memory.md
+api-summary.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/api-summary.md
+errors.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/errors.md
+free-games.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/free-games.md
+game-systems.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/game-systems.md
+game-loop.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/game-loop.md
+preseason1-quests.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/preseason1-quests.md
+runtime-modes.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/runtime-modes.md
+setup.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/setup.md
+game-guide.md https://github.com/Vdreamland/botgame2/blob/master/docs/game-guide.md
+heartbeat.md https://github.com/Vdreamland/botgame2/blob/master/docs/heartbeat.md
+skill.md https://github.com/Vdreamland/botgame2/blob/master/docs/skill.md
+gotchas.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/gotchas.md
+strategy.md https://github.com/Vdreamland/botgame2/blob/master/docs/game-knowledge/strategy.md
+combat-items.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/combat-items.md
+
+
+
+
+
+
+
+
+
+
 
 
 
