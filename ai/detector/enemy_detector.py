@@ -15,6 +15,27 @@ def _is_entity_alive(entity):
             pass
     return True
 
+def _get_monster_stats(m_type, raw_hp=None, raw_ep=None, raw_atk=None, raw_def=None):
+    name_lower = str(m_type).lower()
+    fallback = {"hp": 0, "ep": 0, "atk": 0, "def": 0}
+    if "guardian" in name_lower:
+        fallback = {"hp": 150, "ep": 10, "atk": 12, "def": 120}
+    elif "wolf" in name_lower:
+        fallback = {"hp": 25, "ep": 0, "atk": 15, "def": 1}
+    elif "bear" in name_lower:
+        fallback = {"hp": 30, "ep": 0, "atk": 12, "def": 3}
+    elif "bandit" in name_lower:
+        fallback = {"hp": 40, "ep": 0, "atk": 25, "def": 5}
+    elif "hermit" in name_lower:
+        fallback = {"hp": 50, "ep": 0, "atk": 0, "def": 0}
+        
+    hp = raw_hp if (raw_hp is not None and raw_hp != 0) else fallback["hp"]
+    ep = raw_ep if (raw_ep is not None and raw_ep != 0) else fallback["ep"]
+    atk = raw_atk if (raw_atk is not None and raw_atk != 0) else fallback["atk"]
+    defense = raw_def if (raw_def is not None and raw_def != 0) else fallback["def"]
+    
+    return hp, ep, atk, defense
+
 def detect_region_enemies(view):
     detected = {}
     current_region = view.get('currentRegion', {}) or {}
@@ -154,10 +175,11 @@ def detect_region_enemies(view):
             if r_name:
                 if r_name not in detected:
                     detected[r_name] = []
-                hp = m.get('hp', 0)
-                ep = m.get('ep', 0)
-                atk = m.get('atk', 0)
-                defense = m.get('def', 0)
+                raw_hp = m.get('hp')
+                raw_ep = m.get('ep')
+                raw_atk = m.get('atk')
+                raw_def = m.get('def')
+                hp, ep, atk, defense = _get_monster_stats(m_type, raw_hp, raw_ep, raw_atk, raw_def)
                 wpn_name, arm_name = get_entity_equipment(m)
                 detected[r_name].append(f"M : {m_type} HP:{hp}/EP:{ep}/ATK:{atk}/DEF:{defense}/Wpn:{wpn_name}/Arm:{arm_name}/")
                 
@@ -171,10 +193,11 @@ def detect_region_enemies(view):
             if r_name:
                 if r_name not in detected:
                     detected[r_name] = []
-                hp = npc.get('hp', 0)
-                ep = npc.get('ep', 0)
-                atk = npc.get('atk', 0)
-                defense = npc.get('def', 0)
+                raw_hp = npc.get('hp')
+                raw_ep = npc.get('ep')
+                raw_atk = npc.get('atk')
+                raw_def = npc.get('def')
+                hp, ep, atk, defense = _get_monster_stats(npc_type, raw_hp, raw_ep, raw_atk, raw_def)
                 wpn_name, arm_name = get_entity_equipment(npc)
                 detected[r_name].append(f"G : {npc_type} HP:{hp}/EP:{ep}/ATK:{atk}/DEF:{defense}/Wpn:{wpn_name}/Arm:{arm_name}/")
                 
