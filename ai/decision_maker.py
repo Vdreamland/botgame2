@@ -40,10 +40,26 @@ def decide_next_action(view):
             
     eval_equip = evaluate_equipment(inventory, current_weapon, current_armor)
     if eval_equip["to_equip"]:
-        return {"type": "action", "data": {"type": "equip", "item": eval_equip["to_equip"]}}
+        item_obj = eval_equip["to_equip"]
+        item_id = item_obj.get("id") or item_obj.get("typeId") if isinstance(item_obj, dict) else item_obj
+        return {
+            "type": "action",
+            "data": {
+                "type": "equip",
+                "itemId": item_id
+            }
+        }
         
     if eval_equip["to_drop"] and len(inventory) >= 10:
-        return {"type": "action", "data": {"type": "drop", "item": eval_equip["to_drop"][0]}}
+        item_obj = eval_equip["to_drop"][0]
+        item_id = item_obj.get("id") or item_obj.get("typeId") if isinstance(item_obj, dict) else item_obj
+        return {
+            "type": "action",
+            "data": {
+                "type": "drop",
+                "itemId": item_id
+            }
+        }
         
     candidates = []
     is_safe = len(visible_agents) == 0 and len(visible_monsters) == 0 and len(visible_npcs) == 0
@@ -65,9 +81,63 @@ def decide_next_action(view):
         candidates.append((move_res["score"], move_res["action"]))
         
     if not candidates:
-        return {"type": "action", "data": {"type": "rest"}}
+        best_action = {"action": "rest"}
+    else:
+        candidates.sort(key=lambda x: x[0], reverse=True)
+        best_action = candidates[0][1]
         
-    candidates.sort(key=lambda x: x[0], reverse=True)
-    best_score, best_action = candidates[0]
-    
-    return {"type": "action", "data": best_action}
+    act_type = best_action.get("action")
+    if act_type == "move":
+        target = best_action.get("target", {})
+        r_id = target.get("id") if isinstance(target, dict) else target
+        return {
+            "type": "action",
+            "data": {
+                "type": "move",
+                "regionId": r_id
+            }
+        }
+    elif act_type == "pickup":
+        item_obj = best_action.get("item", {})
+        item_id = item_obj.get("id") or item_obj.get("typeId") if isinstance(item_obj, dict) else item_obj
+        return {
+            "type": "action",
+            "data": {
+                "type": "pickup",
+                "itemId": item_id
+            }
+        }
+    elif act_type == "equip":
+        item_obj = best_action.get("item", {})
+        item_id = item_obj.get("id") or item_obj.get("typeId") if isinstance(item_obj, dict) else item_obj
+        return {
+            "type": "action",
+            "data": {
+                "type": "equip",
+                "itemId": item_id
+            }
+        }
+    elif act_type == "use_item":
+        item_obj = best_action.get("item", {})
+        item_id = item_obj.get("id") or item_obj.get("typeId") if isinstance(item_obj, dict) else item_obj
+        return {
+            "type": "action",
+            "data": {
+                "type": "use_item",
+                "itemId": item_id
+            }
+        }
+    elif act_type == "rest":
+        return {
+            "type": "action",
+            "data": {
+                "type": "rest"
+            }
+        }
+        
+    return {
+        "type": "action",
+        "data": {
+            "type": "rest"
+        }
+    }
