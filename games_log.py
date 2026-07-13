@@ -100,7 +100,7 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
                     print("Region Enemy detector : none")
                 
             try:
-                next_action = decide_next_action(view)
+                next_action = decide_next_action(view, context)
                 if next_action and next_action.get("type") == "action":
                     act_data = next_action.get("data", {})
                     act_type = act_data.get("type")

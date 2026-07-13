@@ -21,15 +21,17 @@ def score_recovery_actions(hp: int, ep: int, inventory, is_safe: bool):
             if stat["ep"] > 0:
                 ep_items.append((stat["ep"], item))
                 
-    if hp < 40 and hp_items:
-        score = 90 + (40 - hp)
+    if hp < 80 and hp_items:
+        score = 40 + (100 - hp)
+        if hp < 40:
+            score += 30
         if score > best_score:
             best_score = score
             hp_items.sort(key=lambda x: x[0], reverse=True)
             best_action = {"action": "use_item", "item": hp_items[0][1]}
             
     if ep <= 2 and ep_items:
-        score = 85 + (2 - ep) * 5
+        score = 85 + (10 - ep) * 5
         if score > best_score:
             best_score = score
             ep_items.sort(key=lambda x: x[0], reverse=True)
