@@ -104,13 +104,24 @@ def detect_region_items(view):
         
         items = []
         
+        interactables = r.get('interactables', []) or []
+        for inter in interactables:
+            if isinstance(inter, dict):
+                f_type = inter.get('type') or inter.get('name') or inter.get('id')
+                if f_type:
+                    f_name = f_type.replace('_', ' ').title()
+                    level = inter.get('level')
+                    level_str = f" [{level}]" if level is not None else ""
+                    items.append(f"{f_name}{level_str}")
+                    
         facility = r.get('facility')
         if facility:
             f_type = facility.get('type')
             if f_type:
+                f_name = f_type.replace('_', ' ').title()
                 level = facility.get('level')
                 level_str = f" [{level}]" if level is not None else ""
-                items.append(f"{f_type.capitalize()}{level_str}")
+                items.append(f"{f_name}{level_str}")
                 
         ruins = r.get('ruins')
         if ruins:
