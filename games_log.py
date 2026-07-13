@@ -1,6 +1,7 @@
 import json
 from typing import Dict, Any
 from ai.detector import extract_agent_status, detect_connected_regions, detect_region_items, detect_region_enemies
+from ai.decision_maker import decide_next_action
 
 async def _handle_agent_death(msg: Dict[str, Any], view: Dict[str, Any], context: Any, source: str):
     print(f"[Alert] Agent has died (Detected via {source}). Connection closing...")
@@ -68,6 +69,33 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
             print(f"Weapon : {weapon_name} | Armour : {armor_name}")
             print(f"Inventory : {inv_display}")
             
+            try:
+                next_action = decide_next_action(view)
+                if next_action and next_action.get("type") == "action":
+                    act_data = next_action.get("data", {})
+                    act_type = act_data.get("type") or act_data.get("action")
+                    
+                    if act_type == "move":
+                        target_region = act_data.get("target", {})
+                        target_name = target_region.get("name") if isinstance(target_region, dict) else target_region
+                        print(f"[Intention] Bot decides to move to: {target_name} to search or retrieve items")
+                    elif act_type == "pickup":
+                        item_obj = act_data.get("item", {})
+                        item_name = item_obj.get("name") if isinstance(item_obj, dict) else item_obj
+                        print(f"[Intention] Bot decides to pick up item: {item_name}")
+                    elif act_type == "equip":
+                        item_obj = act_data.get("item", {})
+                        item_name = item_obj.get("name") if isinstance(item_obj, dict) else item_obj
+                        print(f"[Intention] Bot decides to equip: {item_name}")
+                    elif act_type == "use_item":
+                        item_obj = act_data.get("item", {})
+                        item_name = item_obj.get("name") if isinstance(item_obj, dict) else item_obj
+                        print(f"[Intention] Bot decides to use item: {item_name}")
+                    elif act_type == "rest":
+                        print(f"[Intention] Bot decides to Rest to restore EP")
+            except Exception:
+                pass
+            
             if hp > 0:
                 region_strings = []
                 for r in regions:
@@ -89,7 +117,7 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
                         print(f"{r_name} > {', '.join(items)}")
                 else:
                     print("Region Item detector : none")
-                    
+                
                 print()
                 if region_enemies:
                     print("Region Enemy detector :")

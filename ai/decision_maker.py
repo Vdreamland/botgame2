@@ -17,6 +17,7 @@ def decide_next_action(view):
     
     current_region = view.get("currentRegion", {}) or {}
     connected_regions = view.get("connectedRegions", []) or []
+    visible_regions = view.get("visibleRegions", []) or []
     ground_items = current_region.get("items", []) or current_region.get("groundItems", []) or []
     interactables = current_region.get("interactables", []) or []
     
@@ -41,15 +42,15 @@ def decide_next_action(view):
     if rec_res["action"]:
         candidates.append((rec_res["score"], rec_res["action"]))
         
-    loot_res = get_best_loot_action(ground_items, inventory, hp, ep)
+    loot_res = get_best_loot_action(ground_items, inventory, hp, ep, current_weapon, current_armor)
     if loot_res:
-        candidates.append((loot_res["score"], loot_res["action"]))
+        candidates.append((loot_res["score"], {"action": "pickup", "item": loot_res["item"]}))
         
     inter_res = score_interactables(interactables, hp, ep)
     if inter_res["action"]:
         candidates.append((inter_res["score"], inter_res["action"]))
         
-    move_res = get_best_movement_action(connected_regions, pending_deathzones, hp, ep, is_safe)
+    move_res = get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor)
     if move_res:
         candidates.append((move_res["score"], move_res["action"]))
         

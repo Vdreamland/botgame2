@@ -1,5 +1,91 @@
 from helpers.game_math import WEAPON_STATS, ARMOR_STATS, RECOVERY_STATS
 
+def score_weapon(weapon_id: str) -> int:
+    if not weapon_id:
+        return 0
+    name_clean = str(weapon_id).lower().replace(" ", "_")
+    return WEAPON_STATS.get(name_clean, {}).get("atk", 0)
+
+def score_armor(armor_id: str) -> int:
+    if not armor_id:
+        return 0
+    name_clean = str(armor_id).lower().replace(" ", "_")
+    return ARMOR_STATS.get(name_clean, {}).get("def", 0)
+
+def is_item_needed(item_id: str, inventory, current_weapon_id, current_armor_id) -> bool:
+    name_clean = str(item_id).lower().replace(" ", "_")
+    if name_clean == "smoltz":
+        return True
+        
+    if name_clean in WEAPON_STATS:
+        stat = WEAPON_STATS[name_clean]
+        w_type = stat["type"]
+        atk = stat["atk"]
+        
+        if w_type == "melee":
+            best_melee = score_weapon(current_weapon_id) if current_weapon_id and WEAPON_STATS.get(str(current_weapon_id).lower().replace(" ", "_"), {}).get("type") == "melee" else 0
+            for item in inventory:
+                if not isinstance(item, dict):
+                    continue
+                item_name = (item.get("id") or item.get("typeId") or "").lower().replace(" ", "_")
+                if WEAPON_STATS.get(item_name, {}).get("type") == "melee":
+                    best_melee = max(best_melee, WEAPON_STATS[item_name]["atk"])
+            return atk > best_melee
+            
+        elif w_type == "ranged":
+            ranged_in_inv = {}
+            if current_weapon_id and WEAPON_STATS.get(str(current_weapon_id).lower().replace(" ", "_"), {}).get("type") == "ranged":
+                curr_clean = str(current_weapon_id).lower().replace(" ", "_")
+                ranged_in_inv[curr_clean] = WEAPON_STATS[curr_clean]["atk"]
+                
+            for item in inventory:
+                if not isinstance(item, dict):
+                    continue
+                item_name = (item.get("id") or item.get("typeId") or "").lower().replace(" ", "_")
+                if WEAPON_STATS.get(item_name, {}).get("type") == "ranged":
+                    ranged_in_inv[item_name] = max(ranged_in_inv.get(item_name, 0), WEAPON_STATS[item_name]["atk"])
+            
+            if name_clean not in ranged_in_inv:
+                return len(ranged_in_inv) < 2
+            else:
+                return atk > ranged_in_inv[name_clean]
+                
+    elif name_clean in ARMOR_STATS:
+        score = ARMOR_STATS[name_clean]["def"]
+        best_armor = score_armor(current_armor_id)
+        for item in inventory:
+            if not isinstance(item, dict):
+                continue
+            item_name = (item.get("id") or item.get("typeId") or "").lower().replace(" ", "_")
+            if item_name in ARMOR_STATS:
+                best_armor = max(best_armor, ARMOR_STATS[item_name]["def"])
+        return score > best_armor
+        
+    elif name_clean in RECOVERY_STATS:
+        hp_count = 0
+        ep_count = 0
+        total_items = 0
+        for item in inventory:
+            if not isinstance(item, dict):
+                continue
+            total_items += 1
+            item_name = (item.get("id") or item.get("typeId") or "").lower().replace(" ", "_")
+            if item_name in RECOVERY_STATS:
+                stat = RECOVERY_STATS[item_name]
+                if stat["hp"] > 0:
+                    hp_count += 1
+                if stat["ep"] > 0:
+                    ep_count += 1
+                    
+        if total_items < 10:
+            stat = RECOVERY_STATS[name_clean]
+            if stat["hp"] > 0:
+                return hp_count <= ep_count + 1
+            if stat["ep"] > 0:
+                return ep_count <= hp_count + 1
+                
+    return False
+
 def score_ground_item(item_id: str, hp: int, ep: int) -> int:
     name_clean = str(item_id).lower().replace(" ", "_")
     if name_clean == "smoltz":
@@ -23,7 +109,7 @@ def score_ground_item(item_id: str, hp: int, ep: int) -> int:
             
     return score
 
-def get_best_loot_action(ground_items, current_inventory, hp, ep):
+def get_best_loot_action(ground_items, current_inventory, hp, ep, current_weapon_id, current_armor_id):
     if not ground_items:
         return None
         
@@ -45,9 +131,10 @@ def get_best_loot_action(ground_items, current_inventory, hp, ep):
         if not item_name:
             continue
             
-        score = score_ground_item(item_name, hp, ep)
-        scored_items.append((score, item_name, item))
-        
+        if is_item_needed(item_name, current_inventory, current_weapon_id, current_armor_id):
+            score = score_ground_item(item_name, hp, ep)
+            scored_items.append((score, item_name, item))
+            
     if not scored_items:
         return None
         
