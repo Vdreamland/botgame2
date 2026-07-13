@@ -13,7 +13,8 @@ def score_armor(armor_id: str) -> int:
     return ARMOR_STATS.get(name_clean, {}).get("def", 0)
 
 def evaluate_equipment(inventory, current_weapon_id, current_armor_id):
-    to_equip = None
+    to_equip_weapon = None
+    to_equip_armor = None
     to_drop = []
     
     current_weapon_clean = str(current_weapon_id).lower().replace(" ", "_") if current_weapon_id else ""
@@ -59,7 +60,7 @@ def evaluate_equipment(inventory, current_weapon_id, current_armor_id):
                 to_drop.append(item)
                 
     if best_melee_item:
-        to_equip = best_melee_item
+        to_equip_weapon = best_melee_item
         
     for item in inventory:
         if not isinstance(item, dict):
@@ -85,14 +86,15 @@ def evaluate_equipment(inventory, current_weapon_id, current_armor_id):
         if i < 2:
             item_id = item.get("id") or item.get("typeId")
             if current_weapon_id != item_id:
-                to_equip = item
+                to_equip_weapon = item
         else:
             to_drop.append(item)
             
     if best_armor_item:
-        to_equip = best_armor_item
+        to_equip_armor = best_armor_item
         
     return {
-        "to_equip": to_equip,
+        "to_equip_weapon": to_equip_weapon,
+        "to_equip_armor": to_equip_armor,
         "to_drop": to_drop
     }

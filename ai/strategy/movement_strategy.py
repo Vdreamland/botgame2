@@ -5,10 +5,10 @@ def score_region_movement(region, is_death_zone_pending, hp, is_safe):
     
     is_dead_zone = region.get("is_death_zone") or region.get("isDeathZone") or False
     if is_dead_zone:
-        score -= 90
+        score -= 2000
         
     if is_death_zone_pending:
-        score -= 50
+        score -= 1000
         
     if hp < 40 and not is_safe:
         terrain = str(region.get("terrain", "")).lower()
@@ -19,10 +19,15 @@ def score_region_movement(region, is_death_zone_pending, hp, is_safe):
             
     return score
 
-def get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, interacted_ids):
+def get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, interacted_ids, current_region):
     if ep < 2 or not connected_regions:
         return None
         
+    current_id = current_region.get("id")
+    is_in_dead_zone = current_region.get("is_death_zone") or current_region.get("isDeathZone") or False
+    is_in_pending = current_id in pending_deathzones if current_id else False
+    is_urgent = is_in_dead_zone or is_in_pending or (hp < 40 and not is_safe)
+    
     visible_regions_map = {}
     for r in visible_regions:
         if isinstance(r, dict):
@@ -37,6 +42,9 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
         
         score = score_region_movement(r, is_pending_dead, hp, is_safe)
         
+        if ep < 3 and not is_urgent:
+            score -= 1500
+            
         region_detail = visible_regions_map.get(r_id) if r_id else None
         if region_detail:
             items_in_region = region_detail.get("items", []) or region_detail.get("groundItems", []) or []

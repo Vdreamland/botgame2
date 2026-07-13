@@ -41,8 +41,20 @@ def decide_next_action(view):
             connected_regions.append({"id": conn_id, "name": conn_id})
             
     eval_equip = evaluate_equipment(inventory, current_weapon, current_armor)
-    if eval_equip["to_equip"]:
-        item_obj = eval_equip["to_equip"]
+    
+    if eval_equip["to_equip_weapon"]:
+        item_obj = eval_equip["to_equip_weapon"]
+        item_id = item_obj.get("id") or item_obj.get("typeId") if isinstance(item_obj, dict) else item_obj
+        return {
+            "type": "action",
+            "data": {
+                "type": "equip",
+                "itemId": item_id
+            }
+        }
+        
+    if eval_equip["to_equip_armor"]:
+        item_obj = eval_equip["to_equip_armor"]
         item_id = item_obj.get("id") or item_obj.get("typeId") if isinstance(item_obj, dict) else item_obj
         return {
             "type": "action",
@@ -78,7 +90,7 @@ def decide_next_action(view):
     if inter_res["action"]:
         candidates.append((inter_res["score"], inter_res["action"]))
         
-    move_res = get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, INTERACTED_FACILITIES)
+    move_res = get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, INTERACTED_FACILITIES, current_region)
     if move_res:
         candidates.append((move_res["score"], move_res["action"]))
         
