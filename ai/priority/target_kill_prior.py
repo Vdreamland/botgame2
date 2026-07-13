@@ -1,10 +1,5 @@
 import math
-from helpers.game_math import WEAPON_STATS
-
-def estimate_damage(atk, weapon_bonus, defense, weather):
-    from helpers.game_math import WEATHER_COMBAT_MODIFIERS
-    weather_mod = WEATHER_COMBAT_MODIFIERS.get(weather, 0) if isinstance(weather, str) else 0
-    return max(1, atk + weapon_bonus - defense + weather_mod)
+from helpers.game_math import WEAPON_STATS, WeatherType, calculate_damage
 
 def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_atk, self_def, weather, last_target_id):
     best_action = None
@@ -41,6 +36,11 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
                 best_weapon_in_inv = item
                 best_weapon_range = stat["range"]
 
+    try:
+        weather_enum = WeatherType(str(weather).lower())
+    except ValueError:
+        weather_enum = WeatherType.CLEAR
+
     for r_name, enemies_list in visible_enemies.items():
         is_current_region = str(r_name).lower() == "current" or r_name == ""
         
@@ -73,8 +73,8 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
                 enemy_atk = 12
                 enemy_def = 120
                 
-            my_dmg = estimate_damage(self_atk, current_wpn_atk, enemy_def, weather)
-            target_dmg = estimate_damage(enemy_atk, 0, self_def, weather)
+            my_dmg = calculate_damage(self_atk, current_wpn_atk, enemy_def, weather_enum)
+            target_dmg = calculate_damage(enemy_atk, 0, self_def, weather_enum)
             
             turns_to_kill = math.ceil(enemy_hp / my_dmg) if my_dmg > 0 else 999
             turns_to_die = math.ceil(hp / target_dmg) if target_dmg > 0 else 999
