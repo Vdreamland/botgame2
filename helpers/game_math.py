@@ -49,6 +49,31 @@ MONSTER_FALLBACK_STATS = {
     "guardian": {"hp": 150, "ep": 10, "atk": 12, "def": 120}
 }
 
+WEAPON_STATS = {
+    "fist": {"atk": 0, "ep": 1, "range": 0, "type": "melee"},
+    "dagger": {"atk": 16, "ep": 1, "range": 0, "type": "melee"},
+    "sword": {"atk": 24, "ep": 2, "range": 0, "type": "melee"},
+    "katana": {"atk": 40, "ep": 3, "range": 0, "type": "melee"},
+    "bow": {"atk": 8, "ep": 1, "range": 1, "type": "ranged"},
+    "pistol": {"atk": 15, "ep": 2, "range": 1, "type": "ranged"},
+    "sniper_rifle": {"atk": 32, "ep": 3, "range": 2, "type": "ranged"}
+}
+
+ARMOR_STATS = {
+    "leather": {"def": 4},
+    "leather_armor": {"def": 4},
+    "chainmail": {"def": 12},
+    "plate": {"def": 20},
+    "plate_armor": {"def": 20}
+}
+
+RECOVERY_STATS = {
+    "bandage": {"hp": 10, "ep": 0},
+    "emergency_food": {"hp": 20, "ep": 5},
+    "energy_drink": {"hp": 0, "ep": 5},
+    "medkit": {"hp": 30, "ep": 0}
+}
+
 def get_vision_mod(terrain: TerrainType, weather: WeatherType) -> int:
     return VISION_MODIFIERS.get(terrain, 0) + WEATHER_VISION_MODIFIERS.get(weather, 0)
 

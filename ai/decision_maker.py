@@ -1,0 +1,62 @@
+from ai.priority.equipment_prior import evaluate_equipment
+from ai.priority.region_loot_prior import get_best_loot_action
+from ai.priority.recovery_prior import score_recovery_actions
+from ai.priority.interact_prior import score_interactables
+from ai.priority.target_kill_prior import score_targets
+from ai.strategy.movement_strategy import get_best_movement_action
+from ai.strategy.ruin_exploration_strategy import score_exploration
+
+def decide_next_action(view):
+    self_data = view.get("self", {}) or {}
+    hp = self_data.get("hp", 100)
+    ep = self_data.get("ep", 10)
+    atk = self_data.get("atk", 25)
+    inventory = self_data.get("inventory", []) or []
+    current_weapon = self_data.get("equippedWeaponId")
+    current_armor = self_data.get("equippedArmorId")
+    
+    current_region = view.get("currentRegion", {}) or {}
+    connected_regions = view.get("connectedRegions", []) or []
+    ground_items = current_region.get("items", []) or current_region.get("groundItems", []) or []
+    interactables = current_region.get("interactables", []) or []
+    
+    pending_deathzones = view.get("pendingDeathzones", []) or []
+    alert_gauge = view.get("alertGauge", 0) or 0
+    
+    visible_agents = view.get("visibleAgents", []) or []
+    visible_monsters = view.get("visibleMonsters", []) or []
+    visible_npcs = view.get("visibleNPCs", []) or []
+    
+    eval_equip = evaluate_equipment(inventory, current_weapon, current_armor)
+    if eval_equip["to_equip"]:
+        return {"type": "action", "data": {"type": "equip", "item": eval_equip["to_equip"]}}
+        
+    if eval_equip["to_drop"] and len(inventory) >= 10:
+        return {"type": "action", "data": {"type": "drop", "item": eval_equip["to_drop"][0]}}
+        
+    candidates = []
+    is_safe = len(visible_agents) == 0 and len(visible_monsters) == 0 and len(visible_npcs) == 0
+    
+    rec_res = score_recovery_actions(hp, ep, inventory, is_safe)
+    if rec_res["action"]:
+        candidates.append((rec_res["score"], rec_res["action"]))
+        
+    loot_res = get_best_loot_action(ground_items, inventory, hp, ep)
+    if loot_res:
+        candidates.append((loot_res["score"], loot_res["action"]))
+        
+    inter_res = score_interactables(interactables, hp, ep)
+    if inter_res["action"]:
+        candidates.append((inter_res["score"], inter_res["action"]))
+        
+    move_res = get_best_movement_action(connected_regions, pending_deathzones, hp, ep, is_safe)
+    if move_res:
+        candidates.append((move_res["score"], move_res["action"]))
+        
+    if not candidates:
+        return {"type": "action", "data": {"type": "rest"}}
+        
+    candidates.sort(key=lambda x: x[0], reverse=True)
+    best_score, best_action = candidates[0]
+    
+    return {"type": "action", "data": best_action}
