@@ -76,10 +76,24 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
             my_dmg = calculate_damage(self_atk, current_wpn_atk, enemy_def, weather_enum)
             target_dmg = calculate_damage(enemy_atk, 0, self_def, weather_enum)
             
+            total_target_dmg = target_dmg
+            if is_current_region:
+                other_enemies = [e for e in enemies_list if (e.get("id") or e.get("agentId") or e.get("monsterId") or e.get("npcId")) != enemy_id]
+                for other in other_enemies:
+                    o_atk = other.get("atk", 15)
+                    o_name = str(other.get("name") or "").lower()
+                    if "wolf" in o_name:
+                        o_atk = 15
+                    elif "bear" in o_name:
+                        o_atk = 12
+                    elif "bandit" in o_name:
+                        o_atk = 25
+                    total_target_dmg += calculate_damage(o_atk, 0, self_def, weather_enum)
+                    
             turns_to_kill = math.ceil(enemy_hp / my_dmg) if my_dmg > 0 else 999
-            turns_to_die = math.ceil(hp / target_dmg) if target_dmg > 0 else 999
+            turns_to_die = math.ceil(hp / total_target_dmg) if total_target_dmg > 0 else 999
             
-            is_suicide = turns_to_kill >= turns_to_die or (hp < 30 and target_dmg >= hp)
+            is_suicide = turns_to_kill >= turns_to_die or (hp < 30 and total_target_dmg >= hp)
             
             score = 0
             if is_player:
