@@ -126,7 +126,7 @@ def detect_region_enemies(view):
                     detected[r_name] = []
                 is_guardian = agent.get('isGuardian', False)
                 prefix = "G" if is_guardian else "P"
-                detected[r_name].append(f"{prefix} : {name} {hp}/{ep}/{atk}/{defense}/")
+                detected[r_name].append(f"{prefix} : {name} HP:{hp}/EP:{ep}/ATK:{atk}/DEF:{defense}/")
                 
     visible_monsters = view.get('visibleMonsters') or []
     for m in visible_monsters:
@@ -142,7 +142,7 @@ def detect_region_enemies(view):
                 ep = m.get('ep', 0)
                 atk = m.get('atk', 0)
                 defense = m.get('def', 0)
-                detected[r_name].append(f"M : {m_type} {hp}/{ep}/{atk}/{defense}/")
+                detected[r_name].append(f"M : {m_type} HP:{hp}/EP:{ep}/ATK:{atk}/DEF:{defense}/")
                 
     visible_npcs = view.get('visibleNPCs') or []
     for npc in visible_npcs:
@@ -158,6 +158,6 @@ def detect_region_enemies(view):
                 ep = npc.get('ep', 0)
                 atk = npc.get('atk', 0)
                 defense = npc.get('def', 0)
-                detected[r_name].append(f"G : {npc_type} {hp}/{ep}/{atk}/{defense}/")
+                detected[r_name].append(f"G : {npc_type} HP:{npc}/EP:{ep}/ATK:{atk}/DEF:{defense}/")
                 
     return detected
