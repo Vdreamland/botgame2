@@ -90,6 +90,10 @@ def decide_next_action(view):
     if inter_res["action"]:
         candidates.append((inter_res["score"], inter_res["action"]))
         
+    explore_res = score_exploration([current_region], alert_gauge, ep)
+    if explore_res["action"]:
+        candidates.append((explore_res["score"], explore_res["action"]))
+        
     move_res = get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, INTERACTED_FACILITIES, current_region)
     if move_res:
         candidates.append((move_res["score"], move_res["action"]))
@@ -158,6 +162,16 @@ def decide_next_action(view):
             "data": {
                 "type": "interact",
                 "targetId": t_id
+            }
+        }
+    elif act_type == "explore":
+        target = best_action.get("target", {})
+        ruin_id = target.get("id") or target.get("ruinId")
+        return {
+            "type": "action",
+            "data": {
+                "type": "explore",
+                "ruinId": ruin_id
             }
         }
         

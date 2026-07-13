@@ -46,6 +46,17 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
             score -= 1500
             
         region_detail = visible_regions_map.get(r_id) if r_id else None
+        
+        has_ruin = False
+        r_name_lower = str(r.get("name", "")).lower()
+        if "relic" in r_name_lower or "ruin" in r_name_lower or (region_detail and region_detail.get("ruins")):
+            ruin_obj = r.get("ruins") or (region_detail.get("ruins") if region_detail else None)
+            if not ruin_obj or str(ruin_obj.get("status", "")).lower() not in ("cleared", "completed", "finished"):
+                has_ruin = True
+                
+        if has_ruin:
+            score += 95
+            
         if region_detail:
             items_in_region = region_detail.get("items", []) or region_detail.get("groundItems", []) or []
             has_needed_item = False
