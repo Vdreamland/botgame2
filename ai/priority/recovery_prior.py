@@ -10,10 +10,10 @@ def score_recovery_actions(hp: int, ep: int, inventory, is_safe: bool):
     for item in inventory:
         if not isinstance(item, dict):
             continue
-        item_id = item.get("id") or item.get("typeId")
-        if not item_id:
+        item_type = item.get("typeId") or item.get("name") or item.get("id")
+        if not item_type:
             continue
-        name_clean = str(item_id).lower().replace(" ", "_")
+        name_clean = str(item_type).lower().replace(" ", "_")
         if name_clean in RECOVERY_STATS:
             stat = RECOVERY_STATS[name_clean]
             if stat["hp"] > 0:

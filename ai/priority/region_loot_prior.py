@@ -27,7 +27,8 @@ def is_item_needed(item_id: str, inventory, current_weapon_id, current_armor_id)
             for item in inventory:
                 if not isinstance(item, dict):
                     continue
-                item_name = (item.get("id") or item.get("typeId") or "").lower().replace(" ", "_")
+                item_type = item.get("typeId") or item.get("name") or item.get("id") or ""
+                item_name = str(item_type).lower().replace(" ", "_")
                 if WEAPON_STATS.get(item_name, {}).get("type") == "melee":
                     best_melee = max(best_melee, WEAPON_STATS[item_name]["atk"])
             return atk > best_melee
@@ -41,7 +42,8 @@ def is_item_needed(item_id: str, inventory, current_weapon_id, current_armor_id)
             for item in inventory:
                 if not isinstance(item, dict):
                     continue
-                item_name = (item.get("id") or item.get("typeId") or "").lower().replace(" ", "_")
+                item_type = item.get("typeId") or item.get("name") or item.get("id") or ""
+                item_name = str(item_type).lower().replace(" ", "_")
                 if WEAPON_STATS.get(item_name, {}).get("type") == "ranged":
                     ranged_in_inv[item_name] = max(ranged_in_inv.get(item_name, 0), WEAPON_STATS[item_name]["atk"])
             
@@ -56,7 +58,8 @@ def is_item_needed(item_id: str, inventory, current_weapon_id, current_armor_id)
         for item in inventory:
             if not isinstance(item, dict):
                 continue
-            item_name = (item.get("id") or item.get("typeId") or "").lower().replace(" ", "_")
+            item_type = item.get("typeId") or item.get("name") or item.get("id") or ""
+            item_name = str(item_type).lower().replace(" ", "_")
             if item_name in ARMOR_STATS:
                 best_armor = max(best_armor, ARMOR_STATS[item_name]["def"])
         return score > best_armor
@@ -69,7 +72,8 @@ def is_item_needed(item_id: str, inventory, current_weapon_id, current_armor_id)
             if not isinstance(item, dict):
                 continue
             total_items += 1
-            item_name = (item.get("id") or item.get("typeId") or "").lower().replace(" ", "_")
+            item_type = item.get("typeId") or item.get("name") or item.get("id") or ""
+            item_name = str(item_type).lower().replace(" ", "_")
             if item_name in RECOVERY_STATS:
                 stat = RECOVERY_STATS[item_name]
                 if stat["hp"] > 0:
@@ -118,8 +122,9 @@ def get_best_loot_action(ground_items, current_inventory, hp, ep, current_weapon
     for item in current_inventory:
         if not isinstance(item, dict):
             continue
-        item_id = item.get("id") or item.get("typeId")
-        if str(item_id).lower() == "smoltz":
+        item_type = item.get("typeId") or item.get("name") or item.get("id") or ""
+        item_name = str(item_type).lower().replace(" ", "_")
+        if item_name == "smoltz":
             has_smoltz_slot = True
         inv_count += 1
         
