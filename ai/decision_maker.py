@@ -92,7 +92,7 @@ def decide_next_action(view, context=None):
     if loot_res and not should_flee:
         candidates.append((loot_res["score"], {"action": "pickup", "item": loot_res["item"]}))
         
-    inter_res = score_interactables(interactables, hp, ep, interacted_ids)
+    inter_res = score_interactables(interactables, hp, ep, INTERACTED_FACILITIES)
     if inter_res["action"] and not should_flee:
         candidates.append((inter_res["score"], inter_res["action"]))
         
@@ -112,7 +112,7 @@ def decide_next_action(view, context=None):
     if combat_res["action"]:
         candidates.append((combat_res["score"], combat_res["action"]))
         
-    move_res = get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, interacted_ids, current_region, visible_agents, visible_monsters, visible_npcs)
+    move_res = get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, INTERACTED_FACILITIES, current_region, visible_agents, visible_monsters, visible_npcs)
     if move_res:
         score = move_res["score"]
         if should_flee:
@@ -120,9 +120,11 @@ def decide_next_action(view, context=None):
         candidates.append((score, move_res["action"]))
         
     if not candidates:
+        print("[DEBUG DECISION] candidates are empty!")
         best_action = {"action": "rest"}
     else:
         candidates.sort(key=lambda x: x[0], reverse=True)
+        print(f"[DEBUG DECISION] candidates: {[(c[0], c[1].get('action') or c[1].get('type')) for c in candidates]}")
         best_action = candidates[0][1]
         
     act_type = best_action.get("action")
