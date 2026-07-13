@@ -42,6 +42,13 @@ ARMOR_DEFENSE_BONUS: Dict[str, int] = {
     "Plate": 20,
 }
 
+MONSTER_FALLBACK_STATS = {
+    "wolf": {"hp": 25, "ep": 0, "atk": 15, "def": 1},
+    "bear": {"hp": 30, "ep": 0, "atk": 12, "def": 3},
+    "bandit": {"hp": 40, "ep": 0, "atk": 25, "def": 5},
+    "guardian": {"hp": 150, "ep": 10, "atk": 12, "def": 120}
+}
+
 def get_vision_mod(terrain: TerrainType, weather: WeatherType) -> int:
     return VISION_MODIFIERS.get(terrain, 0) + WEATHER_VISION_MODIFIERS.get(weather, 0)
 

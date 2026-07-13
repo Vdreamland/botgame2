@@ -1,3 +1,5 @@
+from helpers.game_math import MONSTER_FALLBACK_STATS
+
 def _is_entity_alive(entity):
     if not isinstance(entity, dict):
         return False
@@ -18,16 +20,15 @@ def _is_entity_alive(entity):
 def _get_monster_stats(m_type, raw_hp=None, raw_ep=None, raw_atk=None, raw_def=None):
     name_lower = str(m_type).lower()
     fallback = {"hp": 0, "ep": 0, "atk": 0, "def": 0}
+    
     if "guardian" in name_lower:
-        fallback = {"hp": 150, "ep": 10, "atk": 12, "def": 120}
+        fallback = MONSTER_FALLBACK_STATS["guardian"]
     elif "wolf" in name_lower:
-        fallback = {"hp": 25, "ep": 0, "atk": 15, "def": 1}
+        fallback = MONSTER_FALLBACK_STATS["wolf"]
     elif "bear" in name_lower:
-        fallback = {"hp": 30, "ep": 0, "atk": 12, "def": 3}
+        fallback = MONSTER_FALLBACK_STATS["bear"]
     elif "bandit" in name_lower:
-        fallback = {"hp": 40, "ep": 0, "atk": 25, "def": 5}
-    elif "hermit" in name_lower:
-        fallback = {"hp": 50, "ep": 0, "atk": 0, "def": 0}
+        fallback = MONSTER_FALLBACK_STATS["bandit"]
         
     hp = raw_hp if (raw_hp is not None and raw_hp != 0) else fallback["hp"]
     ep = raw_ep if (raw_ep is not None and raw_ep != 0) else fallback["ep"]
@@ -151,11 +152,13 @@ def detect_region_enemies(view):
         if agent_id == self_id:
             continue
         if _is_entity_alive(agent):
+            name = agent.get('name') or agent.get('username') or agent.get('agentName') or (f"Agent_{agent_id[:4]}" if agent_id else "Unknown Agent")
+            if "hermit" in name.lower():
+                continue
             hp = agent.get('hp', 100)
             ep = agent.get('ep', 0)
             atk = agent.get('atk', 0)
             defense = agent.get('def', 0)
-            name = agent.get('name') or agent.get('username') or agent.get('agentName') or (f"Agent_{agent_id[:4]}" if agent_id else "Unknown Agent")
             r_name = get_entity_region_name(agent)
             if r_name:
                 if r_name not in detected:
@@ -171,6 +174,8 @@ def detect_region_enemies(view):
             continue
         if _is_entity_alive(m):
             m_type = m.get('type') or m.get('name') or m.get('monsterId') or "Monster"
+            if "hermit" in m_type.lower():
+                continue
             r_name = get_entity_region_name(m)
             if r_name:
                 if r_name not in detected:
@@ -180,8 +185,7 @@ def detect_region_enemies(view):
                 raw_atk = m.get('atk')
                 raw_def = m.get('def')
                 hp, ep, atk, defense = _get_monster_stats(m_type, raw_hp, raw_ep, raw_atk, raw_def)
-                wpn_name, arm_name = get_entity_equipment(m)
-                detected[r_name].append(f"M : {m_type} HP:{hp}/EP:{ep}/ATK:{atk}/DEF:{defense}/Wpn:{wpn_name}/Arm:{arm_name}/")
+                detected[r_name].append(f"M : {m_type} HP:{hp}/EP:{ep}/ATK:{atk}/DEF:{defense}/")
                 
     visible_npcs = view.get('visibleNPCs') or []
     for npc in visible_npcs:
@@ -189,6 +193,8 @@ def detect_region_enemies(view):
             continue
         if _is_entity_alive(npc):
             npc_type = npc.get('type') or npc.get('name') or npc.get('npcId') or "NPC"
+            if "hermit" in npc_type.lower():
+                continue
             r_name = get_entity_region_name(npc)
             if r_name:
                 if r_name not in detected:
@@ -198,7 +204,6 @@ def detect_region_enemies(view):
                 raw_atk = npc.get('atk')
                 raw_def = npc.get('def')
                 hp, ep, atk, defense = _get_monster_stats(npc_type, raw_hp, raw_ep, raw_atk, raw_def)
-                wpn_name, arm_name = get_entity_equipment(npc)
-                detected[r_name].append(f"G : {npc_type} HP:{hp}/EP:{ep}/ATK:{atk}/DEF:{defense}/Wpn:{wpn_name}/Arm:{arm_name}/")
+                detected[r_name].append(f"G : {npc_type} HP:{hp}/EP:{ep}/ATK:{atk}/DEF:{defense}/")
                 
     return detected
