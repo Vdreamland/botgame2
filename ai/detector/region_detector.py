@@ -1,16 +1,91 @@
-def detect_region_enemies(view):
+import networkx as nx
+
+def detect_connected_regions(view):
     """
-    Detect enemies in visible and connected regions
-    Returns: dict mapping region name/ID to list of enemy strings
+    Detect all connected and visible regions
+    Returns: list of region dicts
     """
-    detected = {}
-    
-    # 1. Gather all regions (current, connected, other visible)
     current_region = view.get('currentRegion', {})
     current_id = current_region.get('id')
     current_name = current_region.get('name') or current_id
     
-    # Track regions to check
+    # Track visible regions data
+    visible_regions_map = {}
+    for r in view.get('visibleRegions', []):
+        r_id = r.get('id')
+        if r_id:
+            visible_regions_map[r_id] = r
+            
+    # Include current region details if visible
+    if current_id and current_id not in visible_regions_map:
+        visible_regions_map[current_id] = current_region
+        
+    detected_list = []
+    seen_ids = set()
+    
+    # 1. Current region first
+    if current_id:
+        curr_detail = visible_regions_map.get(current_id, current_region)
+        detected_list.append({
+            'id': current_id,
+            'name': current_name,
+            'terrain': curr_detail.get('terrain', 'unknown'),
+            'is_death_zone': curr_detail.get('isDeathZone', False) or curr_detail.get('is_death_zone', False),
+            'is_visible': True
+        })
+        seen_ids.add(current_id)
+        
+    # 2. Adjacent connected regions
+    for r in view.get('connectedRegions', []):
+        # connectedRegions can contain objects or bare IDs
+        r_id = r.get('id') if isinstance(r, dict) else r
+        if r_id and r_id not in seen_ids:
+            if r_id in visible_regions_map:
+                detail = visible_regions_map[r_id]
+                detected_list.append({
+                    'id': r_id,
+                    'name': detail.get('name') or r_id,
+                    'terrain': detail.get('terrain', 'unknown'),
+                    'is_death_zone': detail.get('isDeathZone', False) or detail.get('is_death_zone', False),
+                    'is_visible': True
+                })
+            else:
+                # Outside vision
+                detected_list.append({
+                    'id': r_id,
+                    'name': r_id,
+                    'terrain': 'unknown',
+                    'is_death_zone': False,
+                    'is_visible': False
+                })
+            seen_ids.add(r_id)
+            
+    # 3. Other visible regions in sight (e.g. ruins, court, etc.)
+    for r_id, detail in visible_regions_map.items():
+        if r_id not in seen_ids:
+            detected_list.append({
+                'id': r_id,
+                'name': detail.get('name') or r_id,
+                'terrain': detail.get('terrain', 'unknown'),
+                'is_death_zone': detail.get('isDeathZone', False) or detail.get('is_death_zone', False),
+                'is_visible': True
+            })
+            seen_ids.add(r_id)
+            
+    return detected_list
+
+def detect_region_items(view):
+    """
+    Detect items and facilities in visible and connected regions
+    Returns: dict mapping region name/ID to list of item/facility strings
+    """
+    detected = {}
+    
+    # 1. Gather all regions
+    current_region = view.get('currentRegion', {})
+    current_id = current_region.get('id')
+    current_name = current_region.get('name') or current_id
+    
     regions_to_check = []
     seen_regions = set()
     
@@ -21,7 +96,6 @@ def detect_region_enemies(view):
     for r in view.get('connectedRegions', []):
         r_id = r.get('id') if isinstance(r, dict) else r
         if r_id and r_id not in seen_regions:
-            # We only have complete data if it's a dict
             if isinstance(r, dict):
                 regions_to_check.append(r)
             else:
@@ -34,48 +108,37 @@ def detect_region_enemies(view):
             regions_to_check.append(r)
             seen_regions.add(r_id)
             
-    # Process each region
-    self_id = view.get('self', {}).get('id') or view.get('self', {}).get('agentId')
-    
     for r in regions_to_check:
         r_id = r.get('id')
         r_name = r.get('name') or r_id
         
-        enemies = []
+        items = []
         
-        # Check players/agents in this region
-        agents_in_region = r.get('agents', []) or r.get('players', [])
-        for agent in agents_in_region:
-            agent_id = agent.get('id') or agent.get('agentId')
-            # Ignore self
-            if agent_id == self_id:
-                continue
+        # Check facilities (e.g. cave, refinery)
+        facility = r.get('facility')
+        if facility:
+            f_type = facility.get('type')
+            if f_type:
+                # Format like "Cave" or "Refinery [2]"
+                level = facility.get('level')
+                level_str = f" [{level}]" if level is not None else ""
+                items.append(f"{f_type.capitalize()}{level_str}")
                 
-            # Only count alive ones
-            if agent.get('isAlive', True):
-                hp = agent.get('hp', 100)
-                name = agent.get('name') or f"Agent_{agent_id[:4]}" if agent_id else "Unknown Agent"
-                enemies.append(f"Player: {name} [HP {hp}]")
-                
-        # Check monsters/guardians
-        monsters = r.get('monsters', [])
-        for m in monsters:
-            if m.get('isAlive', True):
-                m_type = m.get('type') or m.get('name') or "Monster"
-                hp = m.get('hp')
-                hp_str = f" [HP {hp}]" if hp is not None else ""
-                enemies.append(f"Monster: {m_type}{hp_str}")
-                
-        # Guardians
-        guardians = r.get('guardians', [])
-        for g in guardians:
-            if g.get('isAlive', True):
-                g_type = g.get('type') or g.get('name') or "Guardian"
-                hp = g.get('hp')
-                hp_str = f" [HP {hp}]" if hp is not None else ""
-                enemies.append(f"Guardian: {g_type}{hp_str}")
-                
-        if enemies:
-            detected[r_name] = enemies
+        # Check ruins
+        ruins = r.get('ruins')
+        if ruins:
+            ruins_name = ruins.get('name') or "Ruins"
+            items.append(f"{ruins_name}")
+            
+        # Check ground items
+        ground_items = r.get('items', []) or r.get('groundItems', [])
+        for item in ground_items:
+            item_name = item.get('name') or item.get('type') or "Item"
+            qty = item.get('qty', 1)
+            qty_str = f" x{qty}" if qty > 1 else ""
+            items.append(f"{item_name}{qty_str}")
+            
+        if items:
+            detected[r_name] = items
             
     return detected
