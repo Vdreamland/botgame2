@@ -83,22 +83,25 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
             
             score = 0
             if is_player:
-                score = 80
+                score = 210
             elif is_guardian:
-                score = 40
+                score = 160
             else:
-                score = 60
+                score = 190
                 
             if enemy_hp < self_atk + current_wpn_atk:
                 score += 40
             elif enemy_hp < 50:
                 score += 20
                 
+            if turns_to_kill == 1 and not is_suicide:
+                score += 100
+                
             if enemy_id == last_target_id:
                 score += 30
                 
             if is_suicide:
-                score -= 500
+                score -= 1000
                 
             if score > best_score and score > 0:
                 best_score = score

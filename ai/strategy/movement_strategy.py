@@ -55,7 +55,7 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
                 has_ruin = True
                 
         if has_ruin:
-            score += 95
+            score += 50
             
         if region_detail:
             items_in_region = region_detail.get("items", []) or region_detail.get("groundItems", []) or []
