@@ -124,6 +124,9 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
                         print(f"[Intention] Bot decides to use item ID: {target_id}")
                     elif act_type == "rest":
                         print(f"[Intention] Bot decides to Rest to restore EP")
+                    
+                    if context.ws:
+                        await context.ws.send(json.dumps(next_action))
             except Exception:
                 pass
                 
