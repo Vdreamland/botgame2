@@ -16,7 +16,6 @@ def decide_next_action(view):
     current_armor = self_data.get("equippedArmorId")
     
     current_region = view.get("currentRegion", {}) or {}
-    connected_regions = view.get("connectedRegions", []) or []
     visible_regions = view.get("visibleRegions", []) or []
     ground_items = current_region.get("items", []) or current_region.get("groundItems", []) or []
     interactables = current_region.get("interactables", []) or []
@@ -28,6 +27,17 @@ def decide_next_action(view):
     visible_monsters = view.get("visibleMonsters", []) or []
     visible_npcs = view.get("visibleNPCs", []) or []
     
+    visible_regions_map = {r.get("id"): r for r in visible_regions if isinstance(r, dict) and r.get("id")}
+    connected_regions = []
+    connections = current_region.get("connections", []) or []
+    for conn_id in connections:
+        if not conn_id:
+            continue
+        if conn_id in visible_regions_map:
+            connected_regions.append(visible_regions_map[conn_id])
+        else:
+            connected_regions.append({"id": conn_id, "name": conn_id})
+            
     eval_equip = evaluate_equipment(inventory, current_weapon, current_armor)
     if eval_equip["to_equip"]:
         return {"type": "action", "data": {"type": "equip", "item": eval_equip["to_equip"]}}
