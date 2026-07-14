@@ -12,11 +12,9 @@ async def _handle_agent_death(msg: Dict[str, Any], view: Dict[str, Any], context
         await context.ws.close()
 
 def _find_entity_name(view: Dict[str, Any], target_id: str) -> str:
-    """Helper terpadu untuk mencari nama entitas/item/fasilitas berdasarkan ID dari data view."""
     if not target_id:
         return ""
     
-    # 1. Periksa fasilitas dan item di region aktif saat ini
     curr_reg = view.get("currentRegion", {}) or {}
     for inter in (curr_reg.get("interactables", []) or []):
         if isinstance(inter, dict) and inter.get("id") == target_id:
@@ -27,7 +25,6 @@ def _find_entity_name(view: Dict[str, Any], target_id: str) -> str:
         if isinstance(item, dict) and item.get("id") == target_id:
             return item.get("name") or item.get("type") or item.get("typeId") or ""
 
-    # 2. Periksa fasilitas dan item di region lain yang terlihat
     for r in (view.get("visibleRegions", []) or []):
         if isinstance(r, dict):
             for inter in (r.get("interactables", []) or []):
@@ -38,7 +35,6 @@ def _find_entity_name(view: Dict[str, Any], target_id: str) -> str:
                 if isinstance(item, dict) and item.get("id") == target_id:
                     return item.get("name") or item.get("type") or item.get("typeId") or ""
 
-    # 3. Periksa inventaris atau equipment milik agen sendiri
     self_data = view.get("self", {}) or {}
     for item in (self_data.get("inventory", []) or []):
         if isinstance(item, dict) and item.get("id") == target_id:
@@ -48,7 +44,6 @@ def _find_entity_name(view: Dict[str, Any], target_id: str) -> str:
         if isinstance(item, dict) and item.get("id") == target_id:
             return item.get("name") or item.get("type") or item.get("typeId") or ""
 
-    # 4. Periksa agen, monster, atau NPC yang terlihat di sekitar
     for category in ("visibleAgents", "visibleMonsters", "visibleNPCs"):
         for entity in (view.get(category, []) or []):
             if isinstance(entity, dict):
@@ -58,12 +53,63 @@ def _find_entity_name(view: Dict[str, Any], target_id: str) -> str:
                     
     return ""
 
+async def _execute_best_action(view: Dict[str, Any], regions: Any, context: Any):
+    try:
+        next_action = decide_next_action(view, context)
+        if next_action and next_action.get("type") == "action":
+            act_data = next_action.get("data", {})
+            act_type = act_data.get("type")
+            
+            if act_type == "move":
+                target_id = act_data.get("regionId")
+                target_name = target_id
+                for r in regions:
+                    if r.get("id") == target_id:
+                        target_name = r.get("name")
+                        break
+                print(f"[Intention] Bot decides to move to: {target_name} to search or retrieve items")
+            elif act_type in ("pickup", "equip", "use_item", "drop"):
+                target_id = act_data.get("itemId")
+                friendly_name = _find_entity_name(view, target_id)
+                action_labels = {"pickup": "pick up", "equip": "equip", "use_item": "use item", "drop": "drop"}
+                label = action_labels.get(act_type, "process")
+                
+                if friendly_name:
+                    print(f"[Intention] Bot decides to {label}: {friendly_name}")
+                else:
+                    print(f"[Intention] Bot decides to {label} item ID: {target_id}")
+            elif act_type == "rest":
+                print(f"[Intention] Bot decides to Rest to restore EP")
+            elif act_type == "interact":
+                target_obj = act_data.get("targetId")
+                friendly_name = _find_entity_name(view, target_obj)
+                if friendly_name:
+                    print(f"[Intention] Bot decides to interact with: {friendly_name}")
+                else:
+                    print(f"[Intention] Bot decides to interact with facility ID: {target_obj}")
+            elif act_type == "explore":
+                print(f"[Intention] Bot decides to Explore Ruins to acquire Relic")
+            elif act_type == "attack":
+                target_obj = act_data.get("targetId")
+                friendly_name = _find_entity_name(view, target_obj)
+                if friendly_name:
+                    print(f"[Intention] Bot decides to Attack: {friendly_name}")
+                else:
+                    print(f"[Intention] Bot decides to Attack target ID: {target_obj}")
+            
+            if context.ws:
+                await context.ws.send(json.dumps(next_action))
+    except Exception as e:
+        print(f"[DEBUG ERROR] Gagal mengeksekusi decide_next_action: {e}")
+
 async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
     if msg_type in ("agent_view", "turn_advanced"):
         view = msg.get("view") or msg.get("agentView") or msg.get("agent_view") or msg.get("data") or {}
+        context.last_view = view
         
         status = extract_agent_status(msg)
         regions = detect_connected_regions(view)
+        context.last_regions = regions
         region_items = detect_region_items(view)
         region_enemies = detect_region_enemies(view)
         
@@ -120,7 +166,7 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
                 layers = {}
                 for r in regions:
                     dist = r.get("layer", 1)
-                    if dist == 0:  # Abaikan Layer 0 (tempat agen berdiri)
+                    if dist == 0:
                         continue
                     
                     if dist not in layers:
@@ -155,54 +201,7 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
             else:
                 print("Region Enemy detector : none")
             
-            try:
-                next_action = decide_next_action(view, context)
-                if next_action and next_action.get("type") == "action":
-                    act_data = next_action.get("data", {})
-                    act_type = act_data.get("type")
-                    
-                    if act_type == "move":
-                        target_id = act_data.get("regionId")
-                        target_name = target_id
-                        for r in regions:
-                            if r.get("id") == target_id:
-                                target_name = r.get("name")
-                                break
-                        print(f"[Intention] Bot decides to move to: {target_name} to search or retrieve items")
-                    elif act_type in ("pickup", "equip", "use_item", "drop"):
-                        target_id = act_data.get("itemId")
-                        friendly_name = _find_entity_name(view, target_id)
-                        action_labels = {"pickup": "pick up", "equip": "equip", "use_item": "use item", "drop": "drop"}
-                        label = action_labels.get(act_type, "process")
-                        
-                        if friendly_name:
-                            print(f"[Intention] Bot decides to {label}: {friendly_name}")
-                        else:
-                            print(f"[Intention] Bot decides to {label} item ID: {target_id}")
-                    elif act_type == "rest":
-                        print(f"[Intention] Bot decides to Rest to restore EP")
-                    elif act_type == "interact":
-                        target_obj = act_data.get("targetId")
-                        friendly_name = _find_entity_name(view, target_obj)
-                        if friendly_name:
-                            print(f"[Intention] Bot decides to interact with: {friendly_name}")
-                        else:
-                            print(f"[Intention] Bot decides to interact with facility ID: {target_obj}")
-                    elif act_type == "explore":
-                        print(f"[Intention] Bot decides to Explore Ruins to acquire Relic")
-                    elif act_type == "attack":
-                        target_obj = act_data.get("targetId")
-                        friendly_name = _find_entity_name(view, target_obj)
-                        if friendly_name:
-                            print(f"[Intention] Bot decides to Attack: {friendly_name}")
-                        else:
-                            print(f"[Intention] Bot decides to Attack target ID: {target_obj}")
-                    
-                    if context.ws:
-                        await context.ws.send(json.dumps(next_action))
-            except Exception as e:
-                print(f"[DEBUG ERROR] Gagal mengeksekusi decide_next_action: {e}")
-            
+            await _execute_best_action(view, regions, context)
             context.last_state = current_state
         
         last_hp = getattr(context, "last_hp", None)
@@ -218,9 +217,13 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
             await _handle_agent_death(msg, view, context, "state view")
             
     elif msg_type == "can_act_changed":
-        can_act = msg.get("canAct", False)
+        can_act = msg.get("canAct", False) or msg.get("can_act", False)
         if can_act:
             print("[Action Ready] Cooldown over. You can act now!")
+            last_view = getattr(context, "last_view", None)
+            last_regions = getattr(context, "last_regions", [])
+            if last_view and last_regions:
+                await _execute_best_action(last_view, last_regions, context)
             
     elif msg_type == "error":
         err_msg = msg.get("error", {}).get("message", json.dumps(msg))
