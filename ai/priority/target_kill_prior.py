@@ -1,7 +1,7 @@
 import math
 from helpers.game_math import WEAPON_STATS, WeatherType, calculate_damage
 
-def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_atk, self_def, weather, last_target_id, connected_region_ids=None, region_layers=None):
+def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_atk, self_def, weather, last_target_id, connected_region_ids=None, region_layers=None, should_flee=False):
     best_action = None
     best_score = 0
     best_target_id = None
@@ -129,6 +129,11 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
             # Menerapkan Penalti Bertahap Berdasarkan Kedalaman Jarak Layer Musuh
             if layer > 1:
                 score -= (layer - 1) * 35
+
+            # Penyelamat Taktis: Tekan skor tempur secara masif jika bot dalam kondisi wajib kabur,
+            # KECUALI jika bot terbukti bisa mengeksekusi musuh tersebut dalam 1 serangan instan.
+            if should_flee and turns_to_kill > 1:
+                score -= 500
 
             if score > best_score and score > 0:
                 best_score = score

@@ -134,8 +134,8 @@ def decide_next_action(view, context=None):
         if r_id and r_id != current_region.get("id"):
             visible_enemies_map[r_id] = [e for e in (visible_agents + visible_monsters + visible_npcs) if str(e.get("regionId") or e.get("region_id")).lower() == str(r_id).lower()]
 
-    # Menerapkan target pertempuran terskala jarak layer
-    combat_res = score_targets(visible_enemies_map, hp, ep, current_weapon, inventory, atk, defense, weather, last_target_id, connected_region_ids, region_layers)
+    # Menerapkan target pertempuran terskala jarak layer serta meneruskan status kabur (should_flee)
+    combat_res = score_targets(visible_enemies_map, hp, ep, current_weapon, inventory, atk, defense, weather, last_target_id, connected_region_ids, region_layers, should_flee)
     if combat_res["action"]:
         candidates.append((combat_res["score"], combat_res["action"]))
 
@@ -144,7 +144,7 @@ def decide_next_action(view, context=None):
     if move_res:
         score = move_res["score"]
         if should_flee:
-            score += 150
+            score += 350  # Dinaikkan ke +350 agar bot dipastikan kabur dari kepungan musuh
         candidates.append((score, move_res["action"]))
 
     if not candidates:
