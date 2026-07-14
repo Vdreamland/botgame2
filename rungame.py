@@ -21,7 +21,7 @@ async def main():
  
     temp_client = ClawRoyaleAPIClient(api_key=bot.api_key, version="", auth_type="mr-auth")
     try:
-        version_info = await temp_client.get_version()
+        version_info = temp_client.get_version()
         current_version = version_info.get("version")
     except Exception as e:
         print(f"Failed to fetch live version: {e}")
@@ -34,7 +34,7 @@ async def main():
  
     while True:
         try:
-            profile = await api_client.get_profile_me()
+            profile = api_client.get_profile_me()
             profile_data = profile.get("data", {}) if "data" in profile else profile
             active_games = profile_data.get("currentGames", [])
  
