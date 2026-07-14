@@ -1,38 +1,50 @@
 def score_interactables(interactables, hp, ep, interacted_ids):
-    best_action = None
-    best_score = 0
-    
-    if ep < 1:
+    if ep < 1 or not interactables:
         return {
             "score": 0,
             "action": None
         }
-        
+
+    scored_actions = []
     for inter in interactables:
         if not isinstance(inter, dict):
             continue
-        f_type = inter.get("type") or inter.get("name") or inter.get("id")
-        if not f_type:
-            continue
-            
-        name_clean = str(f_type).lower().replace(" ", "_")
+
         t_id = inter.get("id") or inter.get("targetId") or inter.get("facilityId")
-        
-        if t_id and t_id in interacted_ids:
+        f_type = inter.get("type") or inter.get("name") or inter.get("id") or ""
+        name_clean = f_type.lower().replace(" ", "_")
+
+        # JANGAN daftarhitamkan fasilitas medis secara permanen agar bisa dipakai berulang kali
+        if name_clean != "medical_facility" and t_id and t_id in interacted_ids:
             continue
-            
+
+        score = 0
         if name_clean == "medical_facility":
             if hp < 100:
                 score = 180 + (100 - hp)
-                if score > best_score:
-                    best_score = score
-                    best_action = {"action": "interact", "target": inter}
+                # Dongkrak skor interaksi medis secara masif jika HP kritis (mengalahkan monster tak penting)
+                if hp < 40:
+                    score += 150
+                elif hp < 60:
+                    score += 50
         elif name_clean == "supply_cache":
             score = 170
-            if score > best_score:
-                best_score = score
-                best_action = {"action": "interact", "target": inter}
-                
+
+        if score > 0:
+            scored_actions.append((score, {
+                "action": "interact",
+                "target": inter
+            }))
+
+    if not scored_actions:
+        return {
+            "score": 0,
+            "action": None
+        }
+
+    scored_actions.sort(key=lambda x: x[0], reverse=True)
+    best_score, best_action = scored_actions[0]
+
     return {
         "score": best_score,
         "action": best_action

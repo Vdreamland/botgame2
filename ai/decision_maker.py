@@ -283,10 +283,16 @@ def decide_next_action(view, context=None):
     elif act_type == "interact":
         target = best_action.get("target", {})
         t_id = target.get("id") or target.get("targetId") or target.get("facilityId")
-        if t_id and context is not None:
-            context.interacted_facilities.add(t_id)
-        elif t_id:
-            _LOCAL_INTERACTED.add(t_id)
+        f_type = target.get("type") or target.get("name") or target.get("id") or ""
+        name_clean = f_type.lower().replace(" ", "_")
+        
+        # Mengecualikan medical_facility dari blacklist permanen database facility
+        if name_clean != "medical_facility":
+            if t_id and context is not None:
+                context.interacted_facilities.add(t_id)
+            elif t_id:
+                _LOCAL_INTERACTED.add(t_id)
+                
         return {
             "type": "action",
             "data": {

@@ -64,7 +64,7 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
             if "relic" in r_name_lower or "ruin" in r_name_lower or (region_detail and region_detail.get("ruins")):
                 ruin_obj = r_item.get("ruins") or (region_detail.get("ruins") if region_detail else None)
                 if not ruin_obj or str(ruin_obj.get("status", "")).lower() not in ("cleared", "completed", "finished"):
-                    has_ruid = True
+                    has_ruin = True
             if has_ruin:
                 val += 50
                 
@@ -76,11 +76,11 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
                         item_name = item.get("name") or item.get("type") or item.get("typeId")
                         if item_name:
                             if "smoltz" in item_name.lower():
-                                val += 200  # Nilai sMoltz sangat tinggi lintas layer
+                                val += 200
                             elif is_item_needed(item_name, inventory, current_weapon, current_armor):
                                 val += 20
 
-            # 3. Facilities
+            # 3. Facilities (Ditambahkan proteksi anti ping-pong loop fasilitas lokal)
             if region_detail:
                 interactables = region_detail.get("interactables", []) or []
                 for inter in interactables:
@@ -91,14 +91,28 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
                             t_id = inter.get("id") or inter.get("targetId") or inter.get("facilityId")
                             if t_id and t_id in interacted_ids:
                                 continue
+                                
+                            # Cek apakah wilayah kita saat ini sudah memiliki jenis fasilitas yang sama
+                            has_local_facility = False
+                            curr_interactables = current_region.get("interactables", []) or []
+                            for curr_inter in curr_interactables:
+                                if isinstance(curr_inter, dict):
+                                    curr_type = curr_inter.get("type") or curr_inter.get("name") or curr_inter.get("id")
+                                    if curr_type and curr_type.lower().replace(" ", "_") == name_clean:
+                                        has_local_facility = True
+                                        break
+                                        
+                            if has_local_facility:
+                                # Lewati penambahan bonus jika kita bisa menggunakan fasilitas lokal yang ada di depan mata
+                                continue
+
                             if name_clean == "medical_facility" and hp < 100:
-                                val += (30 + (100 - hp) * 2)  # Nilai dinamis Medical Facility saat sekarat
+                                val += (30 + (100 - hp) * 2)
                             elif name_clean == "supply_cache":
                                 val += 25
 
-            # Menambahkan kontribusi nilai terbagi jarak layer ke arah region tetangga pertama
+            # Akumulasi nilai terbagi jarak layer ke arah region langkah pertama
             layer_bonuses[first_step] = layer_bonuses.get(first_step, 0) + (val / layer)
-    # ---------------------------------------------------------
 
     scored_regions = []
     for r in connected_regions:
@@ -111,11 +125,9 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
         if ep < 3 and not is_urgent:
             score -= 1500
 
-        # Memasukkan bonus sebaran layer yang telah diakumulasi
         if r_id and r_id in layer_bonuses:
             score += layer_bonuses[r_id]
         else:
-            # Fallback perhitungan normal Layer 1 jika regions_list kosong
             region_detail = visible_regions_map.get(r_id) if r_id else None
             has_ruid = False
             r_name_lower = str(r.get("name", "")).lower()
