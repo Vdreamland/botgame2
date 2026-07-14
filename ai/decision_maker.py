@@ -33,19 +33,25 @@ def decide_next_action(view, context=None):
     defense = self_data.get("def", 5)
     inventory = self_data.get("inventory", []) or []
     
-    # --- Solusi Kompatibilitas Equip Aman (Anti-Looping) ---
+    # --- Solusi Kompatibilitas Equip Aman (Anti-Looping & Bersih dari String "None") ---
     equipped_weapon = self_data.get("equippedWeapon")
     if isinstance(equipped_weapon, dict):
         current_weapon = equipped_weapon.get("id") or equipped_weapon.get("name")
     else:
         current_weapon = self_data.get("equippedWeaponId") or equipped_weapon
 
+    if current_weapon is None or str(current_weapon).lower() == "none" or current_weapon == "":
+        current_weapon = None
+
     equipped_armor = self_data.get("equippedArmor")
     if isinstance(equipped_armor, dict):
         current_armor = equipped_armor.get("id") or equipped_armor.get("name")
     else:
         current_armor = self_data.get("equippedArmorId") or equipped_armor
-    # --------------------------------------------------------
+
+    if current_armor is None or str(current_armor).lower() == "none" or current_armor == "":
+        current_armor = None
+    # ----------------------------------------------------------------------------------
 
     current_region = view.get("currentRegion", {}) or {}
     visible_regions = view.get("visibleRegions", []) or []

@@ -69,9 +69,9 @@ ARMOR_STATS = {
 
 RECOVERY_STATS = {
     "bandage": {"hp": 10, "ep": 0},
-    "emergency_food": {"hp": 20, "ep": 5},
+    "emergency_food": {"hp": 20, "ep": 0},
     "energy_drink": {"hp": 0, "ep": 5},
-    "medkit": {"hp": 30, "ep": 0}
+    "medkit": {"hp": 30, "ep": 5}
 }
 
 def get_vision_mod(terrain: TerrainType, weather: WeatherType) -> int:
@@ -90,5 +90,5 @@ def calculate_alert_change(action: str, current_gauge: int, is_active: bool) -> 
     
     if is_active:
         new_gauge = max(0, new_gauge - 4)
-        
+    
     return new_gauge
