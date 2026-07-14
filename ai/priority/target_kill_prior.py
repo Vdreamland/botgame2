@@ -42,7 +42,6 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
         weather_enum = WeatherType.CLEAR
 
     for r_id_key, enemies_list in visible_enemies.items():
-        # Memperbaiki deteksi regional agar sinkron dengan ID asli dari decision_maker
         is_current_region = False
         if str(r_id_key).lower() == "current" or r_id_key == "":
             is_current_region = True
@@ -120,9 +119,17 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
             else:
                 score = 65
 
-            # 1-Hit Kill Bonus (Prioritas Tempur Tertinggi)
+            # Aturan Cerdas Penguji Jarak & Keamanan 1-Hit Kill (Anti-Suicidal Chasing)
             if turns_to_kill == 1:
-                score = 95
+                if is_current_region:
+                    score = 95  # Eksekusi instan di wilayah sendiri (Prioritas Mutlak)
+                else:
+                    # Cari tahu apakah wilayah tetangga tersebut dihuni musuh lain (tidak aman)
+                    other_enemies_count = len([e for e in enemies_list if (e.get("id") or e.get("agentId") or e.get("monsterId") or e.get("npcId")) != enemy_id])
+                    if other_enemies_count > 0:
+                        score = 45  # Turunkan prioritas pengejaran jika wilayah tujuan berbahaya
+                    else:
+                        score = 80  # Berikan prioritas tinggi hanya jika wilayah tujuan aman
             elif enemy_hp < 50:
                 score += 10
 
