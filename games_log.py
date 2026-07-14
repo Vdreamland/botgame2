@@ -11,6 +11,53 @@ async def _handle_agent_death(msg: Dict[str, Any], view: Dict[str, Any], context
     if context.ws:
         await context.ws.close()
 
+def _find_entity_name(view: Dict[str, Any], target_id: str) -> str:
+    """Helper terpadu untuk mencari nama entitas/item/fasilitas berdasarkan ID dari data view."""
+    if not target_id:
+        return ""
+    
+    # 1. Periksa fasilitas dan item di region aktif saat ini
+    curr_reg = view.get("currentRegion", {}) or {}
+    for inter in (curr_reg.get("interactables", []) or []):
+        if isinstance(inter, dict) and inter.get("id") == target_id:
+            f_type = inter.get("type") or inter.get("name") or "facility"
+            return f_type.replace('_', ' ').title() + f" at {curr_reg.get('name', 'Current Region')}"
+            
+    for item in (curr_reg.get("items", []) or curr_reg.get("groundItems", []) or []):
+        if isinstance(item, dict) and item.get("id") == target_id:
+            return item.get("name") or item.get("type") or item.get("typeId") or ""
+
+    # 2. Periksa fasilitas dan item di region lain yang terlihat
+    for r in (view.get("visibleRegions", []) or []):
+        if isinstance(r, dict):
+            for inter in (r.get("interactables", []) or []):
+                if isinstance(inter, dict) and inter.get("id") == target_id:
+                    f_type = inter.get("type") or inter.get("name") or "facility"
+                    return f_type.replace('_', ' ').title() + f" at {r.get('name', 'Visible Region')}"
+            for item in (r.get("items", []) or r.get("groundItems", []) or []):
+                if isinstance(item, dict) and item.get("id") == target_id:
+                    return item.get("name") or item.get("type") or item.get("typeId") or ""
+
+    # 3. Periksa inventaris atau equipment milik agen sendiri
+    self_data = view.get("self", {}) or {}
+    for item in (self_data.get("inventory", []) or []):
+        if isinstance(item, dict) and item.get("id") == target_id:
+            return item.get("name") or item.get("type") or item.get("typeId") or ""
+            
+    for item in (self_data.get("equipment", {}) or {}).values():
+        if isinstance(item, dict) and item.get("id") == target_id:
+            return item.get("name") or item.get("type") or item.get("typeId") or ""
+
+    # 4. Periksa agen, monster, atau NPC yang terlihat di sekitar
+    for category in ("visibleAgents", "visibleMonsters", "visibleNPCs"):
+        for entity in (view.get(category, []) or []):
+            if isinstance(entity, dict):
+                ent_id = entity.get("id") or entity.get("agentId") or entity.get("monsterId") or entity.get("npcId")
+                if ent_id == target_id:
+                    return entity.get("name") or entity.get("username") or entity.get("agentName") or entity.get("type") or ""
+                    
+    return ""
+
 async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
     if msg_type in ("agent_view", "turn_advanced"):
         view = msg.get("view") or msg.get("agentView") or msg.get("agent_view") or msg.get("data") or {}
@@ -70,55 +117,11 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
             print(f"Inventory : {inv_display}")
             
             if hp > 0:
-                adj = {}
-                def add_edge(u, v):
-                    if u not in adj:
-                        adj[u] = set()
-                    if v not in adj:
-                        adj[v] = set()
-                    adj[u].add(v)
-                    adj[v].add(u)
-
-                current_region = view.get("currentRegion", {}) or {}
-                curr_id = current_region.get("id")
-                if curr_id:
-                    for conn in (current_region.get("connections", []) or []):
-                        if conn:
-                            add_edge(curr_id, conn)
-
-                for r_item in (view.get("visibleRegions", []) or []):
-                    if isinstance(r_item, dict):
-                        r_id = r_item.get("id")
-                        if r_id:
-                            for conn in (r_item.get("connections", []) or []):
-                                if conn:
-                                    add_edge(r_id, conn)
-
-                from collections import deque
-                distances = {}
-                if curr_id:
-                    queue = deque([curr_id])
-                    distances[curr_id] = 0
-                    while queue:
-                        u = queue.popleft()
-                        curr_dist = distances[u]
-                        for v in adj.get(u, []):
-                            if v not in distances:
-                                distances[v] = curr_dist + 1
-                                queue.append(v)
-
                 layers = {}
                 for r in regions:
-                    r_id = r.get("id")
-                    if r_id == curr_id:
+                    dist = r.get("layer", 1)
+                    if dist == 0:  # Abaikan Layer 0 (tempat agen berdiri)
                         continue
-                    
-                    dist = distances.get(r_id)
-                    if dist is None:
-                        if curr_id and r_id in (current_region.get("connections", []) or []):
-                            dist = 1
-                        else:
-                            dist = 2
                     
                     if dist not in layers:
                         layers[dist] = []
@@ -166,28 +169,34 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
                                 target_name = r.get("name")
                                 break
                         print(f"[Intention] Bot decides to move to: {target_name} to search or retrieve items")
-                    elif act_type == "pickup":
+                    elif act_type in ("pickup", "equip", "use_item", "drop"):
                         target_id = act_data.get("itemId")
-                        print(f"[Intention] Bot decides to pick up item ID: {target_id}")
-                    elif act_type == "equip":
-                        target_id = act_data.get("itemId")
-                        print(f"[Intention] Bot decides to equip item ID: {target_id}")
-                    elif act_type == "use_item":
-                        target_id = act_data.get("itemId")
-                        print(f"[Intention] Bot decides to use item ID: {target_id}")
-                    elif act_type == "drop":
-                        target_id = act_data.get("itemId")
-                        print(f"[Intention] Bot decides to drop item ID: {target_id}")
+                        friendly_name = _find_entity_name(view, target_id)
+                        action_labels = {"pickup": "pick up", "equip": "equip", "use_item": "use item", "drop": "drop"}
+                        label = action_labels.get(act_type, "process")
+                        
+                        if friendly_name:
+                            print(f"[Intention] Bot decides to {label}: {friendly_name}")
+                        else:
+                            print(f"[Intention] Bot decides to {label} item ID: {target_id}")
                     elif act_type == "rest":
                         print(f"[Intention] Bot decides to Rest to restore EP")
                     elif act_type == "interact":
                         target_obj = act_data.get("targetId")
-                        print(f"[Intention] Bot decides to interact with facility ID: {target_obj}")
+                        friendly_name = _find_entity_name(view, target_obj)
+                        if friendly_name:
+                            print(f"[Intention] Bot decides to interact with: {friendly_name}")
+                        else:
+                            print(f"[Intention] Bot decides to interact with facility ID: {target_obj}")
                     elif act_type == "explore":
                         print(f"[Intention] Bot decides to Explore Ruins to acquire Relic")
                     elif act_type == "attack":
                         target_obj = act_data.get("targetId")
-                        print(f"[Intention] Bot decides to Attack target ID: {target_obj}")
+                        friendly_name = _find_entity_name(view, target_obj)
+                        if friendly_name:
+                            print(f"[Intention] Bot decides to Attack: {friendly_name}")
+                        else:
+                            print(f"[Intention] Bot decides to Attack target ID: {target_obj}")
                     
                     if context.ws:
                         await context.ws.send(json.dumps(next_action))

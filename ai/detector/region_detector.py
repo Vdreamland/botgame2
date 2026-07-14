@@ -1,24 +1,24 @@
 def detect_connected_regions(view):
     """
     Detect all connected and visible regions
-    Returns: list of region dicts
+    Returns: list of region dicts with calculated BFS layers
     """
     current_region = view.get('currentRegion', {}) or {}
     current_id = current_region.get('id')
     current_name = current_region.get('name') or current_id
-    
+
     visible_regions_map = {}
     for r in view.get('visibleRegions', []):
         r_id = r.get('id')
         if r_id:
             visible_regions_map[r_id] = r
-            
+
     if current_id and current_id not in visible_regions_map:
         visible_regions_map[current_id] = current_region
-        
+
     detected_list = []
     seen_ids = set()
-    
+
     if current_id:
         curr_detail = visible_regions_map.get(current_id, current_region)
         detected_list.append({
@@ -29,7 +29,7 @@ def detect_connected_regions(view):
             'is_visible': True
         })
         seen_ids.add(current_id)
-        
+
     connections = current_region.get('connections', []) or []
     for r_id in connections:
         if r_id and r_id not in seen_ids:
@@ -51,7 +51,7 @@ def detect_connected_regions(view):
                     'is_visible': False
                 })
             seen_ids.add(r_id)
-            
+
     for r_id, detail in visible_regions_map.items():
         if r_id not in seen_ids:
             detected_list.append({
@@ -62,32 +62,77 @@ def detect_connected_regions(view):
                 'is_visible': True
             })
             seen_ids.add(r_id)
-            
+
+    # --- Perhitungan Graf & BFS Layering (DRY & Mandiri) ---
+    adj = {}
+    def add_edge(u, v):
+        if u not in adj:
+            adj[u] = set()
+        if v not in adj:
+            adj[v] = set()
+        adj[u].add(v)
+        adj[v].add(u)
+
+    if current_id:
+        for conn in (current_region.get('connections', []) or []):
+            if conn:
+                add_edge(current_id, conn)
+
+    for r_item in (view.get('visibleRegions', []) or []):
+        if isinstance(r_item, dict):
+            r_id = r_item.get('id')
+            if r_id:
+                for conn in (r_item.get('connections', []) or []):
+                    if conn:
+                        add_edge(r_id, conn)
+
+    from collections import deque
+    distances = {}
+    if current_id:
+        queue = deque([current_id])
+        distances[current_id] = 0
+        while queue:
+            u = queue.popleft()
+            curr_dist = distances[u]
+            for v in adj.get(u, []):
+                if v not in distances:
+                    distances[v] = curr_dist + 1
+                    queue.append(v)
+
+    # Menyematkan layer jarak ke setiap item di detected_list
+    for r in detected_list:
+        r_id = r.get('id')
+        dist = distances.get(r_id)
+        if dist is None:
+            if current_id and r_id in (current_region.get('connections', []) or []):
+                dist = 1
+            else:
+                dist = 2
+        r['layer'] = dist
+
     return detected_list
 
+
 def detect_region_items(view):
-    """
-    Detect items and facilities in visible and connected regions
-    Returns: dict mapping region name/ID to list of item/facility strings
-    """
+    """ Detect items and facilities in visible and connected regions """
     detected = {}
-    
+
     current_region = view.get('currentRegion', {}) or {}
     current_id = current_region.get('id')
-    
+
     visible_regions_map = {}
     for r in view.get('visibleRegions', []):
         r_id = r.get('id')
         if r_id:
             visible_regions_map[r_id] = r
-            
+
     regions_to_check = []
     seen_regions = set()
-    
+
     if current_id:
         regions_to_check.append(current_region)
         seen_regions.add(current_id)
-        
+
     connections = current_region.get('connections', []) or []
     for r_id in connections:
         if r_id and r_id not in seen_regions:
@@ -96,19 +141,19 @@ def detect_region_items(view):
             else:
                 regions_to_check.append({'id': r_id})
             seen_regions.add(r_id)
-            
+
     for r in view.get('visibleRegions', []):
         r_id = r.get('id')
         if r_id and r_id not in seen_regions:
             regions_to_check.append(r)
             seen_regions.add(r_id)
-            
+
     for r in regions_to_check:
         r_id = r.get('id')
         r_name = r.get('name') or r_id
-        
+
         items = []
-        
+
         interactables = r.get('interactables', []) or []
         for inter in interactables:
             if isinstance(inter, dict):
@@ -118,14 +163,14 @@ def detect_region_items(view):
                     level = inter.get('level')
                     level_str = f" [{level}]" if level is not None else ""
                     items.append(f"{f_name}{level_str}")
-                    
-                    nested_items = inter.get('items', []) or inter.get('inventory', []) or []
-                    for n_item in nested_items:
-                        if isinstance(n_item, dict):
-                            n_name = n_item.get('name') or n_item.get('type') or n_item.get('typeId')
-                            if n_name:
-                                items.append(f"Inside {f_name}: {n_name}")
-                    
+
+                nested_items = inter.get('items', []) or inter.get('inventory', []) or []
+                for n_item in nested_items:
+                    if isinstance(n_item, dict):
+                        n_name = n_item.get('name') or n_item.get('type') or n_item.get('typeId')
+                        if n_name:
+                            items.append(f"Inside {f_name}: {n_name}")
+
         facility = r.get('facility')
         if facility:
             f_type = facility.get('type')
@@ -134,20 +179,20 @@ def detect_region_items(view):
                 level = facility.get('level')
                 level_str = f" [{level}]" if level is not None else ""
                 items.append(f"{f_name}{level_str}")
-                
+
         ruins = r.get('ruins')
         if ruins:
             ruins_name = ruins.get('name') or "Ruins"
             items.append(f"{ruins_name}")
-            
+
         ground_items = r.get('items', []) or r.get('groundItems', []) or []
         for item in ground_items:
             item_name = item.get('name') or item.get('type') or item.get('typeId') or "Item"
             qty = item.get('qty', 1)
             qty_str = f" x{qty}" if qty > 1 else ""
             items.append(f"{item_name}{qty_str}")
-            
+
         if items:
             detected[r_name] = items
-            
+
     return detected
