@@ -51,6 +51,7 @@ MONSTER_FALLBACK_STATS = {
 
 WEAPON_STATS = {
     "fist": {"atk": 0, "ep": 1, "range": 0, "type": "melee"},
+    "knife": {"atk": 16, "ep": 1, "range": 0, "type": "melee"},
     "dagger": {"atk": 16, "ep": 1, "range": 0, "type": "melee"},
     "sword": {"atk": 24, "ep": 2, "range": 0, "type": "melee"},
     "katana": {"atk": 40, "ep": 3, "range": 0, "type": "melee"},
