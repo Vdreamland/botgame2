@@ -173,7 +173,7 @@ class ClawRoyaleWebSocketClient:
 
     async def connect_and_join(self, entry_type: str = "free") -> str:
         headers = self._build_headers()
-        async with websockets.connect(self.JOIN_URL, extra_headers=headers) as ws:
+        async with websockets.connect(self.JOIN_URL, additional_headers=headers) as ws:
             self.ws = ws
             welcome_msg = await ws.recv()
             
@@ -201,7 +201,7 @@ class ClawRoyaleWebSocketClient:
 
     async def connect_direct_agent(self):
         headers = self._build_headers()
-        async with websockets.connect(self.AGENT_URL, extra_headers=headers) as ws:
+        async with websockets.connect(self.AGENT_URL, additional_headers=headers) as ws:
             self.ws = ws
             print("[Socket] Successfully connected to live arena stream.")
             await self._listen_loop()
