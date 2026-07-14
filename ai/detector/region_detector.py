@@ -93,7 +93,7 @@ def detect_connected_regions(view):
             else:
                 dist = 2
         r['layer'] = dist
-        r['first_step'] = first_step.get(r_id, r_id)
+        r['first_step'] = first_step.get(r_id, None)
 
     return detected_list
 
