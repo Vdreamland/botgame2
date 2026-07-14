@@ -119,10 +119,10 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
             else:
                 score = 65
 
-            # Aturan Cerdas Penguji Jarak & Keamanan 1-Hit Kill (Anti-Suicidal Chasing)
+            # 1-Hit Kill Bonus (Prioritas Tempur Tertinggi)
             if turns_to_kill == 1:
                 if is_current_region:
-                    score = 95  # Eksekusi instan di wilayah sendiri (Prioritas Mutlak)
+                    score = 95
                 else:
                     # Cari tahu apakah wilayah tetangga tersebut dihuni musuh lain (tidak aman)
                     other_enemies_count = len([e for e in enemies_list if (e.get("id") or e.get("agentId") or e.get("monsterId") or e.get("npcId")) != enemy_id])
@@ -156,6 +156,11 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
             score = min(95, max(0, score))
 
             if score > best_score:
+                # Proteksi Taktis: Pastikan energi bot saat ini mencukupi biaya serang senjata aktif (Anti-Low EP Stuck)
+                if current_range >= layer or is_current_region:
+                    if ep < current_wpn_stat.get("ep_cost", 1):
+                        continue  # Abaikan aksi serang jika energi tidak cukup, bot dipaksa rest/bergerak
+
                 best_score = score
                 best_target_id = enemy_id
 
