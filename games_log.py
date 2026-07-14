@@ -248,7 +248,9 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
                 is_my_death = True
             elif f"{name_lower} was eliminated" in lower_msg:
                 is_my_death = True
-            elif lower_msg.startswith(name_lower) and ("killed" in lower_msg or "died" in lower_msg or "perished" in lower_msg):
+            elif f"{name_lower} has been eliminated" in lower_msg:
+                is_my_death = True
+            elif lower_msg.startswith(name_lower) and ("killed" in lower_msg or "died" in lower_msg or "perished" in lower_msg or "eliminated" in lower_msg):
                 is_my_death = True
             elif f"killed {name_lower}" in lower_msg or f"eliminated {name_lower}" in lower_msg:
                 is_my_death = True
