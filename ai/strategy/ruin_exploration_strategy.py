@@ -6,11 +6,12 @@ def score_exploration(regions, alert_gauge, ep):
         }
         
     current_region = regions[0]
-    ruins = current_region.get("ruin") or current_region.get("ruins")
+    r_name = str(current_region.get("name", "")).lower()
+    is_ruin = "relic" in r_name or "ruin" in r_name or "pack" in r_name
     
-    if ruins:
-        status = str(ruins.get("status", "")).lower()
-        if status not in ("cleared", "completed", "finished", "depleted") and alert_gauge < 10:
+    if is_ruin:
+        is_empty = current_region.get("isEmpty", False) or current_region.get("is_empty", False)
+        if not is_empty and alert_gauge < 10:
             score = min(65, max(0, 65 - alert_gauge * 2))
             return {
                 "score": score,
