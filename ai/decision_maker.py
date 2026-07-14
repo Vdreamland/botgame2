@@ -12,7 +12,6 @@ _LOCAL_INTERACTED = set()
 _LOCAL_LAST_TARGET = None
 
 def is_entity_alive(entity):
-    """Memeriksa apakah entitas (agen/monster/npc) masih hidup."""
     if not isinstance(entity, dict):
         return False
     is_alive_camel = entity.get('isAlive')
@@ -51,7 +50,6 @@ def decide_next_action(view, context=None):
     defense = self_data.get("def", 5)
     inventory = self_data.get("inventory", []) or []
     
-    # --- Solusi Kompatibilitas Equip Aman (Anti-Looping & Bersih dari String "None") ---
     equipped_weapon = self_data.get("equippedWeapon")
     if isinstance(equipped_weapon, dict):
         current_weapon = equipped_weapon.get("name") or equipped_weapon.get("typeId") or equipped_weapon.get("id")
@@ -69,7 +67,6 @@ def decide_next_action(view, context=None):
 
     if current_armor is None or str(current_armor).lower() == "none" or current_armor == "":
         current_armor = None
-    # ----------------------------------------------------------------------------------
 
     current_region = view.get("currentRegion", {}) or {}
     visible_regions = view.get("visibleRegions", []) or []
@@ -84,22 +81,23 @@ def decide_next_action(view, context=None):
     visible_monsters = view.get("visibleMonsters", []) or []
     visible_npcs = view.get("visibleNPCs", []) or []
     
-    # --- Penyaringan Musuh Hidup (Anti Stuck Loop Target Mati) ---
     living_agents = [e for e in visible_agents if is_entity_alive(e)]
     living_monsters = [e for e in visible_monsters if is_entity_alive(e)]
     living_npcs = [e for e in visible_npcs if is_entity_alive(e)]
-    # -------------------------------------------------------------
     
     current_id = current_region.get("id")
     is_safe = True
+    alert_active = alert_gauge >= 10
     for enemy in (living_agents + living_monsters + living_npcs):
         if isinstance(enemy, dict):
+            is_enemy_guardian = enemy.get("isGuardian", False) or "guardian" in str(enemy.get("id") or "").lower() or "guardian" in str(enemy.get("name") or "").lower()
+            if is_enemy_guardian and not alert_active:
+                continue
             r_id = enemy.get("regionId") or enemy.get("region_id") or enemy.get("location")
             if r_id == current_id:
                 is_safe = False
                 break
 
-    # Membaca data region_layers dan regions_list terpadu
     regions_list = detect_connected_regions(view)
     region_layers = {r.get("id"): r.get("layer", 1) for r in regions_list if r.get("id")}
 
@@ -117,7 +115,6 @@ def decide_next_action(view, context=None):
     eval_equip = evaluate_equipment(inventory, current_weapon, current_armor)
     candidates = []
 
-    # Keputusan Equip 0-100 Terstandarisasi
     if eval_equip["to_equip_weapon"]:
         if current_weapon is None:
             candidates.append((88, {"action": "equip", "item": eval_equip["to_equip_weapon"]}))
@@ -165,23 +162,81 @@ def decide_next_action(view, context=None):
         if r_id and r_id != current_region.get("id"):
             visible_enemies_map[r_id] = [e for e in (living_agents + living_monsters + living_npcs) if str(e.get("regionId") or e.get("region_id")).lower() == str(r_id).lower()]
 
-    combat_res = score_targets(visible_enemies_map, hp, ep, current_weapon, inventory, atk, defense, weather, last_target_id, connected_region_ids, region_layers, should_flee, current_region.get("id"))
+    combat_res = score_targets(visible_enemies_map, hp, ep, current_weapon, inventory, atk, defense, weather, last_target_id, connected_region_ids, region_layers, should_flee, current_region.get("id"), alert_active)
     if combat_res["action"]:
         candidates.append((combat_res["score"], combat_res["action"]))
 
-    move_res = get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, interacted_ids, current_region, visible_agents, visible_monsters, visible_npcs, regions_list)
+    move_res = get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, interacted_ids, current_region, visible_agents, visible_monsters, visible_npcs, regions_list, alert_active)
     if move_res:
         score = move_res["score"]
         if should_flee:
-            score = 98  # Normalisasi skor kabur maksimal 98
+            score = 98
         candidates.append((score, move_res["action"]))
 
     if not candidates:
         best_action = {"action": "rest"}
     else:
+        has_flee = False
+        has_critical_heal = False
+        has_finishing_kill = False
+        has_rare_pickup = False
+
+        if hp < 30:
+            for score, cand in candidates:
+                act = cand.get("action")
+                if act == "use_item":
+                    has_critical_heal = True
+                    break
+                elif act == "interact":
+                    target = cand.get("target", {})
+                    f_type = target.get("type") or target.get("name") or target.get("id") or ""
+                    if "medical" in f_type.lower():
+                        has_critical_heal = True
+                        break
+
+        for score, cand in candidates:
+            if cand.get("action") == "attack" and score >= 95:
+                has_finishing_kill = True
+                break
+
+        for score, cand in candidates:
+            if cand.get("action") == "pickup" and score >= 85:
+                has_rare_pickup = True
+                break
+
+        is_in_death_zone = current_region.get("is_death_zone") or current_region.get("isDeathZone") or False
+        if has_critical_heal and not is_in_death_zone:
+            filtered_candidates = []
+            for score, cand in candidates:
+                act = cand.get("action")
+                if act == "use_item":
+                    filtered_candidates.append((score + 50, cand))
+                elif act == "interact":
+                    target = cand.get("target", {})
+                    f_type = target.get("type") or target.get("name") or target.get("id") or ""
+                    if "medical" in f_type.lower():
+                        filtered_candidates.append((score + 50, cand))
+            if filtered_candidates:
+                candidates = filtered_candidates
+
+        elif has_finishing_kill and hp >= 30:
+            filtered_candidates = []
+            for score, cand in candidates:
+                if cand.get("action") == "attack" and score >= 95:
+                    filtered_candidates.append((score + 50, cand))
+            if filtered_candidates:
+                candidates = filtered_candidates
+
+        elif has_rare_pickup and is_safe:
+            filtered_candidates = []
+            for score, cand in candidates:
+                if cand.get("action") == "pickup" and score >= 85:
+                    filtered_candidates.append((score + 50, cand))
+            if filtered_candidates:
+                candidates = filtered_candidates
+
         candidates.sort(key=lambda x: x[0], reverse=True)
         
-        # Panel Visual Log Kandidat
         print("\n================== DECISION CANDIDATES ==================")
         for i, (score, cand) in enumerate(candidates[:5]):
             act_type = cand.get("action") or cand.get("type")
@@ -325,7 +380,6 @@ def decide_next_action(view, context=None):
         target = best_action.get("target", {})
         t_id = target.get("id") or target.get("targetId") or target.get("facilityId")
         
-        # Blacklist medical_facility setelah sekali pemakaian (Sesuai keinginan Anda)
         if t_id and context is not None:
             context.interacted_facilities.add(t_id)
         elif t_id:

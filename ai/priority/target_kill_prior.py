@@ -1,7 +1,7 @@
 import math
 from helpers.game_math import WEAPON_STATS, WeatherType, calculate_damage
 
-def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_atk, self_def, weather, last_target_id, connected_region_ids=None, region_layers=None, should_flee=False, current_region_id=None):
+def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_atk, self_def, weather, last_target_id, connected_region_ids=None, region_layers=None, should_flee=False, current_region_id=None, alert_active=False):
     best_action = None
     best_score = 0
     best_target_id = None
@@ -48,7 +48,6 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
         elif current_region_id and str(r_id_key).lower() == str(current_region_id).lower():
             is_current_region = True
         
-        # Penentuan Layer Jarak
         layer = 1
         if not is_current_region:
             if region_layers and r_id_key in region_layers:
@@ -65,7 +64,10 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
             if not enemy_id:
                 continue
 
-            is_guardian = enemy.get("isGuardian", False)
+            is_guardian = enemy.get("isGuardian", False) or "guardian" in str(enemy_id).lower() or "guardian" in str(enemy.get("name") or "").lower()
+            if is_guardian and not alert_active:
+                continue
+
             is_player = not is_guardian and (enemy.get("isAI") is not None or "player" in str(enemy_id).lower())
 
             enemy_hp = enemy.get("hp", 100)
@@ -110,7 +112,6 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
             if is_suicide:
                 continue
 
-            # Skor Dasar Pertempuran Berskala Proporsional 0-100
             score = 0
             if is_player:
                 score = 75
@@ -119,47 +120,45 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
             else:
                 score = 65
 
-            # 1-Hit Kill Bonus (Prioritas Tempur Tertinggi)
             if turns_to_kill == 1:
                 if is_current_region:
                     score = 95
                 else:
-                    # Cari tahu apakah wilayah tetangga tersebut dihuni musuh lain (tidak aman)
-                    other_enemies_count = len([e for e in enemies_list if (e.get("id") or e.get("agentId") or e.get("monsterId") or e.get("npcId")) != enemy_id])
-                    if other_enemies_count > 0:
-                        score = 45  # Turunkan prioritas pengejaran jika wilayah tujuan berbahaya
+                    if current_range >= layer:
+                        score = 95
                     else:
-                        score = 80  # Berikan prioritas tinggi hanya jika wilayah tujuan aman
+                        other_enemies_count = len([e for e in enemies_list if (e.get("id") or e.get("agentId") or e.get("monsterId") or e.get("npcId")) != enemy_id])
+                        if other_enemies_count > 0:
+                            score = 45
+                        else:
+                            score = 80
             elif enemy_hp < 50:
                 score += 10
 
-            # Kunci Target & Bonus Wilayah Lokal
             if enemy_id == last_target_id:
                 score += 5
             if is_current_region:
                 score += 5
 
-            # Penalti Jarak Layer Musuh
             if layer > 1:
                 score -= (layer - 1) * 15
 
-            # Penalti Kabur
             if should_flee and turns_to_kill > 1:
                 score -= 60
 
-            # Penalti Tangan Kosong
             is_unarmed = not current_weapon_id or str(current_weapon_id).lower() == "none" or current_weapon_id == ""
             if is_unarmed and turns_to_kill > 1:
                 score -= 40
 
-            # Limitasi Batas Skor Tempur 0-100
+            if is_current_region:
+                score += 80
+
             score = min(95, max(0, score))
 
             if score > best_score:
-                # Proteksi Taktis: Pastikan energi bot saat ini mencukupi biaya serang senjata aktif (Anti-Low EP Stuck)
                 if current_range >= layer or is_current_region:
                     if ep < current_wpn_stat.get("ep_cost", 1):
-                        continue  # Abaikan aksi serang jika energi tidak cukup, bot dipaksa rest/bergerak
+                        continue
 
                 best_score = score
                 best_target_id = enemy_id
@@ -170,7 +169,6 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
                     else:
                         best_action = {"action": "attack", "target": enemy}
                 else:
-                    # Memperbaiki verifikasi jangkauan tembak terhadap jarak layer musuh (Anti-Stuck Loop)
                     if current_range >= layer:
                         best_action = {"action": "attack", "target": enemy}
                     else:
