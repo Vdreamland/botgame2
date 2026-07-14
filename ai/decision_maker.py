@@ -180,9 +180,9 @@ def decide_next_action(view, context=None):
                 break
 
         for score, cand in candidates:
-            if cand.get("action") == "pickup" and score >= 80:
-                has_rare_pickup = True
-                break
+                if cand.get("action") == "pickup" and score >= 40:
+                    has_rare_pickup = True
+                    break
 
         is_in_death_zone = current_region.get("is_death_zone") or current_region.get("isDeathZone") or False
         if has_critical_heal and not is_in_death_zone:
