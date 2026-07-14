@@ -11,6 +11,24 @@ from ai.detector import detect_connected_regions
 _LOCAL_INTERACTED = set()
 _LOCAL_LAST_TARGET = None
 
+def is_entity_alive(entity):
+    """Memeriksa apakah entitas (agen/monster/npc) masih hidup."""
+    if not isinstance(entity, dict):
+        return False
+    is_alive_camel = entity.get('isAlive')
+    if is_alive_camel is not None:
+        return bool(is_alive_camel)
+    is_alive_snake = entity.get('is_alive')
+    if is_alive_snake is not None:
+        return bool(is_alive_snake)
+    hp = entity.get('hp')
+    if hp is not None:
+        try:
+            return float(hp) > 0
+        except (ValueError, TypeError):
+            pass
+    return True
+
 def decide_next_action(view, context=None):
     global _LOCAL_LAST_TARGET
     
@@ -66,9 +84,15 @@ def decide_next_action(view, context=None):
     visible_monsters = view.get("visibleMonsters", []) or []
     visible_npcs = view.get("visibleNPCs", []) or []
     
+    # --- Penyaringan Musuh Hidup (Anti Stuck Loop Target Mati) ---
+    living_agents = [e for e in visible_agents if is_entity_alive(e)]
+    living_monsters = [e for e in visible_monsters if is_entity_alive(e)]
+    living_npcs = [e for e in visible_npcs if is_entity_alive(e)]
+    # -------------------------------------------------------------
+    
     current_id = current_region.get("id")
     is_safe = True
-    for enemy in (visible_agents or []) + (visible_monsters or []) + (visible_npcs or []):
+    for enemy in (living_agents + living_monsters + living_npcs):
         if isinstance(enemy, dict):
             r_id = enemy.get("regionId") or enemy.get("region_id") or enemy.get("location")
             if r_id == current_id:
@@ -110,7 +134,7 @@ def decide_next_action(view, context=None):
 
     connected_region_ids = {r.get("id") for r in connected_regions if r.get("id")}
 
-    surv_res = evaluate_survival(hp, ep, is_safe, current_region, {"current": [e for e in (visible_agents + visible_monsters + visible_npcs) if (e.get("regionId") or e.get("region_id")) == current_id]}, pending_deathzones, connected_region_ids)
+    surv_res = evaluate_survival(hp, ep, is_safe, current_region, {"current": [e for e in (living_agents + living_monsters + living_npcs) if (e.get("regionId") or e.get("region_id")) == current_id]}, pending_deathzones, connected_region_ids)
     should_flee = surv_res["should_flee"]
 
     rec_res = score_recovery_actions(hp, ep, inventory, is_safe)
@@ -133,12 +157,12 @@ def decide_next_action(view, context=None):
         candidates.append((explore_res["score"], explore_res["action"]))
 
     visible_enemies_map = {
-        current_region.get("id"): [e for e in (visible_agents + visible_monsters + visible_npcs) if str(e.get("regionId") or e.get("region_id")).lower() == str(current_region.get("id")).lower()]
+        current_region.get("id"): [e for e in (living_agents + living_monsters + living_npcs) if str(e.get("regionId") or e.get("region_id")).lower() == str(current_region.get("id")).lower()]
     }
     for r_name, r_obj in visible_regions_map.items():
         r_id = r_obj.get("id")
         if r_id and r_id != current_region.get("id"):
-            visible_enemies_map[r_id] = [e for e in (visible_agents + visible_monsters + visible_npcs) if str(e.get("regionId") or e.get("region_id")).lower() == str(r_id).lower()]
+            visible_enemies_map[r_id] = [e for e in (living_agents + living_monsters + living_npcs) if str(e.get("regionId") or e.get("region_id")).lower() == str(r_id).lower()]
 
     # Menerapkan target pertempuran terskala jarak layer serta meneruskan status kabur (should_flee) dan current_region ID asli
     combat_res = score_targets(visible_enemies_map, hp, ep, current_weapon, inventory, atk, defense, weather, last_target_id, connected_region_ids, region_layers, should_flee, current_region.get("id"))
