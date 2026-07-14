@@ -17,7 +17,7 @@ def print_game_state(status: Dict[str, Any], regions: Any, region_items: Dict[st
         print(f"Location: {status['region_name']}{current_zone_label} | Terrain : {terrain_cap} | Weather : {weather_cap} | Vision {status['vision']} | Link {status['num_links']}")
     
     print(f"Weapon : {status['weapon']} | Armour : {status['armor']}")
-    print(f"Inventory : {inv_display if 'inv_display' in locals() else status['inventory']}")
+    print(f"Inventory : {status['inventory']}")
     
     if status['hp'] > 0:
         layers = {}
@@ -25,8 +25,10 @@ def print_game_state(status: Dict[str, Any], regions: Any, region_items: Dict[st
             dist = r.get("layer", 1)
             if dist == 0:
                 continue
+            
             if dist not in layers:
                 layers[dist] = []
+            
             is_dead = r.get("is_death_zone", False)
             zone_label = f" {color_red}[deadzone]{color_reset}" if is_dead else ""
             layers[dist].append(f"{r['name']}{zone_label}")
@@ -73,6 +75,7 @@ def print_action_intention(next_action: Dict[str, Any], regions: Any, friendly_n
         friendly_name = friendly_name_lookup_func(view, target_id)
         action_labels = {"pickup": "pick up", "equip": "equip", "use_item": "use item", "drop": "drop"}
         label = action_labels.get(act_type, "process")
+        
         if friendly_name:
             print(f"[Intention] Bot decides to {label}: {friendly_name}")
         else:
