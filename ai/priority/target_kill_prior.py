@@ -145,6 +145,11 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
             if is_unarmed and turns_to_kill > 1:
                 score -= 250
 
+            # Penyelamat Taktis Utama: Berikan bonus masif (+80) untuk musuh di region saat ini (is_current_region)
+            # agar bot menyelesaikan ancaman lokal terlebih dahulu daripada membuang EP untuk mengejar musuh jauh.
+            if is_current_region:
+                score += 80
+
             if score > best_score and score > 0:
                 best_score = score
                 best_target_id = enemy_id
