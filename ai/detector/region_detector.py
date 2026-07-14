@@ -1,7 +1,7 @@
 def detect_connected_regions(view):
     """
     Detect all connected and visible regions
-    Returns: list of region dicts with calculated BFS layers
+    Returns: list of region dicts with calculated BFS layers and first step directions
     """
     current_region = view.get('currentRegion', {}) or {}
     current_id = current_region.get('id')
@@ -63,7 +63,7 @@ def detect_connected_regions(view):
             })
             seen_ids.add(r_id)
 
-    # --- Perhitungan Graf & BFS Layering (DRY & Mandiri) ---
+    # --- Perhitungan Graf & BFS Layering & First Step ---
     adj = {}
     def add_edge(u, v):
         if u not in adj:
@@ -88,6 +88,7 @@ def detect_connected_regions(view):
 
     from collections import deque
     distances = {}
+    first_step = {}
     if current_id:
         queue = deque([current_id])
         distances[current_id] = 0
@@ -97,9 +98,13 @@ def detect_connected_regions(view):
             for v in adj.get(u, []):
                 if v not in distances:
                     distances[v] = curr_dist + 1
+                    if u == current_id:
+                        first_step[v] = v
+                    else:
+                        first_step[v] = first_step.get(u, v)
                     queue.append(v)
 
-    # Menyematkan layer jarak ke setiap item di detected_list
+    # Menyematkan layer jarak dan langkah pertama ke setiap item di detected_list
     for r in detected_list:
         r_id = r.get('id')
         dist = distances.get(r_id)
@@ -109,6 +114,7 @@ def detect_connected_regions(view):
             else:
                 dist = 2
         r['layer'] = dist
+        r['first_step'] = first_step.get(r_id, r_id)
 
     return detected_list
 

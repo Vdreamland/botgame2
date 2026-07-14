@@ -6,6 +6,7 @@ from ai.priority.target_kill_prior import score_targets
 from ai.priority.survival_prior import evaluate_survival
 from ai.strategy.movement_strategy import get_best_movement_action
 from ai.strategy.ruin_exploration_strategy import score_exploration
+from ai.detector import detect_connected_regions
 
 _LOCAL_INTERACTED = set()
 _LOCAL_LAST_TARGET = None
@@ -31,9 +32,21 @@ def decide_next_action(view, context=None):
     atk = self_data.get("atk", 25)
     defense = self_data.get("def", 5)
     inventory = self_data.get("inventory", []) or []
-    current_weapon = self_data.get("equippedWeaponId")
-    current_armor = self_data.get("equippedArmorId")
     
+    # --- Solusi Kompatibilitas Equip Aman (Anti-Looping) ---
+    equipped_weapon = self_data.get("equippedWeapon")
+    if isinstance(equipped_weapon, dict):
+        current_weapon = equipped_weapon.get("id") or equipped_weapon.get("name")
+    else:
+        current_weapon = self_data.get("equippedWeaponId") or equipped_weapon
+
+    equipped_armor = self_data.get("equippedArmor")
+    if isinstance(equipped_armor, dict):
+        current_armor = equipped_armor.get("id") or equipped_armor.get("name")
+    else:
+        current_armor = self_data.get("equippedArmorId") or equipped_armor
+    # --------------------------------------------------------
+
     current_region = view.get("currentRegion", {}) or {}
     visible_regions = view.get("visibleRegions", []) or []
     ground_items = current_region.get("items", []) or current_region.get("groundItems", []) or []
@@ -55,7 +68,11 @@ def decide_next_action(view, context=None):
             if r_id == current_id:
                 is_safe = False
                 break
-                
+
+    # Membaca data region_layers dan regions_list terpadu
+    regions_list = detect_connected_regions(view)
+    region_layers = {r.get("id"): r.get("layer", 1) for r in regions_list if r.get("id")}
+
     visible_regions_map = {r.get("id"): r for r in visible_regions if isinstance(r, dict) and r.get("id")}
     connected_regions = []
     connections = current_region.get("connections", []) or []
@@ -66,50 +83,49 @@ def decide_next_action(view, context=None):
             connected_regions.append(visible_regions_map[conn_id])
         else:
             connected_regions.append({"id": conn_id, "name": conn_id})
-            
+
     eval_equip = evaluate_equipment(inventory, current_weapon, current_armor)
-    
     candidates = []
-    
+
     if eval_equip["to_equip_weapon"]:
         if current_weapon is None:
             candidates.append((300, {"action": "equip", "item": eval_equip["to_equip_weapon"]}))
         elif is_safe:
             candidates.append((30, {"action": "equip", "item": eval_equip["to_equip_weapon"]}))
-            
+
     if eval_equip["to_equip_armor"]:
         if current_armor is None:
             candidates.append((305, {"action": "equip", "item": eval_equip["to_equip_armor"]}))
         elif is_safe:
             candidates.append((35, {"action": "equip", "item": eval_equip["to_equip_armor"]}))
-            
+
     if eval_equip["to_drop"] and len(inventory) >= 10:
         candidates.append((80, {"action": "drop", "item": eval_equip["to_drop"][0]}))
-        
+
     connected_region_ids = {r.get("id") for r in connected_regions if r.get("id")}
-    
+
     surv_res = evaluate_survival(hp, ep, is_safe, current_region, {"current": [e for e in (visible_agents + visible_monsters + visible_npcs) if (e.get("regionId") or e.get("region_id")) == current_id]}, pending_deathzones, connected_region_ids)
     should_flee = surv_res["should_flee"]
-    
+
     rec_res = score_recovery_actions(hp, ep, inventory, is_safe)
     if rec_res["action"]:
         score = rec_res["score"]
         if should_flee and rec_res["action"]["action"] == "use_item":
             score += 30
         candidates.append((score, rec_res["action"]))
-        
+
     loot_res = get_best_loot_action(ground_items, inventory, hp, ep, current_weapon, current_armor)
     if loot_res and not should_flee:
         candidates.append((loot_res["score"], {"action": "pickup", "item": loot_res["item"]}))
-        
+
     inter_res = score_interactables(interactables, hp, ep, interacted_ids)
     if inter_res["action"] and not should_flee:
         candidates.append((inter_res["score"], inter_res["action"]))
-        
+
     explore_res = score_exploration([current_region], alert_gauge, ep)
     if explore_res["action"] and not should_flee:
         candidates.append((explore_res["score"], explore_res["action"]))
-        
+
     visible_enemies_map = {
         current_region.get("id"): [e for e in (visible_agents + visible_monsters + visible_npcs) if str(e.get("regionId") or e.get("region_id")).lower() == str(current_region.get("id")).lower()]
     }
@@ -117,20 +133,21 @@ def decide_next_action(view, context=None):
         r_id = r_obj.get("id")
         if r_id and r_id != current_region.get("id"):
             visible_enemies_map[r_id] = [e for e in (visible_agents + visible_monsters + visible_npcs) if str(e.get("regionId") or e.get("region_id")).lower() == str(r_id).lower()]
-            
-    combat_res = score_targets(visible_enemies_map, hp, ep, current_weapon, inventory, atk, defense, weather, last_target_id, connected_region_ids)
+
+    # Menerapkan target pertempuran terskala jarak layer
+    combat_res = score_targets(visible_enemies_map, hp, ep, current_weapon, inventory, atk, defense, weather, last_target_id, connected_region_ids, region_layers)
     if combat_res["action"]:
         candidates.append((combat_res["score"], combat_res["action"]))
-        
-    move_res = get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, interacted_ids, current_region, visible_agents, visible_monsters, visible_npcs)
+
+    # Menerapkan pergerakan terskala propagasi layer
+    move_res = get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, interacted_ids, current_region, visible_agents, visible_monsters, visible_npcs, regions_list)
     if move_res:
         score = move_res["score"]
         if should_flee:
             score += 150
         candidates.append((score, move_res["action"]))
-        
+
     if not candidates:
-        print("[DEBUG DECISION] candidates are empty!")
         best_action = {"action": "rest"}
     else:
         candidates.sort(key=lambda x: x[0], reverse=True)
@@ -153,28 +170,33 @@ def decide_next_action(view, context=None):
                     if r.get("id") == target_region_id:
                         r_id = r.get("id")
                         break
+                # Fallback ke first_step jika musuh di luar jangkauan langsung (Layer > 1)
+                if not r_id:
+                    for r in regions_list:
+                        if r.get("id") == target_region_id:
+                            r_id = r.get("first_step")
+                            break
                 if r_id:
                     best_action = cand
                     break
             elif act_type in ("pickup", "equip", "use_item", "drop", "rest", "interact", "explore", "attack"):
                 best_action = cand
                 break
-                
-        if not best_action:
-            best_action = {"action": "rest"}
-            
+
+    if not best_action:
+        best_action = {"action": "rest"}
+
     act_type = best_action.get("action")
-    
     new_target_id = None
     if act_type in ("attack", "move_to_enemy"):
         target_obj = best_action.get("target", {})
         new_target_id = target_obj.get("id") or target_obj.get("agentId") or target_obj.get("monsterId") or target_obj.get("npcId")
-        
+
     if context is not None:
         context.last_target_id = new_target_id
     else:
         _LOCAL_LAST_TARGET = new_target_id
-        
+
     if act_type == "move":
         target = best_action.get("target", {})
         r_id = target.get("id") if isinstance(target, dict) else target
@@ -188,10 +210,15 @@ def decide_next_action(view, context=None):
     elif act_type == "move_to_enemy":
         target_region_id = best_action.get("region_id")
         r_id = None
-        for r in connected_regions:
+        for r in regions_list:
             if r.get("id") == target_region_id:
-                r_id = r.get("id")
+                r_id = r.get("first_step")
                 break
+        if not r_id:
+            for r in connected_regions:
+                if r.get("id") == target_region_id:
+                    r_id = r.get("id")
+                    break
         if r_id:
             return {
                 "type": "action",
