@@ -7,30 +7,10 @@ from ai.priority.survival_prior import evaluate_survival
 from ai.strategy.movement_strategy import get_best_movement_action
 from ai.strategy.ruin_exploration_strategy import score_exploration
 from ai.detector import detect_connected_regions
-
-_LOCAL_INTERACTED = set()
-_LOCAL_LAST_TARGET = None
-
-def is_entity_alive(entity):
-    if not isinstance(entity, dict):
-        return False
-    is_alive_camel = entity.get('isAlive')
-    if is_alive_camel is not None:
-        return bool(is_alive_camel)
-    is_alive_snake = entity.get('is_alive')
-    if is_alive_snake is not None:
-        return bool(is_alive_snake)
-    hp = entity.get('hp')
-    if hp is not None:
-        try:
-            return float(hp) > 0
-        except (ValueError, TypeError):
-            pass
-    return True
+from helpers.game_math import is_entity_alive
+from helpers.action_builder import build_action_payload
 
 def decide_next_action(view, context=None):
-    global _LOCAL_LAST_TARGET
-    
     if context is not None:
         if not hasattr(context, "interacted_facilities") or context.interacted_facilities is None:
             context.interacted_facilities = set()
@@ -40,8 +20,8 @@ def decide_next_action(view, context=None):
         interacted_ids = context.interacted_facilities
         last_target_id = context.last_target_id
     else:
-        interacted_ids = _LOCAL_INTERACTED
-        last_target_id = _LOCAL_LAST_TARGET
+        interacted_ids = set()
+        last_target_id = None
 
     self_data = view.get("self", {}) or {}
     hp = self_data.get("hp", 100)
@@ -299,123 +279,4 @@ def decide_next_action(view, context=None):
     else:
         _LOCAL_LAST_TARGET = new_target_id
 
-    if act_type == "move":
-        target = best_action.get("target", {})
-        r_id = target.get("id") if isinstance(target, dict) else target
-        return {
-            "type": "action",
-            "data": {
-                "type": "move",
-                "regionId": r_id
-            }
-        }
-    elif act_type == "move_to_enemy":
-        target_region_id = best_action.get("region_id")
-        r_id = None
-        for r in regions_list:
-            if r.get("id") == target_region_id:
-                r_id = r.get("first_step")
-                break
-        if not r_id:
-            for r in connected_regions:
-                if r.get("id") == target_region_id:
-                    r_id = r.get("id")
-                    break
-        if r_id:
-            return {
-                "type": "action",
-                "data": {
-                    "type": "move",
-                    "regionId": r_id
-                }
-            }
-    elif act_type == "pickup":
-        item_obj = best_action.get("item", {})
-        item_id = item_obj.get("id") or item_obj.get("typeId") if isinstance(item_obj, dict) else item_obj
-        return {
-            "type": "action",
-            "data": {
-                "type": "pickup",
-                "itemId": item_id
-            }
-        }
-    elif act_type == "equip":
-        item_obj = best_action.get("item", {})
-        item_id = item_obj.get("id") or item_obj.get("typeId") if isinstance(item_obj, dict) else item_obj
-        return {
-            "type": "action",
-            "data": {
-                "type": "equip",
-                "itemId": item_id
-            }
-        }
-    elif act_type == "use_item":
-        item_obj = best_action.get("item", {})
-        item_id = item_obj.get("id") or item_obj.get("typeId") if isinstance(item_obj, dict) else item_obj
-        return {
-            "type": "action",
-            "data": {
-                "type": "use_item",
-                "itemId": item_id
-            }
-        }
-    elif act_type == "drop":
-        item_obj = best_action.get("item", {})
-        item_id = item_obj.get("id") or item_obj.get("typeId") if isinstance(item_obj, dict) else item_obj
-        return {
-            "type": "action",
-            "data": {
-                "type": "drop",
-                "itemId": item_id
-            }
-        }
-    elif act_type == "rest":
-        return {
-            "type": "action",
-            "data": {
-                "type": "rest"
-            }
-        }
-    elif act_type == "interact":
-        target = best_action.get("target", {})
-        t_id = target.get("id") or target.get("targetId") or target.get("facilityId")
-        
-        if t_id and context is not None:
-            context.interacted_facilities.add(t_id)
-        elif t_id:
-            _LOCAL_INTERACTED.add(t_id)
-                
-        return {
-            "type": "action",
-            "data": {
-                "type": "interact",
-                "targetId": t_id
-            }
-        }
-    elif act_type == "explore":
-        target = best_action.get("target", {})
-        ruin_id = target.get("id") or target.get("ruinId")
-        return {
-            "type": "action",
-            "data": {
-                "type": "explore",
-                "ruinId": ruin_id
-            }
-        }
-    elif act_type == "attack":
-        target = best_action.get("target", {})
-        t_id = target.get("id") or target.get("agentId") or target.get("monsterId") or target.get("npcId")
-        return {
-            "type": "action",
-            "data": {
-                "type": "attack",
-                "targetId": t_id
-            }
-        }
-        
-    return {
-        "type": "action",
-        "data": {
-            "type": "rest"
-        }
-    }
+    return build_action_payload(best_action, context)

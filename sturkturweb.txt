@@ -38,6 +38,7 @@ __init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/__init__.py
 decision_maker.py https://github.com/Vdreamland/botgame2/blob/master/ai/decision_maker.py
 memory.py https://github.com/Vdreamland/botgame2/blob/master/ai/memory.py
 
+
 /botgame2/ai/strategy/
 __init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/strategy/__init__.py
 movement_strategy.py https://github.com/Vdreamland/botgame2/blob/master/ai/strategy/movement_strategy.py 
@@ -71,7 +72,7 @@ api_client.py https://github.com/Vdreamland/botgame2/blob/master/helpers/api_cli
 config.py https://github.com/Vdreamland/botgame2/blob/master/helpers/config.py
 game_math.py https://github.com/Vdreamland/botgame2/blob/master/helpers/game_math.py
 websocket_client.py https://github.com/Vdreamland/botgame2/blob/master/helpers/websocket_client.py
-
+action_builder.py https://github.com/Vdreamland/botgame2/blob/master/helpers/action_builder.py
 
 
 

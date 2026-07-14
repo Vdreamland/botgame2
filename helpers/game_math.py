@@ -56,7 +56,6 @@ WEAPON_STATS = {
     "katana": {"atk": 40, "ep": 3, "range": 0, "type": "melee"},
     "bow": {"atk": 8, "ep": 1, "range": 1, "type": "ranged"},
     "pistol": {"atk": 15, "ep": 2, "range": 1, "type": "ranged"},
-    "sniper": {"atk": 32, "ep": 3, "range": 2, "type": "ranged"},
     "sniper_rifle": {"atk": 32, "ep": 3, "range": 2, "type": "ranged"}
 }
 
@@ -64,6 +63,7 @@ ARMOR_STATS = {
     "leather": {"def": 4},
     "leather_armor": {"def": 4},
     "chainmail": {"def": 12},
+    "chainmail_armor": {"def": 12},
     "plate": {"def": 20},
     "plate_armor": {"def": 20}
 }
@@ -93,3 +93,20 @@ def calculate_alert_change(action: str, current_gauge: int, is_active: bool) -> 
         new_gauge = max(0, new_gauge - 4)
     
     return new_gauge
+
+def is_entity_alive(entity):
+    if not isinstance(entity, dict):
+        return False
+    is_alive_camel = entity.get('isAlive')
+    if is_alive_camel is not None:
+        return bool(is_alive_camel)
+    is_alive_snake = entity.get('is_alive')
+    if is_alive_snake is not None:
+        return bool(is_alive_snake)
+    hp = entity.get('hp')
+    if hp is not None:
+        try:
+            return float(hp) > 0
+        except (ValueError, TypeError):
+            pass
+    return True
