@@ -200,7 +200,7 @@ def decide_next_action(view, context=None):
                 break
 
         for score, cand in candidates:
-            if cand.get("action") == "pickup" and score >= 85:
+            if cand.get("action") == "pickup" and score >= 80:
                 has_rare_pickup = True
                 break
 
@@ -230,7 +230,7 @@ def decide_next_action(view, context=None):
         elif has_rare_pickup and is_safe:
             filtered_candidates = []
             for score, cand in candidates:
-                if cand.get("action") == "pickup" and score >= 85:
+                if cand.get("action") == "pickup" and score >= 80:
                     filtered_candidates.append((score + 50, cand))
             if filtered_candidates:
                 candidates = filtered_candidates

@@ -88,8 +88,21 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
                 enemy_atk = 12
                 enemy_def = 120
 
+            enemy_wpn = enemy.get("weapon") or enemy.get("equippedWeapon") or enemy.get("equippedWeaponId")
+            enemy_wpn_atk = 0
+            if enemy_wpn:
+                if isinstance(enemy_wpn, dict):
+                    enemy_wpn_name = enemy_wpn.get("name") or enemy_wpn.get("typeId") or enemy_wpn.get("id") or ""
+                else:
+                    enemy_wpn_name = str(enemy_wpn)
+                enemy_wpn_clean = enemy_wpn_name.lower().replace(" ", "_")
+                if enemy_wpn_clean in WEAPON_STATS:
+                    enemy_wpn_atk = WEAPON_STATS[enemy_wpn_clean].get("atk", 0)
+
+            enemy_atk_total = enemy_atk + enemy_wpn_atk
+
             my_dmg = calculate_damage(self_atk, current_wpn_atk, enemy_def, weather_enum)
-            total_target_dmg = calculate_damage(enemy_atk, 0, self_def, weather_enum)
+            total_target_dmg = calculate_damage(enemy_atk_total, 0, self_def, weather_enum)
 
             if is_current_region:
                 other_enemies = [e for e in enemies_list if (e.get("id") or e.get("agentId") or e.get("monsterId") or e.get("npcId")) != enemy_id]
@@ -102,7 +115,19 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
                         o_atk = 12
                     elif "bandit" in o_name:
                         o_atk = 25
-                    total_target_dmg += calculate_damage(o_atk, 0, self_def, weather_enum)
+                    
+                    o_wpn = other.get("weapon") or other.get("equippedWeapon") or other.get("equippedWeaponId")
+                    o_wpn_atk = 0
+                    if o_wpn:
+                        if isinstance(o_wpn, dict):
+                            o_wpn_name = o_wpn.get("name") or o_wpn.get("typeId") or o_wpn.get("id") or ""
+                        else:
+                            o_wpn_name = str(o_wpn)
+                        o_wpn_clean = o_wpn_name.lower().replace(" ", "_")
+                        if o_wpn_clean in WEAPON_STATS:
+                            o_wpn_atk = WEAPON_STATS[o_wpn_clean].get("atk", 0)
+                            
+                    total_target_dmg += calculate_damage(o_atk + o_wpn_atk, 0, self_def, weather_enum)
 
             turns_to_kill = math.ceil(enemy_hp / my_dmg) if my_dmg > 0 else 999
             turns_to_die = math.ceil(hp / total_target_dmg) if total_target_dmg > 0 else 999
