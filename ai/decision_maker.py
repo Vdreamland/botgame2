@@ -36,7 +36,7 @@ def decide_next_action(view, context=None):
     # --- Solusi Kompatibilitas Equip Aman (Anti-Looping & Bersih dari String "None") ---
     equipped_weapon = self_data.get("equippedWeapon")
     if isinstance(equipped_weapon, dict):
-        current_weapon = equipped_weapon.get("id") or equipped_weapon.get("name")
+        current_weapon = equipped_weapon.get("name") or equipped_weapon.get("typeId") or equipped_weapon.get("id")
     else:
         current_weapon = self_data.get("equippedWeaponId") or equipped_weapon
 
@@ -45,7 +45,7 @@ def decide_next_action(view, context=None):
 
     equipped_armor = self_data.get("equippedArmor")
     if isinstance(equipped_armor, dict):
-        current_armor = equipped_armor.get("id") or equipped_armor.get("name")
+        current_armor = equipped_armor.get("name") or equipped_armor.get("typeId") or equipped_armor.get("id")
     else:
         current_armor = self_data.get("equippedArmorId") or equipped_armor
 
@@ -95,7 +95,7 @@ def decide_next_action(view, context=None):
 
     if eval_equip["to_equip_weapon"]:
         if current_weapon is None:
-            candidates.append((300, {"action": "equip", "item": eval_equip["to_equip_weapon"]}))
+            candidates.append((330, {"action": "equip", "item": eval_equip["to_equip_weapon"]}))
         elif is_safe:
             candidates.append((30, {"action": "equip", "item": eval_equip["to_equip_weapon"]}))
 
