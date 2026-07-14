@@ -177,7 +177,7 @@ class ClawRoyaleWebSocketClient:
             self.ws = ws
             welcome_msg = await ws.recv()
             
-            join_payload = {"type": "hello", "data": {"entryType": entry_type}}
+            join_payload = {"type": "hello", "data": {"entry_type": entry_type}}
             await ws.send(json.dumps(join_payload))
             
             async for raw_msg in ws:
