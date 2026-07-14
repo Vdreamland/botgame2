@@ -97,13 +97,13 @@ def decide_next_action(view, context=None):
 
     if eval_equip["to_equip_weapon"]:
         if current_weapon is None:
-            candidates.append((95, {"action": "equip", "item": eval_equip["to_equip_weapon"]}))
+            candidates.append((88, {"action": "equip", "item": eval_equip["to_equip_weapon"]}))
         elif is_safe:
             candidates.append((30, {"action": "equip", "item": eval_equip["to_equip_weapon"]}))
 
     if eval_equip["to_equip_armor"]:
         if current_armor is None:
-            candidates.append((92, {"action": "equip", "item": eval_equip["to_equip_armor"]}))
+            candidates.append((82, {"action": "equip", "item": eval_equip["to_equip_armor"]}))
         elif is_safe:
             candidates.append((35, {"action": "equip", "item": eval_equip["to_equip_armor"]}))
 
@@ -173,6 +173,13 @@ def decide_next_action(view, context=None):
                     if "medical" in f_type.lower():
                         has_critical_heal = True
                         break
+                elif act == "pickup":
+                    item_obj = cand.get("item", {})
+                    item_type = item_obj.get("type") or item_obj.get("typeId") or item_obj.get("name") or item_obj.get("id") or ""
+                    item_clean = str(item_type).lower()
+                    if "medkit" in item_clean or "bandage" in item_clean or "food" in item_clean or "drink" in item_clean:
+                        has_critical_heal = True
+                        break
 
         for score, cand in candidates:
             if cand.get("action") == "attack" and score >= 95:
@@ -180,9 +187,9 @@ def decide_next_action(view, context=None):
                 break
 
         for score, cand in candidates:
-                if cand.get("action") == "pickup" and score >= 40:
-                    has_rare_pickup = True
-                    break
+            if cand.get("action") == "pickup" and score >= 80:
+                has_rare_pickup = True
+                break
 
         is_in_death_zone = current_region.get("is_death_zone") or current_region.get("isDeathZone") or False
         if has_critical_heal and not is_in_death_zone:
@@ -196,6 +203,12 @@ def decide_next_action(view, context=None):
                     f_type = target.get("type") or target.get("name") or target.get("id") or ""
                     if "medical" in f_type.lower():
                         filtered_candidates.append((score + 50, cand))
+                elif act == "pickup":
+                    item_obj = cand.get("item", {})
+                    item_type = item_obj.get("type") or item_obj.get("typeId") or item_obj.get("name") or item_obj.get("id") or ""
+                    item_clean = str(item_type).lower()
+                    if "medkit" in item_clean or "bandage" in item_clean or "food" in item_clean or "drink" in item_clean:
+                        filtered_candidates.append((score + 55, cand))
             if filtered_candidates:
                 candidates = filtered_candidates
 
