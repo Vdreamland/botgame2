@@ -33,7 +33,6 @@ def is_item_needed(item_name, inventory, current_weapon_id, current_armor_id):
 
     name_clean = str(item_name).lower().replace(" ", "_")
     
-    # 1. Deteksi Kebutuhan Teropong (Binoculars)
     if "binocular" in name_clean:
         has_binoc = False
         for inv_item in inventory:
@@ -45,7 +44,6 @@ def is_item_needed(item_name, inventory, current_weapon_id, current_armor_id):
                 break
         return not has_binoc
 
-    # 2. Penilaian Senjata (Sistem Backup Melee + Ranged)
     if name_clean in WEAPON_STATS:
         target_stat = WEAPON_STATS[name_clean]
         target_type = target_stat.get("type")
@@ -80,7 +78,6 @@ def is_item_needed(item_name, inventory, current_weapon_id, current_armor_id):
             
         return False
 
-    # 3. Armor
     if name_clean in ARMOR_STATS:
         target_def = ARMOR_STATS[name_clean].get("def", 0)
         curr_def = score_armor(current_armor_id)
@@ -98,9 +95,7 @@ def is_item_needed(item_name, inventory, current_weapon_id, current_armor_id):
                         return False
         return True
 
-    # 4. Penimbunan Item Pemulih Secara Agresif (Sesuai Keinginan Anda)
     if name_clean in RECOVERY_STATS:
-        # Selama kapasitas tas masih di bawah 9 slot, ambil seluruh item pemulih di tanah
         return len(inventory) < 9
 
     return False
@@ -117,11 +112,9 @@ def score_ground_item(item_name, hp, ep, current_inventory, current_weapon_id, c
     is_unarmed = not current_weapon_id or str(current_weapon_id).lower() == "none" or current_weapon_id == ""
     is_naked = not current_armor_id or str(current_armor_id).lower() == "none" or current_armor_id == ""
 
-    # 1. Teropong (Binoculars)
     if "binocular" in name_clean:
         return 55
 
-    # 2. Weapon
     if name_clean in WEAPON_STATS:
         atk_val = WEAPON_STATS[name_clean].get("atk", 0)
         score = 150 + atk_val
@@ -129,14 +122,12 @@ def score_ground_item(item_name, hp, ep, current_inventory, current_weapon_id, c
             score += 150
         return min(80, 60 + atk_val)
 
-    # 3. Armor
     if name_clean in ARMOR_STATS:
         if is_naked:
             return 80
         def_val = ARMOR_STATS[name_clean].get("def", 0)
         return min(75, 55 + def_val)
 
-    # 4. Recovery Items
     if name_clean in RECOVERY_STATS:
         return 60
 

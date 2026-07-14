@@ -28,10 +28,9 @@ def score_recovery_actions(hp, ep, inventory, is_safe):
 
     ep_item = ep_items[0] if ep_items else None
 
-    # 1. Keputusan Pemulihan HP Proporsional 0-100
     if hp_item:
         if hp < 30:
-            score = 98  # Skor prioritas mutlak saat sekarat
+            score = 98
         elif hp < 50:
             score = 85
         else:
@@ -42,7 +41,6 @@ def score_recovery_actions(hp, ep, inventory, is_safe):
             "action": {"action": "use_item", "item": hp_item}
         }
 
-    # 2. Keputusan Pemulihan EP menggunakan Item
     if ep <= 2 and ep_item:
         score = 90
         return {
@@ -50,10 +48,9 @@ def score_recovery_actions(hp, ep, inventory, is_safe):
             "action": {"action": "use_item", "item": ep_item}
         }
 
-    # 3. Keputusan Istirahat (Rest) Tanpa Item di Wilayah Aman (EP ≤ 7)
     if is_safe:
         if ep <= 2:
-            score = 80  # Prioritas tinggi untuk rest saat kehabisan energi
+            score = 80
         elif ep == 3:
             score = 60
         elif ep >= 4 and ep <= 7:

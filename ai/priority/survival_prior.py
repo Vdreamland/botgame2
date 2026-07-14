@@ -4,15 +4,12 @@ def evaluate_survival(hp, ep, is_safe, current_region, visible_enemies, pending_
     curr_id = current_region.get("id")
     is_pending = curr_id in pending_deathzones if curr_id else False
     
-    # 1. Bahaya Mutlak: Death Zone Aktif
     if is_dead_zone:
         danger_score = 100
-    # 2. Bahaya Kritis: Pending Death Zone atau Sekarat saat sedang dikepung musuh
     elif is_pending:
         danger_score = 85
     elif hp < 30 and not is_safe:
         danger_score = 95
-    # 3. Bahaya Sedang: Dikepung beberapa musuh saat HP menurun
     else:
         enemy_list = visible_enemies.get("current", []) if isinstance(visible_enemies, dict) else []
         enemy_count = len(enemy_list)

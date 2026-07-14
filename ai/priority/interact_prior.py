@@ -14,14 +14,13 @@ def score_interactables(interactables, hp, ep, interacted_ids):
         f_type = inter.get("type") or inter.get("name") or inter.get("id") or ""
         name_clean = f_type.lower().replace(" ", "_")
 
-        # Batasi seluruh fasilitas (termasuk medical_facility) hanya boleh diinteraksi SEKALI saja
         if t_id and t_id in interacted_ids:
             continue
 
         score = 0
         if name_clean == "medical_facility":
             if hp < 30:
-                score = 98  # Prioritas mutlak fasilitas medis saat kritis
+                score = 98
             elif hp < 50:
                 score = 85
             elif hp < 100:
