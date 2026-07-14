@@ -139,6 +139,12 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
             if should_flee and turns_to_kill > 1:
                 score -= 500
 
+            # Penyelamat Taktis: Tekan nafsu tempur jika bot tangan kosong,
+            # KECUALI jika musuh tersebut terbukti bisa dieksekusi mati dalam 1 hit (turns_to_kill == 1)
+            is_unarmed = not current_weapon_id or str(current_weapon_id).lower() == "none" or current_weapon_id == ""
+            if is_unarmed and turns_to_kill > 1:
+                score -= 250
+
             if score > best_score and score > 0:
                 best_score = score
                 best_target_id = enemy_id

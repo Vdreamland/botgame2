@@ -1,4 +1,5 @@
 from ai.priority.region_loot_prior import is_item_needed
+from helpers.game_math import WEAPON_STATS
 
 def score_region_movement(region, is_death_zone_pending, hp, is_safe, enemy_count):
     score = 100
@@ -46,6 +47,8 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
 
     # --- Kalkulasi Nilai Proporsional Berbasis Jarak Layer ---
     layer_bonuses = {}
+    is_unarmed = not current_weapon or str(current_weapon).lower() == "none" or current_weapon == ""
+    
     if regions_list:
         for r_item in regions_list:
             r_id = r_item.get("id")
@@ -68,15 +71,21 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
             if has_ruin:
                 val += 50
                 
-            # 2. Ground Items & sMoltz
+            # 2. Ground Items, sMoltz & Senjata Magnetis
             if region_detail:
                 items_in_region = region_detail.get("items", []) or region_detail.get("groundItems", []) or []
                 for item in items_in_region:
                     if isinstance(item, dict):
                         item_name = item.get("name") or item.get("type") or item.get("typeId")
                         if item_name:
-                            if "smoltz" in item_name.lower():
+                            name_item_clean = str(item_name).lower().replace(" ", "_")
+                            if "smoltz" in name_item_clean:
                                 val += 200
+                            elif name_item_clean in WEAPON_STATS:
+                                if is_unarmed:
+                                    val += 150  # Tarikan magnetis sangat tinggi menuju senjata saat tangan kosong!
+                                elif is_item_needed(item_name, inventory, current_weapon, current_armor):
+                                    val += 20
                             elif is_item_needed(item_name, inventory, current_weapon, current_armor):
                                 val += 20
 
