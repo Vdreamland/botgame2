@@ -56,6 +56,7 @@ WEAPON_STATS = {
     "katana": {"atk": 40, "ep": 3, "range": 0, "type": "melee"},
     "bow": {"atk": 8, "ep": 1, "range": 1, "type": "ranged"},
     "pistol": {"atk": 15, "ep": 2, "range": 1, "type": "ranged"},
+    "sniper": {"atk": 32, "ep": 3, "range": 2, "type": "ranged"},
     "sniper_rifle": {"atk": 32, "ep": 3, "range": 2, "type": "ranged"}
 }
 

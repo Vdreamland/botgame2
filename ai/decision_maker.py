@@ -181,7 +181,27 @@ def decide_next_action(view, context=None):
         best_action = {"action": "rest"}
     else:
         candidates.sort(key=lambda x: x[0], reverse=True)
-        print(f"[DEBUG DECISION] candidates: {[(c[0], c[1].get('action') or c[1].get('type')) for c in candidates]}")
+        
+        # --- Modul Tampilan Visual Log Panel Kandidat Keputusan (DRY) ---
+        print("\n================== DECISION CANDIDATES ==================")
+        for i, (score, cand) in enumerate(candidates[:5]):  # Menampilkan top 5 kandidat
+            act_type = cand.get("action") or cand.get("type")
+            target_str = ""
+            if act_type == "move":
+                target_str = f"to region {cand.get('target', {}).get('name') or cand.get('target')}"
+            elif act_type == "move_to_enemy":
+                target_str = f"to enemy region {cand.get('region_id')}"
+            elif act_type in ("pickup", "equip", "use_item", "drop"):
+                target_str = f"item {cand.get('item', {}).get('name') or cand.get('item', {}).get('id') or cand.get('item')}"
+            elif act_type == "interact":
+                target_str = f"facility {cand.get('target', {}).get('name') or cand.get('target', {}).get('type') or cand.get('target', {}).get('id')}"
+            elif act_type == "attack":
+                target_str = f"target {cand.get('target', {}).get('name') or cand.get('target', {}).get('id')}"
+            
+            winner_mark = "★ [WINNER]" if i == 0 else "  [Candidate]"
+            print(f" {winner_mark} Score: {score:.1f} | Action: {act_type} {target_str}")
+        print("=========================================================\n")
+        # ----------------------------------------------------------------
         
         best_action = None
         for score, cand in candidates:
@@ -307,15 +327,12 @@ def decide_next_action(view, context=None):
     elif act_type == "interact":
         target = best_action.get("target", {})
         t_id = target.get("id") or target.get("targetId") or target.get("facilityId")
-        f_type = target.get("type") or target.get("name") or target.get("id") or ""
-        name_clean = f_type.lower().replace(" ", "_")
         
-        # Mengecualikan medical_facility dari blacklist permanen database facility
-        if name_clean != "medical_facility":
-            if t_id and context is not None:
-                context.interacted_facilities.add(t_id)
-            elif t_id:
-                _LOCAL_INTERACTED.add(t_id)
+        # Masukkan fasilitas medis ke blacklist setelah sekali pemakaian (Sesuai keinginan Anda)
+        if t_id and context is not None:
+            context.interacted_facilities.add(t_id)
+        elif t_id:
+            _LOCAL_INTERACTED.add(t_id)
                 
         return {
             "type": "action",

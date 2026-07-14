@@ -14,15 +14,14 @@ def score_interactables(interactables, hp, ep, interacted_ids):
         f_type = inter.get("type") or inter.get("name") or inter.get("id") or ""
         name_clean = f_type.lower().replace(" ", "_")
 
-        # JANGAN daftarhitamkan fasilitas medis secara permanen agar bisa dipakai berulang kali
-        if name_clean != "medical_facility" and t_id and t_id in interacted_ids:
+        # Batasi semua fasilitas (termasuk Medical Facility) hanya boleh diinteraksi SEKALI saja
+        if t_id and t_id in interacted_ids:
             continue
 
         score = 0
         if name_clean == "medical_facility":
             if hp < 100:
                 score = 180 + (100 - hp)
-                # Dongkrak skor interaksi medis secara masif jika HP kritis (mengalahkan monster tak penting)
                 if hp < 40:
                     score += 150
                 elif hp < 60:
