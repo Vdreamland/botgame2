@@ -76,7 +76,7 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
             has_ruin = False
             r_name_lower = str(r_item.get("name", "")).lower()
             if "relic" in r_name_lower or "ruin" in r_name_lower or (region_detail and region_detail.get("ruins")):
-                ruin_obj = r_item.get("ruins") or (region_detail.get("ruins") if region_detail else None)
+                ruin_obj = r_item.get("ruin") or r_item.get("ruins") or (region_detail.get("ruin") or region_detail.get("ruins") if region_detail else None)
                 if not ruin_obj or str(ruin_obj.get("status", "")).lower() not in ("cleared", "completed", "finished", "depleted"):
                     has_ruin = True
             if has_ruin:
@@ -148,7 +148,7 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
             has_ruin = False
             r_name_lower = str(r.get("name", "")).lower()
             if "relic" in r_name_lower or "ruin" in r_name_lower or (region_detail and region_detail.get("ruins")):
-                ruin_obj = r.get("ruins") or (region_detail.get("ruins") if region_detail else None)
+                ruin_obj = r.get("ruin") or r.get("ruins") or (region_detail.get("ruin") or region_detail.get("ruins") if region_detail else None)
                 if not ruin_obj or str(ruin_obj.get("status", "")).lower() not in ("cleared", "completed", "finished", "depleted"):
                     has_ruin = True
             if has_ruin:

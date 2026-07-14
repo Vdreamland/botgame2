@@ -6,7 +6,7 @@ def score_exploration(regions, alert_gauge, ep):
         }
         
     current_region = regions[0]
-    ruins = current_region.get("ruins")
+    ruins = current_region.get("ruin") or current_region.get("ruins")
     
     if ruins:
         status = str(ruins.get("status", "")).lower()
