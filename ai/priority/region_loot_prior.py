@@ -45,24 +45,43 @@ def is_item_needed(item_name, inventory, current_weapon_id, current_armor_id):
                 break
         return not has_binoc
 
-    # 2. Weapon
+    # 2. Penilaian Senjata (Sistem Backup Melee + Ranged)
     if name_clean in WEAPON_STATS:
-        target_atk = WEAPON_STATS[name_clean].get("atk", 0)
+        target_stat = WEAPON_STATS[name_clean]
+        target_type = target_stat.get("type")
+        target_atk = target_stat.get("atk", 0)
+        
         curr_atk = score_weapon(current_weapon_id)
-        if target_atk > curr_atk:
+        curr_clean = str(current_weapon_id).lower().replace(" ", "_") if current_weapon_id else ""
+        curr_stat = WEAPON_STATS.get(curr_clean, {})
+        curr_type = curr_stat.get("type")
+        
+        # Jika tipe senjata sama (sama-sama Melee atau Ranged), bandingkan ATK
+        if target_type == curr_type:
+            if target_atk > curr_atk:
+                return True
+                
+        # Jika tipe berbeda (misal kita pegang Ranged, tapi di tanah ada Melee), 
+        # izinkan ambil jika di tas belum ada senjata kategori tersebut sebagai backup.
+        has_type_in_inv = False
+        if curr_type == target_type:
+            has_type_in_inv = True
+        else:
+            for inv_item in inventory:
+                if not isinstance(inv_item, dict):
+                    continue
+                inv_type = inv_item.get("type") or inv_item.get("typeId") or inv_item.get("name") or inv_item.get("id")
+                if inv_type:
+                    inv_clean = str(inv_type).lower().replace(" ", "_")
+                    if inv_clean in WEAPON_STATS:
+                        if WEAPON_STATS[inv_clean].get("type") == target_type:
+                            has_type_in_inv = True
+                            break
+                            
+        if not has_type_in_inv:
             return True
-        # Periksa senjata di inventaris
-        for inv_item in inventory:
-            if not isinstance(inv_item, dict):
-                continue
-            inv_type = inv_item.get("type") or inv_item.get("typeId") or inv_item.get("name") or inv_item.get("id")
-            if inv_type:
-                inv_clean = str(inv_type).lower().replace(" ", "_")
-                if inv_clean in WEAPON_STATS:
-                    inv_atk = WEAPON_STATS[inv_clean].get("atk", 0)
-                    if inv_atk >= target_atk:
-                        return False
-        return True
+            
+        return False
 
     # 3. Armor
     if name_clean in ARMOR_STATS:
