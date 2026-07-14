@@ -97,8 +97,8 @@ async def main():
                             print(f"[Lobby] Matchmaking is currently blocked. Waiting for previous game {wait_for_game_id} to finish...")
                             break
  
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[DEBUG ERROR] Loop exception: {e}")
  
         await asyncio.sleep(5)
 

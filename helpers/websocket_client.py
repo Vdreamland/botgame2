@@ -4,7 +4,7 @@ import websockets
 from typing import Dict, Any, Optional, Callable
 from ai.detector import extract_agent_status, detect_connected_regions, detect_region_items, detect_region_enemies
 from ai.decision_maker import decide_next_action
-from helpers.action_builder import build_action_payload
+from .action_builder import build_action_payload
 from games_log import print_game_state, print_action_intention
 
 async def _handle_agent_death(msg: Dict[str, Any], view: Dict[str, Any], context: Any, source: str):
