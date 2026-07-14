@@ -4,4 +4,4 @@ pydantic
 networkx
 websockets
 python-dotenv
-requests
+httpx
