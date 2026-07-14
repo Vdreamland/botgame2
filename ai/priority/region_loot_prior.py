@@ -1,158 +1,158 @@
 from helpers.game_math import WEAPON_STATS, ARMOR_STATS, RECOVERY_STATS
 
-def _is_smoltz(item_id_or_name: str) -> bool:
-    clean = str(item_id_or_name).lower()
-    return "smoltz" in clean or "reward1" in clean
+def _is_smoltz(item_id_or_name):
+    if not item_id_or_name:
+        return False
+    name_clean = str(item_id_or_name).lower()
+    return "smoltz" in name_clean or "moltz" in name_clean
 
-def score_weapon(weapon_id: str) -> int:
+def score_weapon(weapon_id):
     if not weapon_id:
         return 0
     name_clean = str(weapon_id).lower().replace(" ", "_")
-    return WEAPON_STATS.get(name_clean, {}).get("atk", 0)
+    stat = WEAPON_STATS.get(name_clean)
+    if stat:
+        return stat.get("atk", 0)
+    return 0
 
-def score_armor(armor_id: str) -> int:
+def score_armor(armor_id):
     if not armor_id:
         return 0
     name_clean = str(armor_id).lower().replace(" ", "_")
-    return ARMOR_STATS.get(name_clean, {}).get("def", 0)
+    stat = ARMOR_STATS.get(name_clean)
+    if stat:
+        return stat.get("def", 0)
+    return 0
 
-def is_item_needed(item_id: str, inventory, current_weapon_id, current_armor_id) -> bool:
-    if _is_smoltz(item_id):
+def is_item_needed(item_name, inventory, current_weapon_id, current_armor_id):
+    if not item_name:
+        return False
+    
+    if _is_smoltz(item_name):
         return True
-        
-    name_clean = str(item_id).lower().replace(" ", "_")
+
+    name_clean = str(item_name).lower().replace(" ", "_")
+    
+    # 1. Weapon
     if name_clean in WEAPON_STATS:
-        stat = WEAPON_STATS[name_clean]
-        w_type = stat["type"]
-        atk = stat["atk"]
-        
-        if w_type == "melee":
-            best_melee = score_weapon(current_weapon_id) if current_weapon_id and WEAPON_STATS.get(str(current_weapon_id).lower().replace(" ", "_"), {}).get("type") == "melee" else 0
-            for item in inventory:
-                if not isinstance(item, dict):
-                    continue
-                item_type = item.get("typeId") or item.get("name") or item.get("id") or ""
-                item_name = str(item_type).lower().replace(" ", "_")
-                if WEAPON_STATS.get(item_name, {}).get("type") == "melee":
-                    best_melee = max(best_melee, WEAPON_STATS[item_name]["atk"])
-            return atk > best_melee
-            
-        elif w_type == "ranged":
-            ranged_in_inv = {}
-            if current_weapon_id and WEAPON_STATS.get(str(current_weapon_id).lower().replace(" ", "_"), {}).get("type") == "ranged":
-                curr_clean = str(current_weapon_id).lower().replace(" ", "_")
-                ranged_in_inv[curr_clean] = WEAPON_STATS[curr_clean]["atk"]
-                
-            for item in inventory:
-                if not isinstance(item, dict):
-                    continue
-                item_type = item.get("typeId") or item.get("name") or item.get("id") or ""
-                item_name = str(item_type).lower().replace(" ", "_")
-                if WEAPON_STATS.get(item_name, {}).get("type") == "ranged":
-                    ranged_in_inv[item_name] = max(ranged_in_inv.get(item_name, 0), WEAPON_STATS[item_name]["atk"])
-            
-            if name_clean not in ranged_in_inv:
-                return len(ranged_in_inv) < 2
-            else:
-                return atk > ranged_in_inv[name_clean]
-                
-    elif name_clean in ARMOR_STATS:
-        score = ARMOR_STATS[name_clean]["def"]
-        best_armor = score_armor(current_armor_id)
-        for item in inventory:
-            if not isinstance(item, dict):
+        target_atk = WEAPON_STATS[name_clean].get("atk", 0)
+        curr_atk = score_weapon(current_weapon_id)
+        if target_atk > curr_atk:
+            return True
+        # Periksa senjata di inventaris
+        for inv_item in inventory:
+            if not isinstance(inv_item, dict):
                 continue
-            item_type = item.get("typeId") or item.get("name") or item.get("id") or ""
-            item_name = str(item_type).lower().replace(" ", "_")
-            if item_name in ARMOR_STATS:
-                best_armor = max(best_armor, ARMOR_STATS[item_name]["def"])
-        return score > best_armor
-        
-    elif name_clean in RECOVERY_STATS:
+            inv_type = inv_item.get("typeId") or inv_item.get("name") or inv_item.get("id")
+            if inv_type:
+                inv_clean = str(inv_type).lower().replace(" ", "_")
+                if inv_clean in WEAPON_STATS:
+                    inv_atk = WEAPON_STATS[inv_clean].get("atk", 0)
+                    if inv_atk >= target_atk:
+                        return False
+        return True
+
+    # 2. Armor
+    if name_clean in ARMOR_STATS:
+        target_def = ARMOR_STATS[name_clean].get("def", 0)
+        curr_def = score_armor(current_armor_id)
+        if target_def > curr_def:
+            return True
+        # Periksa armor di inventaris
+        for inv_item in inventory:
+            if not isinstance(inv_item, dict):
+                continue
+            inv_type = inv_item.get("typeId") or inv_item.get("name") or inv_item.get("id")
+            if inv_type:
+                inv_clean = str(inv_type).lower().replace(" ", "_")
+                if inv_clean in ARMOR_STATS:
+                    inv_def = ARMOR_STATS[inv_clean].get("def", 0)
+                    if inv_def >= target_def:
+                        return False
+        return True
+
+    # 3. Recovery items
+    if name_clean in RECOVERY_STATS:
+        if len(inventory) >= 10:
+            return False
+            
         hp_count = 0
         ep_count = 0
-        total_items = 0
-        for item in inventory:
-            if not isinstance(item, dict):
+        for inv_item in inventory:
+            if not isinstance(inv_item, dict):
                 continue
-            total_items += 1
-            item_type = item.get("typeId") or item.get("name") or item.get("id") or ""
-            item_name = str(item_type).lower().replace(" ", "_")
-            if item_name in RECOVERY_STATS:
-                stat = RECOVERY_STATS[item_name]
-                if stat["hp"] > 0:
-                    hp_count += 1
-                if stat["ep"] > 0:
-                    ep_count += 1
-                    
-        if total_items < 10:
-            stat = RECOVERY_STATS[name_clean]
-            if stat["hp"] > 0:
-                return hp_count <= ep_count + 1
-            if stat["ep"] > 0:
-                return ep_count <= hp_count + 1
-                
+            inv_type = inv_item.get("typeId") or inv_item.get("name") or inv_item.get("id")
+            if not inv_type:
+                continue
+            inv_clean = str(inv_type).lower()
+            if "medkit" in inv_clean or "bandage" in inv_clean or "food" in inv_clean:
+                hp_count += 1
+            elif "drink" in inv_clean or "potion" in inv_clean:
+                ep_count += 1
+
+        is_hp_item = "medkit" in name_clean or "bandage" in name_clean or "food" in name_clean
+        is_ep_item = "drink" in name_clean or "potion" in name_clean
+
+        if is_hp_item and hp_count < 3:
+            return True
+        if is_ep_item and ep_count < 2:
+            return True
+
     return False
 
-def score_ground_item(item_id: str, hp: int, ep: int) -> int:
-    if _is_smoltz(item_id):
+def score_ground_item(item_name, hp, ep, current_inventory, current_weapon_id, current_armor_id):
+    if not item_name:
+        return 0
+
+    if _is_smoltz(item_name):
         return 200
-        
-    name_clean = str(item_id).lower().replace(" ", "_")
-    score = 150
+
+    name_clean = str(item_name).lower().replace(" ", "_")
+    
+    # Deteksi status tangan kosong (unarmed)
+    is_unarmed = not current_weapon_id or str(current_weapon_id).lower() == "none" or current_weapon_id == ""
+
+    # 1. Weapon
     if name_clean in WEAPON_STATS:
-        stat = WEAPON_STATS[name_clean]
-        score = 150 + stat["atk"]
-    elif name_clean in ARMOR_STATS:
-        stat = ARMOR_STATS[name_clean]
-        score = 150 + stat["def"]
-    elif name_clean in RECOVERY_STATS:
-        stat = RECOVERY_STATS[name_clean]
-        if stat["hp"] > 0 and hp < 40:
-            score = 180
-        elif stat["ep"] > 0 and ep <= 2:
-            score = 180
-        else:
-            score = 140
-            
-    return score
+        atk_val = WEAPON_STATS[name_clean].get("atk", 0)
+        score = 150 + atk_val
+        if is_unarmed:
+            score += 150  # Berikan boost prioritas ekstrim (+150) jika bot tidak memegang senjata
+        return score
+
+    # 2. Armor
+    if name_clean in ARMOR_STATS:
+        def_val = ARMOR_STATS[name_clean].get("def", 0)
+        return 150 + def_val
+
+    # 3. Recovery Items
+    if name_clean in RECOVERY_STATS:
+        return 120
+
+    return 50
 
 def get_best_loot_action(ground_items, current_inventory, hp, ep, current_weapon_id, current_armor_id):
-    if not ground_items:
+    if len(current_inventory) >= 10 or not ground_items:
         return None
-        
-    inv_count = 0
-    has_smoltz_slot = False
-    for item in current_inventory:
-        if not isinstance(item, dict):
-            continue
-        item_type = item.get("typeId") or item.get("name") or item.get("id") or ""
-        if _is_smoltz(item_type):
-            has_smoltz_slot = True
-        inv_count += 1
-        
+
     scored_items = []
     for item in ground_items:
         if not isinstance(item, dict):
             continue
-        item_name = item.get("name") or item.get("type") or item.get("typeId")
-        if not item_name:
-            continue
-            
-        if is_item_needed(item_name, current_inventory, current_weapon_id, current_armor_id):
-            score = score_ground_item(item_name, hp, ep)
-            scored_items.append((score, item_name, item))
-            
+        item_id = item.get("id")
+        item_name = item.get("name") or item.get("type") or item.get("typeId") or item_id
+
+        if item_name and is_item_needed(item_name, current_inventory, current_weapon_id, current_armor_id):
+            score = score_ground_item(item_name, hp, ep, current_inventory, current_weapon_id, current_armor_id)
+            scored_items.append((score, item))
+
     if not scored_items:
         return None
-        
+
     scored_items.sort(key=lambda x: x[0], reverse=True)
-    best_score, best_name, best_item = scored_items[0]
-    
-    if _is_smoltz(best_name) and has_smoltz_slot:
-        return {"action": "pickup", "item": best_item, "score": best_score}
-        
-    if inv_count < 10:
-        return {"action": "pickup", "item": best_item, "score": best_score}
-        
-    return None
+    best_score, best_item = scored_items[0]
+
+    return {
+        "score": best_score,
+        "item": best_item
+    }

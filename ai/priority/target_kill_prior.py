@@ -1,7 +1,7 @@
 import math
 from helpers.game_math import WEAPON_STATS, WeatherType, calculate_damage
 
-def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_atk, self_def, weather, last_target_id, connected_region_ids=None, region_layers=None, should_flee=False):
+def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_atk, self_def, weather, last_target_id, connected_region_ids=None, region_layers=None, should_flee=False, current_region_id=None):
     best_action = None
     best_score = 0
     best_target_id = None
@@ -42,7 +42,12 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
         weather_enum = WeatherType.CLEAR
 
     for r_id_key, enemies_list in visible_enemies.items():
-        is_current_region = str(r_id_key).lower() == "current" or r_id_key == ""
+        # Memperbaiki deteksi regional agar sinkron dengan ID asli dari decision_maker
+        is_current_region = False
+        if str(r_id_key).lower() == "current" or r_id_key == "":
+            is_current_region = True
+        elif current_region_id and str(r_id_key).lower() == str(current_region_id).lower():
+            is_current_region = True
         
         # Penentuan Layer Jarak
         layer = 1
@@ -126,12 +131,11 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
             if is_suicide:
                 score -= 1000
 
-            # Menerapkan Penalti Bertahap Berdasarkan Kedalaman Jarak Layer Musuh
+            # Menerapkan Penalti Jarak Layer Musuh
             if layer > 1:
                 score -= (layer - 1) * 35
 
-            # Penyelamat Taktis: Tekan skor tempur secara masif jika bot dalam kondisi wajib kabur,
-            # KECUALI jika bot terbukti bisa mengeksekusi musuh tersebut dalam 1 serangan instan.
+            # Penyelamat Taktis: Tekan skor tempur jika bot dalam kondisi wajib kabur
             if should_flee and turns_to_kill > 1:
                 score -= 500
 
