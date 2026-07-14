@@ -65,40 +65,93 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
                 terrain_cap = terrain.capitalize() if terrain else "Unknown"
                 weather_cap = weather.capitalize() if weather else "Unknown"
                 print(f"Location: {region_name}{current_zone_label} | Terrain : {terrain_cap} | Weather : {weather_cap} | Vision {vision} | Link {num_links}")
-                
+            
             print(f"Weapon : {weapon_name} | Armour : {armor_name}")
             print(f"Inventory : {inv_display}")
             
             if hp > 0:
-                region_strings = []
+                adj = {}
+                def add_edge(u, v):
+                    if u not in adj:
+                        adj[u] = set()
+                    if v not in adj:
+                        adj[v] = set()
+                    adj[u].add(v)
+                    adj[v].add(u)
+
+                current_region = view.get("currentRegion", {}) or {}
+                curr_id = current_region.get("id")
+                if curr_id:
+                    for conn in (current_region.get("connections", []) or []):
+                        if conn:
+                            add_edge(curr_id, conn)
+
+                for r_item in (view.get("visibleRegions", []) or []):
+                    if isinstance(r_item, dict):
+                        r_id = r_item.get("id")
+                        if r_id:
+                            for conn in (r_item.get("connections", []) or []):
+                                if conn:
+                                    add_edge(r_id, conn)
+
+                from collections import deque
+                distances = {}
+                if curr_id:
+                    queue = deque([curr_id])
+                    distances[curr_id] = 0
+                    while queue:
+                        u = queue.popleft()
+                        curr_dist = distances[u]
+                        for v in adj.get(u, []):
+                            if v not in distances:
+                                distances[v] = curr_dist + 1
+                                queue.append(v)
+
+                layers = {}
                 for r in regions:
-                    is_dead = r.get("is_death_zone", False)
-                    if is_dead:
-                        zone_label = f" {color_red}[deadzone]{color_reset}"
-                    else:
-                        zone_label = ""
-                    region_strings.append(f"{r['name']}{zone_label}")
+                    r_id = r.get("id")
+                    if r_id == curr_id:
+                        continue
                     
+                    dist = distances.get(r_id)
+                    if dist is None:
+                        if curr_id and r_id in (current_region.get("connections", []) or []):
+                            dist = 1
+                        else:
+                            dist = 2
+                    
+                    if dist not in layers:
+                        layers[dist] = []
+                    
+                    is_dead = r.get("is_death_zone", False)
+                    zone_label = f" {color_red}[deadzone]{color_reset}" if is_dead else ""
+                    layers[dist].append(f"{r['name']}{zone_label}")
+
                 print()
-                joined_regions = " / ".join(region_strings)
-                print(f"Region detector : {joined_regions}")
-                
-                print()
-                if region_items:
-                    print("Region Item detector :")
-                    for r_name, items in region_items.items():
-                        print(f"{r_name} > {', '.join(items)}")
+                print("Region detector :")
+                if layers:
+                    for dist in sorted(layers.keys()):
+                        joined = ", ".join(layers[dist])
+                        print(f"Layer {dist} : {joined}")
                 else:
-                    print("Region Item detector : none")
-                
-                print()
-                if region_enemies:
-                    print("Region Enemy detector :")
-                    for r_name, enemies in region_enemies.items():
-                        print(f"{r_name} > {', '.join(enemies)}")
-                else:
-                    print("Region Enemy detector : none")
-                
+                    print("none")
+            
+            print()
+            if region_items:
+                print("Region Item detector :")
+                for r_name, items in region_items.items():
+                    print(f"{r_name} > {', '.join(items)}")
+            else:
+                print("Region Item detector : none")
+            
+            print()
+            if region_enemies:
+                print("Region Enemy detector :")
+                for r_name, enemies in region_enemies.items():
+                    print(f"{r_name} > {', '.join(enemies)}")
+            else:
+                print("Region Enemy detector : none")
+            
             try:
                 next_action = decide_next_action(view, context)
                 if next_action and next_action.get("type") == "action":
@@ -140,9 +193,9 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
                         await context.ws.send(json.dumps(next_action))
             except Exception as e:
                 print(f"[DEBUG ERROR] Gagal mengeksekusi decide_next_action: {e}")
-                
-            context.last_state = current_state
             
+            context.last_state = current_state
+        
         last_hp = getattr(context, "last_hp", None)
         if last_hp is not None and last_hp != hp:
             diff = last_hp - hp
@@ -173,23 +226,23 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
             if message:
                 print(f"[World Log] {message}")
                 
-            if context.agent_name:
-                lower_msg = message.lower()
-                name_lower = context.agent_name.lower()
+        if context.agent_name:
+            lower_msg = message.lower()
+            name_lower = context.agent_name.lower()
+            
+            is_my_death = False
+            if f"{name_lower} died" in lower_msg:
+                is_my_death = True
+            elif f"{name_lower} perished" in lower_msg:
+                is_my_death = True
+            elif f"{name_lower} was killed" in lower_msg:
+                is_my_death = True
+            elif f"{name_lower} was eliminated" in lower_msg:
+                is_my_death = True
+            elif lower_msg.startswith(name_lower) and ("killed" in lower_msg or "died" in lower_msg or "perished" in lower_msg):
+                is_my_death = True
+            elif f"killed {name_lower}" in lower_msg or f"eliminated {name_lower}" in lower_msg:
+                is_my_death = True
                 
-                is_my_death = False
-                if f"{name_lower} died" in lower_msg:
-                    is_my_death = True
-                elif f"{name_lower} perished" in lower_msg:
-                    is_my_death = True
-                elif f"{name_lower} was killed" in lower_msg:
-                    is_my_death = True
-                elif f"{name_lower} was eliminated" in lower_msg:
-                    is_my_death = True
-                elif lower_msg.startswith(name_lower) and ("killed" in lower_msg or "died" in lower_msg or "perished" in lower_msg):
-                    is_my_death = True
-                elif f"killed {name_lower}" in lower_msg or f"eliminated {name_lower}" in lower_msg:
-                    is_my_death = True
-                    
-                if is_my_death:
-                    await _handle_agent_death(msg, {}, context, "world log")
+            if is_my_death:
+                await _handle_agent_death(msg, {}, context, "world log")
