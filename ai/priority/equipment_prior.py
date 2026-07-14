@@ -41,7 +41,8 @@ def evaluate_equipment(inventory, current_weapon_id, current_armor_id):
         if not isinstance(item, dict):
             continue
             
-        item_type = item.get("typeId") or item.get("name") or item.get("id")
+        # Membaca key "type" milik server untuk sinkronisasi senjata/armor secara presisi
+        item_type = item.get("type") or item.get("typeId") or item.get("name") or item.get("id")
         if not item_type:
             continue
             
@@ -73,18 +74,18 @@ def evaluate_equipment(inventory, current_weapon_id, current_armor_id):
     # 2. Pembersihan Otomatis: Buang senjata/armor yang lebih lemah dari dalam tas agar hemat slot
     keep_weapon_clean = current_weapon_clean
     if best_weapon_item:
-        keep_type = best_weapon_item.get("typeId") or best_weapon_item.get("name") or best_weapon_item.get("id")
+        keep_type = best_weapon_item.get("type") or best_weapon_item.get("typeId") or best_weapon_item.get("name") or best_weapon_item.get("id")
         keep_weapon_clean = str(keep_type).lower().replace(" ", "_")
         
     keep_armor_clean = current_armor_clean
     if best_armor_item:
-        keep_type = best_armor_item.get("typeId") or best_armor_item.get("name") or best_armor_item.get("id")
+        keep_type = best_armor_item.get("type") or best_armor_item.get("typeId") or best_armor_item.get("name") or best_armor_item.get("id")
         keep_armor_clean = str(keep_type).lower().replace(" ", "_")
         
     for item in inventory:
         if not isinstance(item, dict):
             continue
-        item_type = item.get("typeId") or item.get("name") or item.get("id")
+        item_type = item.get("type") or item.get("typeId") or item.get("name") or item.get("id")
         if not item_type:
             continue
         name_clean = str(item_type).lower().replace(" ", "_")

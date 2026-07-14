@@ -33,7 +33,19 @@ def is_item_needed(item_name, inventory, current_weapon_id, current_armor_id):
 
     name_clean = str(item_name).lower().replace(" ", "_")
     
-    # 1. Weapon
+    # 1. Deteksi Kebutuhan Teropong (Binoculars)
+    if "binocular" in name_clean:
+        has_binoc = False
+        for inv_item in inventory:
+            if not isinstance(inv_item, dict):
+                continue
+            inv_type = inv_item.get("type") or inv_item.get("typeId") or inv_item.get("name") or inv_item.get("id")
+            if inv_type and "binocular" in str(inv_type).lower():
+                has_binoc = True
+                break
+        return not has_binoc
+
+    # 2. Weapon
     if name_clean in WEAPON_STATS:
         target_atk = WEAPON_STATS[name_clean].get("atk", 0)
         curr_atk = score_weapon(current_weapon_id)
@@ -43,7 +55,7 @@ def is_item_needed(item_name, inventory, current_weapon_id, current_armor_id):
         for inv_item in inventory:
             if not isinstance(inv_item, dict):
                 continue
-            inv_type = inv_item.get("typeId") or inv_item.get("name") or inv_item.get("id")
+            inv_type = inv_item.get("type") or inv_item.get("typeId") or inv_item.get("name") or inv_item.get("id")
             if inv_type:
                 inv_clean = str(inv_type).lower().replace(" ", "_")
                 if inv_clean in WEAPON_STATS:
@@ -52,7 +64,7 @@ def is_item_needed(item_name, inventory, current_weapon_id, current_armor_id):
                         return False
         return True
 
-    # 2. Armor
+    # 3. Armor
     if name_clean in ARMOR_STATS:
         target_def = ARMOR_STATS[name_clean].get("def", 0)
         curr_def = score_armor(current_armor_id)
@@ -62,7 +74,7 @@ def is_item_needed(item_name, inventory, current_weapon_id, current_armor_id):
         for inv_item in inventory:
             if not isinstance(inv_item, dict):
                 continue
-            inv_type = inv_item.get("typeId") or inv_item.get("name") or inv_item.get("id")
+            inv_type = inv_item.get("type") or inv_item.get("typeId") or inv_item.get("name") or inv_item.get("id")
             if inv_type:
                 inv_clean = str(inv_type).lower().replace(" ", "_")
                 if inv_clean in ARMOR_STATS:
@@ -71,7 +83,7 @@ def is_item_needed(item_name, inventory, current_weapon_id, current_armor_id):
                         return False
         return True
 
-    # 3. Recovery items
+    # 4. Recovery items
     if name_clean in RECOVERY_STATS:
         if len(inventory) >= 10:
             return False
@@ -81,7 +93,7 @@ def is_item_needed(item_name, inventory, current_weapon_id, current_armor_id):
         for inv_item in inventory:
             if not isinstance(inv_item, dict):
                 continue
-            inv_type = inv_item.get("typeId") or inv_item.get("name") or inv_item.get("id")
+            inv_type = inv_item.get("type") or inv_item.get("typeId") or inv_item.get("name") or inv_item.get("id")
             if not inv_type:
                 continue
             inv_clean = str(inv_type).lower()
@@ -112,20 +124,24 @@ def score_ground_item(item_name, hp, ep, current_inventory, current_weapon_id, c
     # Deteksi status tangan kosong (unarmed)
     is_unarmed = not current_weapon_id or str(current_weapon_id).lower() == "none" or current_weapon_id == ""
 
-    # 1. Weapon
+    # 1. Teropong (Binoculars)
+    if "binocular" in name_clean:
+        return 130
+
+    # 2. Weapon
     if name_clean in WEAPON_STATS:
         atk_val = WEAPON_STATS[name_clean].get("atk", 0)
         score = 150 + atk_val
         if is_unarmed:
-            score += 150  # Berikan boost prioritas ekstrim (+150) jika bot tidak memegang senjata
+            score += 150
         return score
 
-    # 2. Armor
+    # 3. Armor
     if name_clean in ARMOR_STATS:
         def_val = ARMOR_STATS[name_clean].get("def", 0)
         return 150 + def_val
 
-    # 3. Recovery Items
+    # 4. Recovery Items
     if name_clean in RECOVERY_STATS:
         return 120
 

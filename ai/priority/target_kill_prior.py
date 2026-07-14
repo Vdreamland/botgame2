@@ -25,7 +25,7 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
     for item in inventory:
         if not isinstance(item, dict):
             continue
-        item_type = item.get("typeId") or item.get("name") or item.get("id")
+        item_type = item.get("type") or item.get("typeId") or item.get("name") or item.get("id")
         if not item_type:
             continue
         name_clean = str(item_type).lower().replace(" ", "_")
@@ -149,7 +149,8 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
                     else:
                         best_action = {"action": "attack", "target": enemy}
                 else:
-                    if current_range >= 1:
+                    # Memperbaiki verifikasi jangkauan tembak terhadap jarak layer musuh (Anti-Stuck Loop)
+                    if current_range >= layer:
                         best_action = {"action": "attack", "target": enemy}
                     else:
                         best_action = {"action": "move_to_enemy", "target": enemy, "region_id": r_id_key}
