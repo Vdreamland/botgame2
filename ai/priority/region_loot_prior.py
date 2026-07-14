@@ -98,32 +98,10 @@ def is_item_needed(item_name, inventory, current_weapon_id, current_armor_id):
                         return False
         return True
 
-    # 4. Recovery items
+    # 4. Penimbunan Item Pemulih Secara Agresif (Sesuai Keinginan Anda)
     if name_clean in RECOVERY_STATS:
-        if len(inventory) >= 10:
-            return False
-            
-        hp_count = 0
-        ep_count = 0
-        for inv_item in inventory:
-            if not isinstance(inv_item, dict):
-                continue
-            inv_type = inv_item.get("type") or inv_item.get("typeId") or inv_item.get("name") or inv_item.get("id")
-            if not inv_type:
-                continue
-            inv_clean = str(inv_type).lower()
-            if "medkit" in inv_clean or "bandage" in inv_clean or "food" in inv_clean:
-                hp_count += 1
-            elif "drink" in inv_clean or "potion" in inv_clean:
-                ep_count += 1
-
-        is_hp_item = "medkit" in name_clean or "bandage" in name_clean or "food" in name_clean
-        is_ep_item = "drink" in name_clean or "potion" in name_clean
-
-        if is_hp_item and hp_count < 3:
-            return True
-        if is_ep_item and ep_count < 2:
-            return True
+        # Selama kapasitas tas masih di bawah 9 slot, ambil seluruh item pemulih di tanah
+        return len(inventory) < 9
 
     return False
 
@@ -132,29 +110,31 @@ def score_ground_item(item_name, hp, ep, current_inventory, current_weapon_id, c
         return 0
 
     if _is_smoltz(item_name):
-        return 90  # Skor maksimum 90 pada skala 0-100 untuk sMoltz
+        return 90
 
     name_clean = str(item_name).lower().replace(" ", "_")
+    
     is_unarmed = not current_weapon_id or str(current_weapon_id).lower() == "none" or current_weapon_id == ""
     is_naked = not current_armor_id or str(current_armor_id).lower() == "none" or current_armor_id == ""
 
-    # 1. Weapon
-    if name_clean in WEAPON_STATS:
-        if is_unarmed:
-            return 85  # Prioritas tinggi bersenjata saat tangan kosong
-        atk_val = WEAPON_STATS[name_clean].get("atk", 0)
-        return min(80, 60 + atk_val)
-
-    # 2. Armor
-    if name_clean in ARMOR_STATS:
-        if is_naked:
-            return 80  # Prioritas tinggi terlindung saat telanjang
-        def_val = ARMOR_STATS[name_clean].get("def", 0)
-        return min(75, 55 + def_val)
-
-    # 3. Teropong (Binoculars)
+    # 1. Teropong (Binoculars)
     if "binocular" in name_clean:
         return 55
+
+    # 2. Weapon
+    if name_clean in WEAPON_STATS:
+        atk_val = WEAPON_STATS[name_clean].get("atk", 0)
+        score = 150 + atk_val
+        if is_unarmed:
+            score += 150
+        return min(80, 60 + atk_val)
+
+    # 3. Armor
+    if name_clean in ARMOR_STATS:
+        if is_naked:
+            return 80
+        def_val = ARMOR_STATS[name_clean].get("def", 0)
+        return min(75, 55 + def_val)
 
     # 4. Recovery Items
     if name_clean in RECOVERY_STATS:
