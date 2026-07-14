@@ -117,20 +117,21 @@ def decide_next_action(view, context=None):
     eval_equip = evaluate_equipment(inventory, current_weapon, current_armor)
     candidates = []
 
+    # Keputusan Equip 0-100 Terstandarisasi
     if eval_equip["to_equip_weapon"]:
         if current_weapon is None:
-            candidates.append((330, {"action": "equip", "item": eval_equip["to_equip_weapon"]}))
+            candidates.append((88, {"action": "equip", "item": eval_equip["to_equip_weapon"]}))
         elif is_safe:
             candidates.append((30, {"action": "equip", "item": eval_equip["to_equip_weapon"]}))
 
     if eval_equip["to_equip_armor"]:
         if current_armor is None:
-            candidates.append((305, {"action": "equip", "item": eval_equip["to_equip_armor"]}))
+            candidates.append((82, {"action": "equip", "item": eval_equip["to_equip_armor"]}))
         elif is_safe:
             candidates.append((35, {"action": "equip", "item": eval_equip["to_equip_armor"]}))
 
     if eval_equip["to_drop"] and len(inventory) >= 10:
-        candidates.append((80, {"action": "drop", "item": eval_equip["to_drop"][0]}))
+        candidates.append((25, {"action": "drop", "item": eval_equip["to_drop"][0]}))
 
     connected_region_ids = {r.get("id") for r in connected_regions if r.get("id")}
 
@@ -141,7 +142,7 @@ def decide_next_action(view, context=None):
     if rec_res["action"]:
         score = rec_res["score"]
         if should_flee and rec_res["action"]["action"] == "use_item":
-            score += 30
+            score = min(98, score + 10)
         candidates.append((score, rec_res["action"]))
 
     loot_res = get_best_loot_action(ground_items, inventory, hp, ep, current_weapon, current_armor)
@@ -164,17 +165,15 @@ def decide_next_action(view, context=None):
         if r_id and r_id != current_region.get("id"):
             visible_enemies_map[r_id] = [e for e in (living_agents + living_monsters + living_npcs) if str(e.get("regionId") or e.get("region_id")).lower() == str(r_id).lower()]
 
-    # Menerapkan target pertempuran terskala jarak layer serta meneruskan status kabur (should_flee) dan current_region ID asli
     combat_res = score_targets(visible_enemies_map, hp, ep, current_weapon, inventory, atk, defense, weather, last_target_id, connected_region_ids, region_layers, should_flee, current_region.get("id"))
     if combat_res["action"]:
         candidates.append((combat_res["score"], combat_res["action"]))
 
-    # Menerapkan pergerakan terskala propagasi layer
     move_res = get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, interacted_ids, current_region, visible_agents, visible_monsters, visible_npcs, regions_list)
     if move_res:
         score = move_res["score"]
         if should_flee:
-            score += 350  # Dinaikkan ke +350 agar bot dipastikan kabur dari kepungan musuh
+            score = 98  # Normalisasi skor kabur maksimal 98
         candidates.append((score, move_res["action"]))
 
     if not candidates:
@@ -182,9 +181,9 @@ def decide_next_action(view, context=None):
     else:
         candidates.sort(key=lambda x: x[0], reverse=True)
         
-        # --- Modul Tampilan Visual Log Panel Kandidat Keputusan (DRY) ---
+        # Panel Visual Log Kandidat
         print("\n================== DECISION CANDIDATES ==================")
-        for i, (score, cand) in enumerate(candidates[:5]):  # Menampilkan top 5 kandidat
+        for i, (score, cand) in enumerate(candidates[:5]):
             act_type = cand.get("action") or cand.get("type")
             target_str = ""
             if act_type == "move":
@@ -201,7 +200,6 @@ def decide_next_action(view, context=None):
             winner_mark = "★ [WINNER]" if i == 0 else "  [Candidate]"
             print(f" {winner_mark} Score: {score:.1f} | Action: {act_type} {target_str}")
         print("=========================================================\n")
-        # ----------------------------------------------------------------
         
         best_action = None
         for score, cand in candidates:
@@ -220,7 +218,6 @@ def decide_next_action(view, context=None):
                     if r.get("id") == target_region_id:
                         r_id = r.get("id")
                         break
-                # Fallback ke first_step jika musuh di luar jangkauan langsung (Layer > 1)
                 if not r_id:
                     for r in regions_list:
                         if r.get("id") == target_region_id:
@@ -328,7 +325,7 @@ def decide_next_action(view, context=None):
         target = best_action.get("target", {})
         t_id = target.get("id") or target.get("targetId") or target.get("facilityId")
         
-        # Masukkan fasilitas medis ke blacklist setelah sekali pemakaian (Sesuai keinginan Anda)
+        # Blacklist medical_facility setelah sekali pemakaian (Sesuai keinginan Anda)
         if t_id and context is not None:
             context.interacted_facilities.add(t_id)
         elif t_id:

@@ -56,13 +56,10 @@ def is_item_needed(item_name, inventory, current_weapon_id, current_armor_id):
         curr_stat = WEAPON_STATS.get(curr_clean, {})
         curr_type = curr_stat.get("type")
         
-        # Jika tipe senjata sama (sama-sama Melee atau Ranged), bandingkan ATK
         if target_type == curr_type:
             if target_atk > curr_atk:
                 return True
                 
-        # Jika tipe berbeda (misal kita pegang Ranged, tapi di tanah ada Melee), 
-        # izinkan ambil jika di tas belum ada senjata kategori tersebut sebagai backup.
         has_type_in_inv = False
         if curr_type == target_type:
             has_type_in_inv = True
@@ -89,7 +86,6 @@ def is_item_needed(item_name, inventory, current_weapon_id, current_armor_id):
         curr_def = score_armor(current_armor_id)
         if target_def > curr_def:
             return True
-        # Periksa armor di inventaris
         for inv_item in inventory:
             if not isinstance(inv_item, dict):
                 continue
@@ -136,35 +132,35 @@ def score_ground_item(item_name, hp, ep, current_inventory, current_weapon_id, c
         return 0
 
     if _is_smoltz(item_name):
-        return 200
+        return 90  # Skor maksimum 90 pada skala 0-100 untuk sMoltz
 
     name_clean = str(item_name).lower().replace(" ", "_")
-    
-    # Deteksi status tangan kosong (unarmed)
     is_unarmed = not current_weapon_id or str(current_weapon_id).lower() == "none" or current_weapon_id == ""
+    is_naked = not current_armor_id or str(current_armor_id).lower() == "none" or current_armor_id == ""
 
-    # 1. Teropong (Binoculars)
-    if "binocular" in name_clean:
-        return 130
-
-    # 2. Weapon
+    # 1. Weapon
     if name_clean in WEAPON_STATS:
-        atk_val = WEAPON_STATS[name_clean].get("atk", 0)
-        score = 150 + atk_val
         if is_unarmed:
-            score += 150
-        return score
+            return 85  # Prioritas tinggi bersenjata saat tangan kosong
+        atk_val = WEAPON_STATS[name_clean].get("atk", 0)
+        return min(80, 60 + atk_val)
 
-    # 3. Armor
+    # 2. Armor
     if name_clean in ARMOR_STATS:
+        if is_naked:
+            return 80  # Prioritas tinggi terlindung saat telanjang
         def_val = ARMOR_STATS[name_clean].get("def", 0)
-        return 150 + def_val
+        return min(75, 55 + def_val)
+
+    # 3. Teropong (Binoculars)
+    if "binocular" in name_clean:
+        return 55
 
     # 4. Recovery Items
     if name_clean in RECOVERY_STATS:
-        return 120
+        return 60
 
-    return 50
+    return 40
 
 def get_best_loot_action(ground_items, current_inventory, hp, ep, current_weapon_id, current_armor_id):
     if len(current_inventory) >= 10 or not ground_items:

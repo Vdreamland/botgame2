@@ -88,9 +88,8 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
                 enemy_def = 120
 
             my_dmg = calculate_damage(self_atk, current_wpn_atk, enemy_def, weather_enum)
-            target_dmg = calculate_damage(enemy_atk, 0, self_def, weather_enum)
+            total_target_dmg = calculate_damage(enemy_atk, 0, self_def, weather_enum)
 
-            total_target_dmg = target_dmg
             if is_current_region:
                 other_enemies = [e for e in enemies_list if (e.get("id") or e.get("agentId") or e.get("monsterId") or e.get("npcId")) != enemy_id]
                 for other in other_enemies:
@@ -109,48 +108,47 @@ def score_targets(visible_enemies, hp, ep, current_weapon_id, inventory, self_at
 
             is_suicide = turns_to_kill >= turns_to_die or (hp < 30 and total_target_dmg >= hp)
 
+            if is_suicide:
+                continue
+
+            # Skor Dasar Pertempuran Berskala Proporsional 0-100
             score = 0
             if is_player:
-                score = 210
+                score = 75
             elif is_guardian:
-                score = 160
+                score = 55
             else:
-                score = 190
+                score = 65
 
-            if enemy_hp < self_atk + current_wpn_atk:
-                score += 40
+            # 1-Hit Kill Bonus (Prioritas Tempur Tertinggi)
+            if turns_to_kill == 1:
+                score = 95
             elif enemy_hp < 50:
-                score += 20
+                score += 10
 
-            if turns_to_kill == 1 and not is_suicide:
-                score += 100
-
+            # Kunci Target & Bonus Wilayah Lokal
             if enemy_id == last_target_id:
-                score += 30
+                score += 5
+            if is_current_region:
+                score += 5
 
-            if is_suicide:
-                score -= 1000
-
-            # Menerapkan Penalti Jarak Layer Musuh
+            # Penalti Jarak Layer Musuh
             if layer > 1:
-                score -= (layer - 1) * 35
+                score -= (layer - 1) * 15
 
-            # Penyelamat Taktis: Tekan skor tempur jika bot dalam kondisi wajib kabur
+            # Penalti Kabur
             if should_flee and turns_to_kill > 1:
-                score -= 500
+                score -= 60
 
-            # Penyelamat Taktis: Tekan nafsu tempur jika bot tangan kosong,
-            # KECUALI jika musuh tersebut terbukti bisa dieksekusi mati dalam 1 hit (turns_to_kill == 1)
+            # Penalti Tangan Kosong
             is_unarmed = not current_weapon_id or str(current_weapon_id).lower() == "none" or current_weapon_id == ""
             if is_unarmed and turns_to_kill > 1:
-                score -= 250
+                score -= 40
 
-            # Penyelamat Taktis Utama: Berikan bonus masif (+80) untuk musuh di region saat ini (is_current_region)
-            # agar bot menyelesaikan ancaman lokal terlebih dahulu daripada membuang EP untuk mengejar musuh jauh.
-            if is_current_region:
-                score += 80
+            # Limitasi Batas Skor Tempur 0-100
+            score = min(95, max(0, score))
 
-            if score > best_score and score > 0:
+            if score > best_score:
                 best_score = score
                 best_target_id = enemy_id
 

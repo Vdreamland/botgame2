@@ -1,30 +1,27 @@
 def score_exploration(regions, alert_gauge, ep):
-    best_ruin = None
-    best_score = 0
-    
-    if ep < 1:
+    if ep < 1 or not regions:
         return {
             "score": 0,
             "action": None
         }
         
-    for r in regions:
-        if not isinstance(r, dict):
-            continue
-        ruins = r.get("ruins")
-        if not ruins and ("relic" in str(r.get("name", "")).lower() or "ruin" in str(r.get("name", "")).lower()):
-            ruins = {"id": r.get("id"), "status": "unknown"}
+    current_region = regions[0]
+    ruins = current_region.get("ruins")
+    
+    if ruins:
+        status = str(ruins.get("status", "")).lower()
+        if status not in ("cleared", "completed", "finished") and alert_gauge < 10:
+            # Skor menjelajah Ruins dinormalisasi ke standar pencarian barang (Maksimal 65)
+            score = min(65, max(0, 65 - alert_gauge * 2))
+            return {
+                "score": score,
+                "action": {
+                    "action": "explore",
+                    "target": current_region
+                }
+            }
             
-        if ruins:
-            status = str(ruins.get("status", "")).lower()
-            if status not in ("cleared", "completed", "finished"):
-                if alert_gauge < 10:
-                    score = 175 - alert_gauge
-                    if score > best_score:
-                        best_score = score
-                        best_ruin = ruins
-                        
     return {
-        "score": best_score,
-        "action": {"action": "explore", "target": best_ruin} if best_ruin else None
+        "score": 0,
+        "action": None
     }

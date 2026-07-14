@@ -14,20 +14,22 @@ def score_interactables(interactables, hp, ep, interacted_ids):
         f_type = inter.get("type") or inter.get("name") or inter.get("id") or ""
         name_clean = f_type.lower().replace(" ", "_")
 
-        # Batasi semua fasilitas (termasuk Medical Facility) hanya boleh diinteraksi SEKALI saja
+        # Batasi seluruh fasilitas (termasuk medical_facility) hanya boleh diinteraksi SEKALI saja
         if t_id and t_id in interacted_ids:
             continue
 
         score = 0
         if name_clean == "medical_facility":
-            if hp < 100:
-                score = 180 + (100 - hp)
-                if hp < 40:
-                    score += 150
-                elif hp < 60:
-                    score += 50
+            if hp < 30:
+                score = 98  # Prioritas mutlak fasilitas medis saat kritis
+            elif hp < 50:
+                score = 85
+            elif hp < 100:
+                score = int(50 + (100 - hp) * 0.4)
         elif name_clean == "supply_cache":
-            score = 170
+            score = 70
+
+        score = min(98, max(0, score))
 
         if score > 0:
             scored_actions.append((score, {

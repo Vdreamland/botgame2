@@ -1,5 +1,4 @@
 def score_recovery_actions(hp, ep, inventory, is_safe):
-    # Pengelompokan item consumable medis dan energi secara dinamis (DRY)
     medkits = []
     small_healers = []
     ep_items = []
@@ -8,7 +7,7 @@ def score_recovery_actions(hp, ep, inventory, is_safe):
         if not isinstance(item, dict):
             continue
         item_id = item.get("id")
-        item_type = item.get("typeId") or item.get("name") or item_id
+        item_type = item.get("type") or item.get("typeId") or item.get("name") or item_id
         if not item_type:
             continue
         name_clean = str(item_type).lower()
@@ -20,54 +19,51 @@ def score_recovery_actions(hp, ep, inventory, is_safe):
         elif "drink" in name_clean or "potion" in name_clean:
             ep_items.append(item)
 
-    # Pemilihan item HP secara proporsional sesuai kebutuhan defisit HP
     hp_item = None
     if medkits or small_healers:
         if hp < 50:
-            # Utamakan Medkit untuk luka berat
             hp_item = medkits[0] if medkits else small_healers[0]
         else:
-            # Utamakan Bandage/Food untuk menghemat Medkit jika luka ringan
             hp_item = small_healers[0] if small_healers else medkits[0]
 
     ep_item = ep_items[0] if ep_items else None
 
-    # 1. Keputusan Pemulihan HP (Skor Sangat Tinggi saat HP Sekarat)
+    # 1. Keputusan Pemulihan HP Proporsional 0-100
     if hp_item:
-        score = 40 + (100 - hp)
-        if hp < 20:
-            score += 220  # Prioritas mutlak (Skor > 300) agar pulih terlebih dahulu
-        elif hp < 40:
-            score += 180  # Prioritas tinggi (Skor > 240) mengalahkan Fleeing/Combat biasa
-        
+        if hp < 30:
+            score = 98  # Skor prioritas mutlak saat sekarat
+        elif hp < 50:
+            score = 85
+        else:
+            score = int((100 - hp) * 0.9)
+            
         return {
-            "score": score,
+            "score": min(100, max(0, score)),
             "action": {"action": "use_item", "item": hp_item}
         }
 
     # 2. Keputusan Pemulihan EP menggunakan Item
     if ep <= 2 and ep_item:
-        score = 85 + (10 - ep) * 5
+        score = 90
         return {
             "score": score,
             "action": {"action": "use_item", "item": ep_item}
         }
 
-    # 3. Keputusan Istirahat (Rest) Tanpa Item di Wilayah Aman (Mencegah EP Exhaustion)
+    # 3. Keputusan Istirahat (Rest) Tanpa Item di Wilayah Aman (EP ≤ 7)
     if is_safe:
         if ep <= 2:
-            return {
-                "score": 125,  # Skor tinggi agar bot istirahat saat EP kritis
-                "action": {"action": "rest"}
-            }
+            score = 80  # Prioritas tinggi untuk rest saat kehabisan energi
         elif ep == 3:
-            return {
-                "score": 60,
-                "action": {"action": "rest"}
-            }
+            score = 60
         elif ep >= 4 and ep <= 7:
+            score = int((10 - ep) * 8)
+        else:
+            score = 0
+            
+        if score > 0:
             return {
-                "score": 50,
+                "score": min(100, max(0, score)),
                 "action": {"action": "rest"}
             }
 
