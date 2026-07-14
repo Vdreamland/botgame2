@@ -51,6 +51,16 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
     layer_bonuses = {}
     is_unarmed = not current_weapon or str(current_weapon).lower() == "none" or current_weapon == ""
     
+    has_local_weapon = False
+    if is_unarmed:
+        local_items = current_region.get("items", []) or current_region.get("groundItems", []) or []
+        for loc_item in local_items:
+            if isinstance(loc_item, dict):
+                loc_name = loc_item.get("name") or loc_item.get("type") or loc_item.get("typeId")
+                if loc_name and str(loc_name).lower().replace(" ", "_") in WEAPON_STATS:
+                    has_local_weapon = True
+                    break
+
     if regions_list:
         for r_item in regions_list:
             r_id = r_item.get("id")
@@ -68,8 +78,8 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
             if "relic" in r_name_lower or "ruin" in r_name_lower or (region_detail and region_detail.get("ruins")):
                 ruin_obj = r_item.get("ruins") or (region_detail.get("ruins") if region_detail else None)
                 if not ruin_obj or str(ruin_obj.get("status", "")).lower() not in ("cleared", "completed", "finished", "depleted"):
-                    has_ruin = True
-            if has_ruin:
+                    has_ruid = True
+            if has_ruid:
                 val += 15
                 
             if region_detail:
@@ -83,7 +93,8 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
                                 val += 40
                             elif name_item_clean in WEAPON_STATS:
                                 if is_unarmed:
-                                    val += 50
+                                    if not has_local_weapon:
+                                        val += 50
                                 elif is_item_needed(item_name, inventory, current_weapon, current_armor):
                                     val += 10
                             elif is_item_needed(item_name, inventory, current_weapon, current_armor):

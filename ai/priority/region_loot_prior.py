@@ -119,7 +119,7 @@ def score_ground_item(item_name, hp, ep, current_inventory, current_weapon_id, c
         atk_val = WEAPON_STATS[name_clean].get("atk", 0)
         score = 150 + atk_val
         if is_unarmed:
-            score += 150
+            return 88
         return min(80, 60 + atk_val)
 
     if name_clean in ARMOR_STATS:
