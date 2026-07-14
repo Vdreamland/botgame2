@@ -1,8 +1,6 @@
+import networkx as nx
+
 def detect_connected_regions(view):
-    """
-    Detect all connected and visible regions
-    Returns: list of region dicts with calculated BFS layers and first step directions
-    """
     current_region = view.get('currentRegion', {}) or {}
     current_id = current_region.get('id')
     current_name = current_region.get('name') or current_id
@@ -63,20 +61,11 @@ def detect_connected_regions(view):
             })
             seen_ids.add(r_id)
 
-    # --- Perhitungan Graf & BFS Layering & First Step ---
-    adj = {}
-    def add_edge(u, v):
-        if u not in adj:
-            adj[u] = set()
-        if v not in adj:
-            adj[v] = set()
-        adj[u].add(v)
-        adj[v].add(u)
-
+    G = nx.Graph()
     if current_id:
         for conn in (current_region.get('connections', []) or []):
             if conn:
-                add_edge(current_id, conn)
+                G.add_edge(current_id, conn)
 
     for r_item in (view.get('visibleRegions', []) or []):
         if isinstance(r_item, dict):
@@ -84,27 +73,17 @@ def detect_connected_regions(view):
             if r_id:
                 for conn in (r_item.get('connections', []) or []):
                     if conn:
-                        add_edge(r_id, conn)
+                        G.add_edge(r_id, conn)
 
-    from collections import deque
     distances = {}
     first_step = {}
-    if current_id:
-        queue = deque([current_id])
-        distances[current_id] = 0
-        while queue:
-            u = queue.popleft()
-            curr_dist = distances[u]
-            for v in adj.get(u, []):
-                if v not in distances:
-                    distances[v] = curr_dist + 1
-                    if u == current_id:
-                        first_step[v] = v
-                    else:
-                        first_step[v] = first_step.get(u, v)
-                    queue.append(v)
+    if current_id and current_id in G:
+        distances = nx.single_source_shortest_path_length(G, current_id)
+        paths = nx.shortest_path(G, source=current_id)
+        for node, path in paths.items():
+            if len(path) > 1:
+                first_step[node] = path[1]
 
-    # Menyematkan layer jarak dan langkah pertama ke setiap item di detected_list
     for r in detected_list:
         r_id = r.get('id')
         dist = distances.get(r_id)
@@ -120,11 +99,10 @@ def detect_connected_regions(view):
 
 
 def detect_region_items(view):
-    """ Detect items and facilities in visible and connected regions """
     detected = {}
 
     current_region = view.get('currentRegion', {}) or {}
-    current_id = current_region.get('id')
+    current_id = current_region.get("id")
 
     visible_regions_map = {}
     for r in view.get('visibleRegions', []):
