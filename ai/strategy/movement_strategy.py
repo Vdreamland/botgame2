@@ -2,7 +2,7 @@ from ai.priority.region_loot_prior import is_item_needed
 from helpers.game_math import WEAPON_STATS
 
 def score_region_movement(region, is_death_zone_pending, hp, is_safe, enemy_count):
-    score = 50  # Nilai dasar pergerakan netral 50 pada skala 0-100
+    score = 50
     is_dead_zone = region.get("is_death_zone") or region.get("isDeathZone") or False
     if is_dead_zone:
         score -= 100
@@ -21,7 +21,7 @@ def score_region_movement(region, is_death_zone_pending, hp, is_safe, enemy_coun
             score -= 10 * enemy_count
     return max(0, min(100, score))
 
-def get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, interacted_ids, current_region, visible_agents, visible_monsters, visible_npcs, regions_list=None):
+def get_best_movement_action(connected_regions, visible_regions, pending_deathzones, hp, ep, is_safe, inventory, current_weapon, current_armor, interacted_ids, current_region, visible_agents, visible_monsters, visible_npcs, regions_list=None, alert_active=False):
     if ep < 2 or not connected_regions:
         return None
 
@@ -33,6 +33,9 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
     enemies_by_region = {}
     for enemy in (visible_agents or []) + (visible_monsters or []) + (visible_npcs or []):
         if not isinstance(enemy, dict):
+            continue
+        is_enemy_guardian = enemy.get("isGuardian", False) or "guardian" in str(enemy.get("id") or "").lower() or "guardian" in str(enemy.get("name") or "").lower()
+        if is_enemy_guardian and not alert_active:
             continue
         r_id = enemy.get("regionId") or enemy.get("region_id") or enemy.get("location")
         if r_id:
@@ -60,17 +63,15 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
             region_detail = visible_regions_map.get(r_id)
             val = 0
             
-            # 1. Ruins
             has_ruin = False
             r_name_lower = str(r_item.get("name", "")).lower()
             if "relic" in r_name_lower or "ruin" in r_name_lower or (region_detail and region_detail.get("ruins")):
                 ruin_obj = r_item.get("ruins") or (region_detail.get("ruins") if region_detail else None)
-                if not ruin_obj or str(ruin_obj.get("status", "")).lower() not in ("cleared", "completed", "finished"):
+                if not ruin_obj or str(ruin_obj.get("status", "")).lower() not in ("cleared", "completed", "finished", "depleted"):
                     has_ruin = True
             if has_ruin:
                 val += 15
                 
-            # 2. Ground Items & sMoltz
             if region_detail:
                 items_in_region = region_detail.get("items", []) or region_detail.get("groundItems", []) or []
                 for item in items_in_region:
@@ -82,13 +83,12 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
                                 val += 40
                             elif name_item_clean in WEAPON_STATS:
                                 if is_unarmed:
-                                    val += 50  # Weapon magnetism
+                                    val += 50
                                 elif is_item_needed(item_name, inventory, current_weapon, current_armor):
                                     val += 10
                             elif is_item_needed(item_name, inventory, current_weapon, current_armor):
                                 val += 10
 
-            # 3. Facilities (Ditambahkan proteksi anti ping-pong loop fasilitas lokal)
             if region_detail:
                 interactables = region_detail.get("interactables", []) or []
                 for inter in interactables:
@@ -128,7 +128,7 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
         score = score_region_movement(r, is_pending_dead, hp, is_safe, enemy_count)
 
         if ep < 3 and not is_urgent:
-            score -= 50  # Menekan pergerakan sia-sia saat EP tiris dan tidak mendesak
+            score -= 50
 
         if r_id and r_id in layer_bonuses:
             score += layer_bonuses[r_id]
@@ -138,7 +138,7 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
             r_name_lower = str(r.get("name", "")).lower()
             if "relic" in r_name_lower or "ruin" in r_name_lower or (region_detail and region_detail.get("ruins")):
                 ruin_obj = r.get("ruins") or (region_detail.get("ruins") if region_detail else None)
-                if not ruin_obj or str(ruin_obj.get("status", "")).lower() not in ("cleared", "completed", "finished"):
+                if not ruin_obj or str(ruin_obj.get("status", "")).lower() not in ("cleared", "completed", "finished", "depleted"):
                     has_ruid = True
             if has_ruid:
                 score += 15
@@ -167,7 +167,6 @@ def get_best_movement_action(connected_regions, visible_regions, pending_deathzo
                             elif name_clean == "supply_cache":
                                 score += 15
 
-        # Batas normalisasi pergerakan ditaruh maksimal di angka 85 agar tidak pernah mengalahkan pemulihan / combat darurat
         score = min(85, max(0, score))
         scored_regions.append((score, r))
 
