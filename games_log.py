@@ -201,7 +201,8 @@ async def handle_game_message(msg_type: str, msg: Dict[str, Any], context: Any):
             else:
                 print("Region Enemy detector : none")
             
-            can_act_msg = msg.get("canAct") or view.get("self", {}).get("canAct", False) or view.get("self", {}).get("can_act", False)
+            cooldown = view.get("self", {}).get("cooldownRemainingMs", 0)
+            can_act_msg = (cooldown == 0) or msg.get("canAct") or view.get("self", {}).get("canAct", False) or view.get("self", {}).get("can_act", False)
             if hp > 0 and can_act_msg:
                 await _execute_best_action(view, regions, context)
             
